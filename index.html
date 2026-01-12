@@ -436,9 +436,9 @@
             // Phase frame ranges (which frames belong to each phase)
             // Adjusted based on actual video content
             PHASES: [
-                { start: 0, end: 115 },     // Phase 1: frames 0-115 (circle forming, light bg)
-                { start: 116, end: 205 },   // Phase 2: frames 116-205 (dark background)
-                { start: 206, end: 272 }    // Phase 3: frames 206-272 (badge forming, light bg)
+                { start: 0, end: 106 },     // Phase 1: frames 0-106 (auto-play on load)
+                { start: 107, end: 207 },   // Phase 2: frames 107-207 (scroll to play)
+                { start: 208, end: 272 }    // Phase 3: frames 208-272 (scroll to play)
             ],
 
             // Timing (in milliseconds)
@@ -849,7 +849,10 @@
             // Setup event listeners
             initEventListeners();
 
-            // No autoplay - wait for user to scroll
+            // Auto-play Phase 1 on load
+            setTimeout(() => {
+                playCurrentPhase();
+            }, 500);
         }
 
         // Start initialization
