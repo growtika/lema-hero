@@ -730,6 +730,7 @@
         const SCROLL_LOCK_DURATION = 1500; // 1.5 second lock
 
         function shouldHijackScroll(deltaY) {
+            // Only hijack scroll DOWN, never scroll up
             if (deltaY > 0) {
                 // Scroll down - hijack unless we're done with all phases
                 const isLastPhase = currentPhase === CONFIG.PHASES.length - 1;
@@ -738,25 +739,16 @@
                     return false;
                 }
                 return true;
-            } else if (deltaY < 0) {
-                // Scroll up - hijack only if we're not at the first phase start
-                // Allow natural scroll when at phase 0 start
-                if (currentPhase === 0 && currentFrame <= CONFIG.PHASES[0].start) {
-                    return false;
-                }
-                return true;
             }
+            // Never hijack scroll up - always allow natural scrolling
             return false;
         }
 
         function handleScroll(deltaY) {
             const now = Date.now();
 
-            // Shorter cooldown for scroll up (instant feel)
-            const cooldown = deltaY < 0 ? 300 : SCROLL_LOCK_DURATION;
-
             // Time-based lock
-            if (now - lastScrollActionTime < cooldown) {
+            if (now - lastScrollActionTime < SCROLL_LOCK_DURATION) {
                 return;
             }
 
@@ -765,30 +757,11 @@
                 return;
             }
 
-            // Lock immediately with timestamp
-            lastScrollActionTime = now;
-
+            // Only handle scroll down
             if (deltaY > 0) {
-                // Scroll down - play current phase animation
+                lastScrollActionTime = now;
                 playCurrentPhase();
-            } else if (deltaY < 0) {
-                // Scroll up - instantly jump to previous phase end
-                jumpToPreviousPhase();
             }
-        }
-
-        function jumpToPreviousPhase() {
-            if (currentPhase <= 0) return;
-
-            const prevPhase = currentPhase - 1;
-            const targetFrame = CONFIG.PHASES[prevPhase].end;
-
-            // Instantly update state and render
-            currentPhase = prevPhase;
-            currentFrame = targetFrame;
-            renderFrame(currentFrame);
-            updatePhaseUI(currentPhase);
-            state = 'stopped';
         }
 
         function playCurrentPhase() {
