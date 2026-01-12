@@ -436,9 +436,9 @@
             // Phase frame ranges (which frames belong to each phase)
             // Adjusted based on actual video content
             PHASES: [
-                { start: 0, end: 106 },     // Phase 1: frames 0-106 (auto-play on load)
-                { start: 107, end: 207 },   // Phase 2: frames 107-207 (scroll to play)
-                { start: 208, end: 272 }    // Phase 3: frames 208-272 (scroll to play)
+                { start: 0, end: 106, textAt: 0 },       // Phase 1: frames 0-106, text shows at start
+                { start: 107, end: 207, textAt: 137 },   // Phase 2: frames 107-207, text shows at 137
+                { start: 208, end: 272, textAt: 208 }    // Phase 3: frames 208-272, text shows at start
             ],
 
             // Timing (in milliseconds)
@@ -655,7 +655,7 @@
                     if (currentPhase < CONFIG.PHASES.length - 1) {
                         currentPhase++;
                         currentFrame = CONFIG.PHASES[currentPhase].start;
-                        updatePhaseUI(currentPhase);
+                        // Don't show text yet - wait for textAt frame
                         renderFrame(currentFrame);
                     }
                     return;
@@ -670,6 +670,12 @@
 
                 renderFrame(currentFrame);
                 lastFrameTime = now;
+
+                // Check if we've reached the textAt frame for current phase
+                const textAtFrame = CONFIG.PHASES[currentPhase].textAt;
+                if (currentFrame === textAtFrame) {
+                    updatePhaseUI(currentPhase);
+                }
             }
 
             scheduleNextFrame();
