@@ -745,11 +745,30 @@
             // Lock immediately with timestamp
             lastScrollActionTime = now;
 
-            // Only respond to scroll down
             if (deltaY > 0) {
-                // Play current phase animation
+                // Scroll down - play current phase animation
                 playCurrentPhase();
+            } else if (deltaY < 0) {
+                // Scroll up - jump to previous phase's end frame
+                if (currentPhase > 0) {
+                    jumpToPreviousPhase();
+                }
             }
+        }
+
+        function jumpToPreviousPhase() {
+            const prevPhase = currentPhase - 1;
+            const targetFrame = CONFIG.PHASES[prevPhase].end;
+
+            // Update state
+            currentPhase = prevPhase;
+            currentFrame = targetFrame;
+
+            // Render the frame and update UI instantly
+            renderFrame(currentFrame);
+            updatePhaseUI(currentPhase);
+
+            state = 'stopped';
         }
 
         function playCurrentPhase() {
