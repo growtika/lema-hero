@@ -1,0 +1,753 @@
+<!--
+============================================
+LEMA HERO ANIMATION - WEBFLOW SETUP GUIDE
+============================================
+
+STEP 1: Upload your WebP frames to Webflow Assets or a CDN
+- Upload all 273 frames (Lema_HP_Desktop_Kaleidoscope.00000.webp to 00272.webp)
+- Copy the base URL (everything before the filename)
+
+STEP 2: Add GSAP to your project
+- Go to Project Settings > Custom Code > Head Code
+- Add: <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+STEP 3: Add the CSS below to Project Settings > Custom Code > Head Code
+- Wrap it in <style> tags
+
+STEP 4: Build the HTML structure in Webflow Designer (see structure below)
+
+STEP 5: Add the JavaScript to the page
+- Add an Embed element at the bottom of the page body
+- Paste the JavaScript (wrapped in <script> tags)
+- UPDATE the FRAME_PATH to your CDN URL
+
+============================================
+-->
+
+
+<!-- ==========================================
+     PART 1: CSS (Add to Project Settings > Custom Code > Head Code)
+     Wrap in <style> tags
+========================================== -->
+
+<style>
+/* Lema Hero Animation Styles */
+.lema-loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #F5F3F0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+
+.lema-loader.is-hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.lema-loader__text {
+    color: #3D2314;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    letter-spacing: 0.05em;
+    font-weight: 500;
+}
+
+.lema-loader__bar-wrap {
+    width: 180px;
+    height: 3px;
+    background: rgba(61, 35, 20, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.lema-loader__bar {
+    height: 100%;
+    width: 0%;
+    background: #3D2314;
+    border-radius: 2px;
+    transition: width 0.1s ease;
+}
+
+.lema-loader__percent {
+    color: rgba(61, 35, 20, 0.5);
+    font-size: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.lema-hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.lema-hero__canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.lema-hero__overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+    pointer-events: none;
+}
+
+.lema-hero__overlay.is-active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.lema-hero__content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.lema-hero__label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.lema-hero__headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.lema-hero__text {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.lema-hero__cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.lema-hero__cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* Phase 1 - Light Background */
+.lema-hero__overlay--phase1 .lema-hero__content {
+    color: #3D2314;
+}
+
+.lema-hero__overlay--phase1 .lema-hero__text {
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.lema-hero__overlay--phase1 .lema-hero__cta {
+    background: #3D2314;
+    color: #F5F3F0;
+}
+
+/* Phase 2 - Dark Background */
+.lema-hero__overlay--phase2 .lema-hero__content {
+    color: #FFFFFF;
+}
+
+.lema-hero__overlay--phase2 .lema-hero__label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.lema-hero__overlay--phase2 .lema-hero__text {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* Phase 3 - Light Background */
+.lema-hero__overlay--phase3 .lema-hero__content {
+    color: #3D2314;
+}
+
+.lema-hero__overlay--phase3 .lema-hero__text {
+    color: rgba(61, 35, 20, 0.75);
+}
+
+/* Phase Indicators */
+.lema-hero__indicators {
+    position: absolute;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 0.5rem;
+    z-index: 100;
+}
+
+.lema-hero__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(61, 35, 20, 0.25);
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+}
+
+.lema-hero__dot:hover {
+    transform: scale(1.3);
+}
+
+.lema-hero__dot.is-active {
+    background: #3D2314;
+}
+
+/* Dark phase indicators */
+.lema-hero.is-dark-phase .lema-hero__dot {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.lema-hero.is-dark-phase .lema-hero__dot.is-active {
+    background: #FFFFFF;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+    .lema-hero__headline {
+        font-size: 2.5rem;
+    }
+
+    .lema-hero__text {
+        font-size: 0.95rem;
+        max-width: 500px;
+    }
+
+    .lema-hero__content {
+        max-width: 600px;
+    }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 768px) {
+    .lema-hero__overlay {
+        padding: 1rem;
+    }
+
+    .lema-hero__content {
+        max-width: 100%;
+        padding: 0 0.5rem;
+    }
+
+    .lema-hero__label {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.5rem;
+    }
+
+    .lema-hero__headline {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+
+    .lema-hero__text {
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+
+    .lema-hero__cta {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        margin-top: 1.25rem;
+    }
+
+    .lema-hero__indicators {
+        bottom: 1.5rem;
+    }
+
+    .lema-hero__dot {
+        width: 7px;
+        height: 7px;
+    }
+}
+
+/* Responsive - Small Mobile */
+@media (max-width: 480px) {
+    .lema-hero__headline {
+        font-size: 1.5rem;
+    }
+
+    .lema-hero__text {
+        font-size: 0.8rem;
+    }
+}
+</style>
+
+
+<!-- ==========================================
+     PART 2: HTML STRUCTURE (Build in Webflow Designer)
+
+     Create these elements with the class names shown.
+     You can style them further in Webflow, but keep the class names.
+========================================== -->
+
+<!-- Loading Screen (Add as first element in body) -->
+<div class="lema-loader" id="lemaLoader">
+    <div class="lema-loader__text">Loading Experience</div>
+    <div class="lema-loader__bar-wrap">
+        <div class="lema-loader__bar" id="lemaLoaderBar"></div>
+    </div>
+    <div class="lema-loader__percent" id="lemaLoaderPercent">0%</div>
+</div>
+
+<!-- Hero Section -->
+<section class="lema-hero" id="lemaHero">
+    <!-- Canvas (Add via Embed element) -->
+    <canvas class="lema-hero__canvas" id="lemaCanvas"></canvas>
+
+    <!-- Phase 1 Overlay -->
+    <div class="lema-hero__overlay lema-hero__overlay--phase1 is-active" id="lemaOverlay1">
+        <div class="lema-hero__content">
+            <h1 class="lema-hero__headline">Think outside the checkbox</h1>
+            <p class="lema-hero__text">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+            <a href="#demo" class="lema-hero__cta">Get a Demo</a>
+        </div>
+    </div>
+
+    <!-- Phase 2 Overlay -->
+    <div class="lema-hero__overlay lema-hero__overlay--phase2" id="lemaOverlay2">
+        <div class="lema-hero__content">
+            <span class="lema-hero__label">Third Parties</span>
+            <h1 class="lema-hero__headline">Your new single point of failure</h1>
+            <p class="lema-hero__text">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl. There are more third parties than ever before, and every AI tool is wired straight into the heart of your business – yet legacy TPRM treats them like static vendors.</p>
+        </div>
+    </div>
+
+    <!-- Phase 3 Overlay -->
+    <div class="lema-hero__overlay lema-hero__overlay--phase3" id="lemaOverlay3">
+        <div class="lema-hero__content">
+            <h1 class="lema-hero__headline">The rise of the Risk Engineer</h1>
+            <p class="lema-hero__text">Like a needle in a tech stack, vendor risk hides in endless data. Finding it means matching every artifact, control, and compliance doc. That's what Risk Engineers were born to do.</p>
+        </div>
+    </div>
+
+    <!-- Phase Indicators -->
+    <div class="lema-hero__indicators" id="lemaIndicators">
+        <div class="lema-hero__dot is-active" data-phase="0"></div>
+        <div class="lema-hero__dot" data-phase="1"></div>
+        <div class="lema-hero__dot" data-phase="2"></div>
+    </div>
+</section>
+
+
+<!-- ==========================================
+     PART 3: JAVASCRIPT (Add via Embed element at bottom of page)
+
+     IMPORTANT: Update FRAME_PATH to your CDN URL!
+========================================== -->
+
+<script>
+(function() {
+    'use strict';
+
+    /* ============================================
+       CONFIGURATION - UPDATE FRAME_PATH!
+    ============================================ */
+    const CONFIG = {
+        // UPDATE THIS TO YOUR CDN URL:
+        FRAME_PATH: 'https://your-cdn.com/frames/',
+        // Example: 'https://uploads-ssl.webflow.com/abc123/frames/'
+
+        FRAME_PREFIX: 'Lema_HP_Desktop_Kaleidoscope.',
+        FRAME_EXTENSION: '.webp',
+        TOTAL_FRAMES: 273,
+        FRAME_PADDING: 5,
+
+        PHASES: [
+            { start: 0, end: 119 },
+            { start: 120, end: 219 },
+            { start: 220, end: 272 }
+        ],
+
+        PHASE_DWELL_TIME: 2500,
+        FRAME_DURATION: 33,
+        LOOP_ENABLED: true
+    };
+
+    /* ============================================
+       DOM ELEMENTS
+    ============================================ */
+    const canvas = document.getElementById('lemaCanvas');
+    const ctx = canvas.getContext('2d');
+    const loader = document.getElementById('lemaLoader');
+    const loaderBar = document.getElementById('lemaLoaderBar');
+    const loaderPercent = document.getElementById('lemaLoaderPercent');
+    const heroSection = document.getElementById('lemaHero');
+    const overlays = [
+        document.getElementById('lemaOverlay1'),
+        document.getElementById('lemaOverlay2'),
+        document.getElementById('lemaOverlay3')
+    ];
+    const phaseDots = document.querySelectorAll('.lema-hero__dot');
+
+    /* ============================================
+       STATE
+    ============================================ */
+    const frames = [];
+    let imagesLoaded = 0;
+    let currentFrame = 0;
+    let currentPhase = 0;
+    let rafId = null;
+    let state = 'stopped';
+    let lastFrameTime = 0;
+    let dwellStartTime = 0;
+    let lastScrollActionTime = 0;
+    let jumpCompleteTime = 0;
+    const SCROLL_LOCK_DURATION = 2000;
+
+    /* ============================================
+       FRAME LOADING
+    ============================================ */
+    function getFramePath(index) {
+        const paddedNumber = String(index).padStart(CONFIG.FRAME_PADDING, '0');
+        return `${CONFIG.FRAME_PATH}${CONFIG.FRAME_PREFIX}${paddedNumber}${CONFIG.FRAME_EXTENSION}`;
+    }
+
+    function preloadFrames() {
+        return new Promise((resolve) => {
+            for (let i = 0; i < CONFIG.TOTAL_FRAMES; i++) {
+                const img = new Image();
+                img.crossOrigin = 'anonymous';
+
+                img.onload = () => {
+                    imagesLoaded++;
+                    const progress = Math.round((imagesLoaded / CONFIG.TOTAL_FRAMES) * 100);
+                    loaderBar.style.width = `${progress}%`;
+                    loaderPercent.textContent = `${progress}%`;
+
+                    if (imagesLoaded === CONFIG.TOTAL_FRAMES) {
+                        resolve();
+                    }
+                };
+
+                img.onerror = () => {
+                    console.warn(`Failed to load frame: ${getFramePath(i)}`);
+                    imagesLoaded++;
+                    if (imagesLoaded === CONFIG.TOTAL_FRAMES) {
+                        resolve();
+                    }
+                };
+
+                img.src = getFramePath(i);
+                frames[i] = img;
+            }
+        });
+    }
+
+    /* ============================================
+       CANVAS RENDERING
+    ============================================ */
+    function setCanvasSize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+
+    function renderFrame(frameIndex) {
+        frameIndex = Math.max(0, Math.min(frameIndex, CONFIG.TOTAL_FRAMES - 1));
+        const frame = frames[frameIndex];
+        if (!frame || !frame.complete) return;
+
+        const canvasRatio = canvas.width / canvas.height;
+        const frameRatio = frame.naturalWidth / frame.naturalHeight;
+
+        let drawWidth, drawHeight, drawX, drawY;
+
+        if (frameRatio > canvasRatio) {
+            drawHeight = canvas.height;
+            drawWidth = frame.naturalWidth * (canvas.height / frame.naturalHeight);
+            drawX = (canvas.width - drawWidth) / 2;
+            drawY = 0;
+        } else {
+            drawWidth = canvas.width;
+            drawHeight = frame.naturalHeight * (canvas.width / frame.naturalWidth);
+            drawX = 0;
+            drawY = (canvas.height - drawHeight) / 2;
+        }
+
+        ctx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+    }
+
+    /* ============================================
+       PHASE MANAGEMENT
+    ============================================ */
+    function getPhaseForFrame(frameIndex) {
+        for (let i = 0; i < CONFIG.PHASES.length; i++) {
+            if (frameIndex >= CONFIG.PHASES[i].start && frameIndex <= CONFIG.PHASES[i].end) {
+                return i;
+            }
+        }
+        return CONFIG.PHASES.length - 1;
+    }
+
+    function updatePhaseUI(phaseIndex) {
+        overlays.forEach((overlay, i) => {
+            if (i === phaseIndex) {
+                overlay.classList.add('is-active');
+            } else {
+                overlay.classList.remove('is-active');
+            }
+        });
+
+        phaseDots.forEach((dot, i) => {
+            if (i === phaseIndex) {
+                dot.classList.add('is-active');
+            } else {
+                dot.classList.remove('is-active');
+            }
+        });
+
+        if (phaseIndex === 1) {
+            heroSection.classList.add('is-dark-phase');
+        } else {
+            heroSection.classList.remove('is-dark-phase');
+        }
+
+        currentPhase = phaseIndex;
+    }
+
+    /* ============================================
+       ANIMATION ENGINE
+    ============================================ */
+    function play() {
+        if (state === 'playing' || state === 'dwelling') return;
+        state = 'playing';
+        lastFrameTime = performance.now();
+        scheduleNextFrame();
+    }
+
+    function stop() {
+        state = 'stopped';
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+    }
+
+    function scheduleNextFrame() {
+        rafId = requestAnimationFrame(tick);
+    }
+
+    function tick(now) {
+        if (state === 'dwelling') {
+            if (now - dwellStartTime >= CONFIG.PHASE_DWELL_TIME) {
+                if (CONFIG.LOOP_ENABLED) {
+                    currentFrame = 0;
+                    currentPhase = 0;
+                    updatePhaseUI(0);
+                    renderFrame(currentFrame);
+                    state = 'playing';
+                    lastFrameTime = now;
+                } else {
+                    stop();
+                    return;
+                }
+            }
+            scheduleNextFrame();
+            return;
+        }
+
+        if (state === 'jumping') return;
+        if (state !== 'playing') return;
+
+        const elapsed = now - lastFrameTime;
+        if (elapsed >= CONFIG.FRAME_DURATION) {
+            currentFrame++;
+
+            if (currentFrame >= CONFIG.TOTAL_FRAMES) {
+                currentFrame = CONFIG.TOTAL_FRAMES - 1;
+                state = 'dwelling';
+                dwellStartTime = now;
+                scheduleNextFrame();
+                return;
+            }
+
+            renderFrame(currentFrame);
+            lastFrameTime = now;
+
+            const newPhase = getPhaseForFrame(currentFrame);
+            if (newPhase !== currentPhase) {
+                currentPhase = newPhase;
+                updatePhaseUI(newPhase);
+            }
+        }
+
+        scheduleNextFrame();
+    }
+
+    /* ============================================
+       PHASE JUMPING
+    ============================================ */
+    function jumpToPhase(phaseIndex) {
+        if (state === 'jumping') return;
+        if (phaseIndex < 0 || phaseIndex >= CONFIG.PHASES.length) return;
+        if (phaseIndex === currentPhase && state === 'playing') return;
+
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = null;
+        }
+
+        state = 'jumping';
+        const targetFrame = CONFIG.PHASES[phaseIndex].start;
+        updatePhaseUI(phaseIndex);
+
+        canvas.style.transition = 'opacity 0.25s ease-out';
+        canvas.style.opacity = '0.3';
+
+        setTimeout(() => {
+            currentFrame = targetFrame;
+            renderFrame(currentFrame);
+            canvas.style.opacity = '1';
+
+            setTimeout(() => {
+                canvas.style.transition = '';
+                state = 'playing';
+                lastFrameTime = performance.now();
+                jumpCompleteTime = Date.now();
+                scheduleNextFrame();
+            }, 250);
+        }, 250);
+    }
+
+    /* ============================================
+       SCROLL HANDLING
+    ============================================ */
+    function handleScroll(deltaY) {
+        const now = Date.now();
+
+        if (now - lastScrollActionTime < SCROLL_LOCK_DURATION) return;
+        if (now - jumpCompleteTime < SCROLL_LOCK_DURATION) return;
+        if (state === 'jumping') return;
+
+        lastScrollActionTime = now;
+
+        if (deltaY > 0) {
+            const nextPhase = currentPhase + 1;
+            if (nextPhase < CONFIG.PHASES.length) {
+                jumpToPhase(nextPhase);
+            }
+        } else if (deltaY < 0) {
+            const prevPhase = currentPhase - 1;
+            if (prevPhase >= 0) {
+                jumpToPhase(prevPhase);
+            }
+        }
+    }
+
+    /* ============================================
+       TOUCH HANDLING
+    ============================================ */
+    let touchStartY = 0;
+    let touchStartTime = 0;
+
+    function handleTouchStart(e) {
+        touchStartY = e.touches[0].clientY;
+        touchStartTime = Date.now();
+    }
+
+    function handleTouchEnd(e) {
+        const touchEndY = e.changedTouches[0].clientY;
+        const touchEndTime = Date.now();
+        const deltaY = touchStartY - touchEndY;
+        const deltaTime = touchEndTime - touchStartTime;
+
+        if (Math.abs(deltaY) > 50 && deltaTime < 500) {
+            handleScroll(deltaY);
+        }
+    }
+
+    /* ============================================
+       EVENT LISTENERS
+    ============================================ */
+    function initEventListeners() {
+        heroSection.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            handleScroll(e.deltaY);
+        }, { passive: false });
+
+        heroSection.addEventListener('touchstart', handleTouchStart, { passive: true });
+        heroSection.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+        phaseDots.forEach(dot => {
+            dot.addEventListener('click', (e) => {
+                const phaseIndex = parseInt(e.target.dataset.phase);
+                if (!isNaN(phaseIndex)) {
+                    jumpToPhase(phaseIndex);
+                }
+            });
+        });
+
+        window.addEventListener('resize', () => {
+            setCanvasSize();
+            renderFrame(currentFrame);
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                stop();
+            } else {
+                play();
+            }
+        });
+    }
+
+    /* ============================================
+       INITIALIZATION
+    ============================================ */
+    async function init() {
+        setCanvasSize();
+        await preloadFrames();
+        renderFrame(0);
+        updatePhaseUI(0);
+        loader.classList.add('is-hidden');
+        initEventListeners();
+        setTimeout(() => play(), 500);
+    }
+
+    // Start when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+</script>

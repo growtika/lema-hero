@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Hybrid Animation</title>
+
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+    <style>
+        /* ============================================
+           RESET & BASE STYLES
+        ============================================ */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #F5F3F0;
+        }
+
+        /* ============================================
+           LOADING STATE
+        ============================================ */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #F5F3F0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+
+        .loader-text {
+            color: #3D2314;
+            font-size: 1rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            font-weight: 500;
+        }
+
+        .loader-bar-container {
+            width: 180px;
+            height: 3px;
+            background: rgba(61, 35, 20, 0.15);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .loader-bar {
+            height: 100%;
+            width: 0%;
+            background: #3D2314;
+            border-radius: 2px;
+            transition: width 0.1s ease;
+        }
+
+        .loader-percent {
+            color: rgba(61, 35, 20, 0.5);
+            font-size: 0.75rem;
+            margin-top: 0.75rem;
+        }
+
+        /* ============================================
+           HERO SECTION
+        ============================================ */
+        .hero-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ============================================
+           CANVAS STYLES
+        ============================================ */
+        .hero-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* ============================================
+           TEXT OVERLAYS - Common Styles
+        ============================================ */
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+            pointer-events: none;
+        }
+
+        .hero-overlay.active {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .hero-content {
+            text-align: center;
+            max-width: 720px;
+            padding: 0 1rem;
+        }
+
+        .hero-label {
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .hero-headline {
+            font-size: 3rem;
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 1.25rem;
+            letter-spacing: -0.02em;
+        }
+
+        .hero-subtext {
+            font-size: 1rem;
+            line-height: 1.65;
+            max-width: 580px;
+            margin: 0 auto;
+            font-weight: 400;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            margin-top: 1.75rem;
+            padding: 0.875rem 2rem;
+            font-size: 0.9rem;
+            font-weight: 600;
+            text-decoration: none;
+            border-radius: 3px;
+            transition: transform 0.2s ease, opacity 0.2s ease;
+            pointer-events: auto;
+        }
+
+        .hero-cta:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        /* ============================================
+           PHASE 1 - Light Background, Dark Text
+        ============================================ */
+        .overlay-phase1 .hero-content {
+            color: #3D2314;
+        }
+
+        .overlay-phase1 .hero-subtext {
+            color: rgba(61, 35, 20, 0.75);
+        }
+
+        .overlay-phase1 .hero-cta {
+            background: #3D2314;
+            color: #F5F3F0;
+        }
+
+        /* ============================================
+           PHASE 2 - Dark Background, White Text
+        ============================================ */
+        .overlay-phase2 .hero-content {
+            color: #FFFFFF;
+        }
+
+        .overlay-phase2 .hero-label {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .overlay-phase2 .hero-subtext {
+            color: rgba(255, 255, 255, 0.8);
+        }
+
+        /* ============================================
+           PHASE 3 - Light Background, Dark Text
+        ============================================ */
+        .overlay-phase3 .hero-content {
+            color: #3D2314;
+        }
+
+        .overlay-phase3 .hero-subtext {
+            color: rgba(61, 35, 20, 0.75);
+        }
+
+        /* ============================================
+           PHASE INDICATORS
+        ============================================ */
+        .phase-indicators {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 0.5rem;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+
+        .phase-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(61, 35, 20, 0.25);
+            cursor: pointer;
+            transition: background 0.3s ease, transform 0.2s ease;
+        }
+
+        .phase-dot:hover {
+            transform: scale(1.3);
+        }
+
+        .phase-dot.active {
+            background: #3D2314;
+        }
+
+        /* Dark phase indicators */
+        .hero-section.dark-phase .phase-dot {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .hero-section.dark-phase .phase-dot.active {
+            background: #FFFFFF;
+        }
+
+        /* ============================================
+           SCROLL HINT - Hidden by default
+        ============================================ */
+        .scroll-hint {
+            display: none;
+        }
+
+        /* ============================================
+           RESPONSIVE - Tablet
+        ============================================ */
+        @media (max-width: 1024px) {
+            .hero-headline {
+                font-size: 2.5rem;
+            }
+
+            .hero-subtext {
+                font-size: 0.95rem;
+                max-width: 500px;
+            }
+
+            .hero-content {
+                max-width: 600px;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE - Mobile
+        ============================================ */
+        @media (max-width: 768px) {
+            .hero-overlay {
+                padding: 1rem;
+            }
+
+            .hero-content {
+                max-width: 100%;
+                padding: 0 0.5rem;
+            }
+
+            .hero-label {
+                font-size: 0.65rem;
+                letter-spacing: 0.15em;
+                margin-bottom: 0.5rem;
+            }
+
+            .hero-headline {
+                font-size: 1.75rem;
+                margin-bottom: 1rem;
+            }
+
+            .hero-subtext {
+                font-size: 0.875rem;
+                line-height: 1.6;
+            }
+
+            .hero-cta {
+                padding: 0.75rem 1.5rem;
+                font-size: 0.85rem;
+                margin-top: 1.25rem;
+            }
+
+            .phase-indicators {
+                bottom: 1.5rem;
+            }
+
+            .phase-dot {
+                width: 7px;
+                height: 7px;
+            }
+        }
+
+        /* ============================================
+           RESPONSIVE - Small Mobile
+        ============================================ */
+        @media (max-width: 480px) {
+            .hero-headline {
+                font-size: 1.5rem;
+            }
+
+            .hero-subtext {
+                font-size: 0.8rem;
+            }
+        }
+
+        /* ============================================
+           CONTENT AFTER HERO (placeholder)
+        ============================================ */
+        .content-section {
+            padding: 100px 20px;
+            background: #fff;
+            text-align: center;
+            min-height: 50vh;
+        }
+
+        .content-section h2 {
+            font-size: 2rem;
+            color: #3D2314;
+            margin-bottom: 1rem;
+        }
+
+        .content-section p {
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen (hidden) -->
+    <div class="loader hidden" id="loader"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="heroSection">
+        <!-- Canvas for frame animation -->
+        <canvas class="hero-canvas" id="heroCanvas"></canvas>
+
+        <!-- PHASE 1 - Light Theme -->
+        <div class="hero-overlay overlay-phase1 active" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <!-- PHASE 2 - Dark Theme -->
+        <div class="hero-overlay overlay-phase2" id="overlay2">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl. There are more third parties than ever before, and every AI tool is wired straight into the heart of your business – yet legacy TPRM treats them like static vendors.</p>
+            </div>
+        </div>
+
+        <!-- PHASE 3 - Light Theme -->
+        <div class="hero-overlay overlay-phase3" id="overlay3">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data. Finding it means matching every artifact, control, and compliance doc. That's what Risk Engineers were born to do.</p>
+            </div>
+        </div>
+
+        <!-- Phase Indicators -->
+        <div class="phase-indicators" id="phaseIndicators">
+            <div class="phase-dot active" data-phase="0"></div>
+            <div class="phase-dot" data-phase="1"></div>
+            <div class="phase-dot" data-phase="2"></div>
+        </div>
+
+        <!-- Scroll Hint -->
+        <div class="scroll-hint" id="scrollHint">Scroll to skip</div>
+    </section>
+
+    <!-- Content After Hero (placeholder) -->
+    <section class="content-section">
+        <h2>Welcome to Lema</h2>
+        <p>Continue scrolling to explore more content. This section appears after the hero animation completes.</p>
+    </section>
+
+    <script>
+        /* ============================================
+           CONFIGURATION
+
+           UPDATE THESE VALUES FOR PRODUCTION:
+           - FRAME_PATH: Base URL to your hosted WebP frames
+           - FRAME_PREFIX: Filename prefix before the number
+           - FRAME_EXTENSION: File extension
+           - TOTAL_FRAMES: Total number of frames
+           - FRAME_PADDING: Number of digits in frame number
+        ============================================ */
+        const CONFIG = {
+            // For local testing (files in same directory as HTML)
+            FRAME_PATH: './',
+
+            // For Webflow/CDN hosting, update to your CDN URL:
+            // FRAME_PATH: 'https://your-cdn.com/frames/',
+
+            FRAME_PREFIX: 'Lema_HP_Desktop_Kaleidoscope.',
+            FRAME_EXTENSION: '.webp',
+            TOTAL_FRAMES: 273,  // Frames numbered 00000 to 00272
+            FRAME_PADDING: 5,   // 5 digits: 00000, 00001, etc.
+
+            // Phase frame ranges (which frames belong to each phase)
+            // Adjusted based on actual video content
+            PHASES: [
+                { start: 0, end: 129 },     // Phase 1: frames 0-129 (circle forming, light bg)
+                { start: 130, end: 219 },   // Phase 2: frames 130-219 (dark background)
+                { start: 220, end: 272 }    // Phase 3: frames 220-272 (badge forming, light bg)
+            ],
+
+            // Timing (in milliseconds)
+            PHASE_DWELL_TIME: 2500,         // How long to hold at end of full animation
+            FRAME_DURATION: 33,             // ~30fps for autoplay (natural video speed)
+            TRANSITION_DURATION: 600,       // Duration for phase jump animations
+            SCROLL_COOLDOWN: 700,           // Cooldown between scroll jumps
+
+            // Loop behavior
+            LOOP_ENABLED: true
+        };
+
+        /* ============================================
+           DOM ELEMENTS
+        ============================================ */
+        const canvas = document.getElementById('heroCanvas');
+        const ctx = canvas.getContext('2d');
+        const loader = document.getElementById('loader');
+        const heroSection = document.getElementById('heroSection');
+        const overlays = [
+            document.getElementById('overlay1'),
+            document.getElementById('overlay2'),
+            document.getElementById('overlay3')
+        ];
+        const phaseDots = document.querySelectorAll('.phase-dot');
+        const scrollHint = document.getElementById('scrollHint');
+
+        /* ============================================
+           STATE
+        ============================================ */
+        const frames = [];
+        let imagesLoaded = 0;
+        let currentFrame = 0;
+        let currentPhase = 0;
+        let lastScrollTime = 0;
+
+        // Animation state - simplified
+        let rafId = null;
+        let state = 'stopped'; // 'playing', 'dwelling', 'jumping', 'stopped'
+
+        /* ============================================
+           FRAME LOADING - Store images in array for instant access
+        ============================================ */
+        function getFramePath(index) {
+            const paddedNumber = String(index).padStart(CONFIG.FRAME_PADDING, '0');
+            return `${CONFIG.FRAME_PATH}${CONFIG.FRAME_PREFIX}${paddedNumber}${CONFIG.FRAME_EXTENSION}`;
+        }
+
+        function preloadFrames() {
+            return new Promise((resolve) => {
+                for (let i = 0; i < CONFIG.TOTAL_FRAMES; i++) {
+                    const img = new Image();
+
+                    img.onload = () => {
+                        imagesLoaded++;
+                        if (imagesLoaded === CONFIG.TOTAL_FRAMES) {
+                            resolve();
+                        }
+                    };
+
+                    img.onerror = () => {
+                        console.warn(`Failed to load frame: ${getFramePath(i)}`);
+                        imagesLoaded++;
+                        if (imagesLoaded === CONFIG.TOTAL_FRAMES) {
+                            resolve();
+                        }
+                    };
+
+                    // Set src AFTER setting onload handler
+                    img.src = getFramePath(i);
+                    frames[i] = img;
+                }
+            });
+        }
+
+        /* ============================================
+           CANVAS RENDERING - Draw directly from cached images
+        ============================================ */
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function renderFrame(frameIndex) {
+            // Clamp to valid range
+            frameIndex = Math.max(0, Math.min(frameIndex, CONFIG.TOTAL_FRAMES - 1));
+
+            const frame = frames[frameIndex];
+            if (!frame) return;
+
+            // Calculate dimensions to cover canvas (object-fit: cover)
+            const canvasRatio = canvas.width / canvas.height;
+            const frameRatio = frame.naturalWidth / frame.naturalHeight;
+
+            let drawWidth, drawHeight, drawX, drawY;
+
+            if (frameRatio > canvasRatio) {
+                drawHeight = canvas.height;
+                drawWidth = frame.naturalWidth * (canvas.height / frame.naturalHeight);
+                drawX = (canvas.width - drawWidth) / 2;
+                drawY = 0;
+            } else {
+                drawWidth = canvas.width;
+                drawHeight = frame.naturalHeight * (canvas.width / frame.naturalWidth);
+                drawX = 0;
+                drawY = (canvas.height - drawHeight) / 2;
+            }
+
+            ctx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+        }
+
+        /* ============================================
+           PHASE MANAGEMENT
+        ============================================ */
+        function getPhaseForFrame(frameIndex) {
+            for (let i = 0; i < CONFIG.PHASES.length; i++) {
+                if (frameIndex >= CONFIG.PHASES[i].start && frameIndex <= CONFIG.PHASES[i].end) {
+                    return i;
+                }
+            }
+            return CONFIG.PHASES.length - 1;
+        }
+
+        function updatePhaseUI(phaseIndex) {
+            // Update overlays
+            overlays.forEach((overlay, i) => {
+                if (i === phaseIndex) {
+                    overlay.classList.add('active');
+                } else {
+                    overlay.classList.remove('active');
+                }
+            });
+
+            // Update phase dots
+            phaseDots.forEach((dot, i) => {
+                if (i === phaseIndex) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+
+            // Toggle dark-phase class for Phase 2 (dark background)
+            if (phaseIndex === 1) {
+                heroSection.classList.add('dark-phase');
+            } else {
+                heroSection.classList.remove('dark-phase');
+            }
+
+            currentPhase = phaseIndex;
+        }
+
+        /* ============================================
+           ANIMATION ENGINE - Continuous playback with text changes at phase boundaries
+        ============================================ */
+        let lastFrameTime = 0;
+        let dwellStartTime = 0;
+
+        function play() {
+            if (state === 'playing' || state === 'dwelling') return;
+            state = 'playing';
+            lastFrameTime = performance.now();
+            scheduleNextFrame();
+        }
+
+        function stop() {
+            state = 'stopped';
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        }
+
+        function scheduleNextFrame() {
+            rafId = requestAnimationFrame(tick);
+        }
+
+        // Get which phase a frame belongs to
+        function getPhaseForFrame(frameIndex) {
+            for (let i = 0; i < CONFIG.PHASES.length; i++) {
+                if (frameIndex >= CONFIG.PHASES[i].start && frameIndex <= CONFIG.PHASES[i].end) {
+                    return i;
+                }
+            }
+            return CONFIG.PHASES.length - 1;
+        }
+
+        function tick(now) {
+            // Handle dwelling state (pause at end of full animation)
+            if (state === 'dwelling') {
+                if (now - dwellStartTime >= CONFIG.PHASE_DWELL_TIME) {
+                    // Loop back to start
+                    if (CONFIG.LOOP_ENABLED) {
+                        currentFrame = 0;
+                        currentPhase = 0;
+                        updatePhaseUI(0);
+                        renderFrame(currentFrame);
+                        state = 'playing';
+                        lastFrameTime = now;
+                    } else {
+                        stop();
+                        return;
+                    }
+                }
+                scheduleNextFrame();
+                return;
+            }
+
+            // Handle jumping state - don't interfere
+            if (state === 'jumping') {
+                return;
+            }
+
+            // Handle stopped state
+            if (state !== 'playing') {
+                return;
+            }
+
+            // Advance frame at 60fps
+            const elapsed = now - lastFrameTime;
+            if (elapsed >= CONFIG.FRAME_DURATION) {
+                currentFrame++;
+
+                // Check if we've reached the very end
+                if (currentFrame >= CONFIG.TOTAL_FRAMES) {
+                    currentFrame = CONFIG.TOTAL_FRAMES - 1;
+                    state = 'dwelling';
+                    dwellStartTime = now;
+                    scheduleNextFrame();
+                    return;
+                }
+
+                renderFrame(currentFrame);
+                lastFrameTime = now;
+
+                // Check if we crossed into a new phase - update text overlay
+                const newPhase = getPhaseForFrame(currentFrame);
+                if (newPhase !== currentPhase) {
+                    currentPhase = newPhase;
+                    updatePhaseUI(newPhase);
+                }
+            }
+
+            scheduleNextFrame();
+        }
+
+        /* ============================================
+           PHASE JUMPING (for scroll/click)
+           Uses fade transition instead of scrubbing through frames
+        ============================================ */
+        function jumpToPhase(phaseIndex) {
+            if (state === 'jumping') return;
+            if (phaseIndex < 0 || phaseIndex >= CONFIG.PHASES.length) return;
+            if (phaseIndex === currentPhase && state === 'playing') return;
+
+            // Cancel any pending animation
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+
+            state = 'jumping';
+
+            const targetFrame = CONFIG.PHASES[phaseIndex].start;
+
+            // Update text UI immediately
+            updatePhaseUI(phaseIndex);
+
+            // Fade out canvas, jump to new frame, fade back in
+            canvas.style.transition = 'opacity 0.25s ease-out';
+            canvas.style.opacity = '0.3';
+
+            setTimeout(() => {
+                // Jump directly to target frame
+                currentFrame = targetFrame;
+                renderFrame(currentFrame);
+
+                // Fade back in
+                canvas.style.opacity = '1';
+
+                setTimeout(() => {
+                    canvas.style.transition = '';
+                    state = 'playing';
+                    lastFrameTime = performance.now();
+                    jumpCompleteTime = Date.now(); // Record when jump completed
+                    scheduleNextFrame();
+                }, 250);
+            }, 250);
+        }
+
+        /* ============================================
+           SCROLL/WHEEL HANDLING - Aggressive time-based lock
+           Uses timestamp to block ALL scroll events for fixed duration
+        ============================================ */
+        let lastScrollActionTime = 0;
+        let jumpCompleteTime = 0;
+        const SCROLL_LOCK_DURATION = 2000; // 2 second hard lock after any scroll action
+
+        function handleScroll(deltaY) {
+            const now = Date.now();
+
+            // Hard time-based lock - ignore ALL events within cooldown
+            if (now - lastScrollActionTime < SCROLL_LOCK_DURATION) {
+                return;
+            }
+
+            // Also check time since last jump completed
+            if (now - jumpCompleteTime < SCROLL_LOCK_DURATION) {
+                return;
+            }
+
+            // Also ignore if currently jumping
+            if (state === 'jumping') {
+                return;
+            }
+
+            // Lock immediately with timestamp
+            lastScrollActionTime = now;
+
+            // Determine direction and jump
+            if (deltaY > 0) {
+                // Scroll down - go to next phase
+                const nextPhase = currentPhase + 1;
+                if (nextPhase < CONFIG.PHASES.length) {
+                    jumpToPhase(nextPhase);
+                }
+            } else if (deltaY < 0) {
+                // Scroll up - go to previous phase
+                const prevPhase = currentPhase - 1;
+                if (prevPhase >= 0) {
+                    jumpToPhase(prevPhase);
+                }
+            }
+        }
+
+        /* ============================================
+           TOUCH HANDLING (Mobile)
+        ============================================ */
+        let touchStartY = 0;
+        let touchStartTime = 0;
+
+        function handleTouchStart(e) {
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+        }
+
+        function handleTouchEnd(e) {
+            const touchEndY = e.changedTouches[0].clientY;
+            const touchEndTime = Date.now();
+
+            const deltaY = touchStartY - touchEndY;
+            const deltaTime = touchEndTime - touchStartTime;
+
+            // Only trigger if it's a quick swipe (not a long drag)
+            if (Math.abs(deltaY) > 50 && deltaTime < 500) {
+                handleScroll(deltaY);
+            }
+        }
+
+        /* ============================================
+           PHASE DOT CLICK HANDLING
+        ============================================ */
+        function handleDotClick(e) {
+            const phaseIndex = parseInt(e.target.dataset.phase);
+            if (!isNaN(phaseIndex)) {
+                jumpToPhase(phaseIndex);
+            }
+        }
+
+        /* ============================================
+           EVENT LISTENERS
+        ============================================ */
+        function initEventListeners() {
+            // Mouse wheel
+            heroSection.addEventListener('wheel', (e) => {
+                e.preventDefault();
+                handleScroll(e.deltaY);
+            }, { passive: false });
+
+            // Touch events for mobile
+            heroSection.addEventListener('touchstart', handleTouchStart, { passive: true });
+            heroSection.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+            // Phase dot clicks
+            phaseDots.forEach(dot => {
+                dot.addEventListener('click', handleDotClick);
+            });
+
+            // Window resize
+            window.addEventListener('resize', () => {
+                setCanvasSize();
+                renderFrame(currentFrame);
+            });
+
+            // Visibility change - pause when tab is hidden
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    stop();
+                } else {
+                    play();
+                }
+            });
+        }
+
+        /* ============================================
+           INITIALIZATION
+        ============================================ */
+        async function init() {
+            // Set initial canvas size
+            setCanvasSize();
+
+            // Preload all frames
+            await preloadFrames();
+
+            // Render first frame
+            renderFrame(0);
+
+            // Set initial phase UI
+            updatePhaseUI(0);
+
+            // Hide loader
+            loader.classList.add('hidden');
+
+            // Setup event listeners
+            initEventListeners();
+
+            // Start autoplay after a brief delay
+            setTimeout(() => {
+                play();
+            }, 500);
+        }
+
+        // Start initialization
+        init();
+    </script>
+</body>
+</html>
