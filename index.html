@@ -649,6 +649,9 @@
 
                     // If there's a next phase, prepare for it
                     if (currentPhase < CONFIG.PHASES.length - 1) {
+                        // Hide current phase text immediately
+                        overlays[currentPhase].classList.remove('active');
+
                         currentPhase++;
                         currentFrame = CONFIG.PHASES[currentPhase].start;
                         // Don't show text yet - wait for textAt frame
