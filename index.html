@@ -670,8 +670,8 @@
         function handleScroll() {
             const scrollPhase = getPhaseFromScroll();
 
-            // When scrolling back through completed phases, show their end frames
-            if (scrollPhase < displayedPhase && completedPhases[scrollPhase]) {
+            // Update display when scrolling through completed phases
+            if (scrollPhase !== displayedPhase && completedPhases[scrollPhase]) {
                 const frameToShow = phaseEndFrames[scrollPhase];
                 renderFrame(frameToShow);
                 updatePhaseUI(scrollPhase);
