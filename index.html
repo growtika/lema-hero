@@ -667,16 +667,34 @@
         /* ============================================
            SCROLL LISTENER FOR SCROLL-BACK UPDATES
         ============================================ */
+        let lastScrollPhase = -1;
+
         function handleScroll() {
             const scrollPhase = getPhaseFromScroll();
 
-            // Update display when scrolling through completed phases
-            if (scrollPhase !== displayedPhase && completedPhases[scrollPhase]) {
-                const frameToShow = phaseEndFrames[scrollPhase];
-                renderFrame(frameToShow);
-                updatePhaseUI(scrollPhase);
-                currentPhase = scrollPhase;
-                currentFrame = frameToShow;
+            // Only update if phase changed
+            if (scrollPhase === lastScrollPhase) return;
+            lastScrollPhase = scrollPhase;
+
+            // Update display when scrolling through phases
+            // For completed phases, show their end frame
+            // For uncompleted phases, show their start frame
+            if (scrollPhase !== displayedPhase) {
+                if (completedPhases[scrollPhase]) {
+                    // Phase was completed - show end frame
+                    const frameToShow = phaseEndFrames[scrollPhase];
+                    renderFrame(frameToShow);
+                    updatePhaseUI(scrollPhase);
+                    currentPhase = scrollPhase;
+                    currentFrame = frameToShow;
+                } else if (scrollPhase < currentPhase) {
+                    // Scrolling back to an uncompleted phase - show its start
+                    const frameToShow = CONFIG.PHASES[scrollPhase].start;
+                    renderFrame(frameToShow);
+                    updatePhaseUI(scrollPhase);
+                    currentPhase = scrollPhase;
+                    currentFrame = frameToShow;
+                }
             }
         }
 
