@@ -627,26 +627,6 @@
         }
 
         function tick(now) {
-            // Handle dwelling state (pause at end of full animation)
-            if (state === 'dwelling') {
-                if (now - dwellStartTime >= CONFIG.PHASE_DWELL_TIME) {
-                    // Loop back to start
-                    if (CONFIG.LOOP_ENABLED) {
-                        currentFrame = 0;
-                        currentPhase = 0;
-                        updatePhaseUI(0);
-                        renderFrame(currentFrame);
-                        state = 'playing';
-                        lastFrameTime = now;
-                    } else {
-                        stop();
-                        return;
-                    }
-                }
-                scheduleNextFrame();
-                return;
-            }
-
             // Handle jumping state - don't interfere
             if (state === 'jumping') {
                 return;
@@ -657,29 +637,39 @@
                 return;
             }
 
-            // Advance frame at 60fps
+            // Advance frame at 30fps
             const elapsed = now - lastFrameTime;
             if (elapsed >= CONFIG.FRAME_DURATION) {
                 currentFrame++;
 
-                // Check if we've reached the very end
+                // Check if we've reached the end of current phase
+                const phaseEnd = CONFIG.PHASES[currentPhase].end;
+                if (currentFrame > phaseEnd) {
+                    currentFrame = phaseEnd;
+                    renderFrame(currentFrame);
+
+                    // Stop and wait for next scroll
+                    state = 'stopped';
+
+                    // If there's a next phase, prepare for it
+                    if (currentPhase < CONFIG.PHASES.length - 1) {
+                        currentPhase++;
+                        currentFrame = CONFIG.PHASES[currentPhase].start;
+                        updatePhaseUI(currentPhase);
+                        renderFrame(currentFrame);
+                    }
+                    return;
+                }
+
+                // Check if we've reached the very end of all frames
                 if (currentFrame >= CONFIG.TOTAL_FRAMES) {
                     currentFrame = CONFIG.TOTAL_FRAMES - 1;
-                    state = 'dwelling';
-                    dwellStartTime = now;
-                    scheduleNextFrame();
+                    state = 'stopped';
                     return;
                 }
 
                 renderFrame(currentFrame);
                 lastFrameTime = now;
-
-                // Check if we crossed into a new phase - update text overlay
-                const newPhase = getPhaseForFrame(currentFrame);
-                if (newPhase !== currentPhase) {
-                    currentPhase = newPhase;
-                    updatePhaseUI(newPhase);
-                }
             }
 
             scheduleNextFrame();
@@ -730,12 +720,12 @@
         }
 
         /* ============================================
-           SCROLL/WHEEL HANDLING - Aggressive time-based lock
-           Uses timestamp to block ALL scroll events for fixed duration
+           SCROLL/WHEEL HANDLING - Play current phase on scroll
+           Scroll triggers animation to play through current phase
         ============================================ */
         let lastScrollActionTime = 0;
         let jumpCompleteTime = 0;
-        const SCROLL_LOCK_DURATION = 2000; // 2 second hard lock after any scroll action
+        const SCROLL_LOCK_DURATION = 1500; // 1.5 second lock
 
         function handleScroll(deltaY) {
             const now = Date.now();
@@ -745,33 +735,27 @@
                 return;
             }
 
-            // Also check time since last jump completed
-            if (now - jumpCompleteTime < SCROLL_LOCK_DURATION) {
-                return;
-            }
-
-            // Also ignore if currently jumping
-            if (state === 'jumping') {
+            // Also ignore if currently playing or jumping
+            if (state === 'playing' || state === 'jumping') {
                 return;
             }
 
             // Lock immediately with timestamp
             lastScrollActionTime = now;
 
-            // Determine direction and jump
+            // Only respond to scroll down
             if (deltaY > 0) {
-                // Scroll down - go to next phase
-                const nextPhase = currentPhase + 1;
-                if (nextPhase < CONFIG.PHASES.length) {
-                    jumpToPhase(nextPhase);
-                }
-            } else if (deltaY < 0) {
-                // Scroll up - go to previous phase
-                const prevPhase = currentPhase - 1;
-                if (prevPhase >= 0) {
-                    jumpToPhase(prevPhase);
-                }
+                // Play current phase animation
+                playCurrentPhase();
             }
+        }
+
+        function playCurrentPhase() {
+            if (state === 'playing') return;
+
+            state = 'playing';
+            lastFrameTime = performance.now();
+            scheduleNextFrame();
         }
 
         /* ============================================
