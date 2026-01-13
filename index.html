@@ -886,62 +886,23 @@
 
             isStaticMode = true;
 
-            // Get the end frame images for each phase
             const phase1Frame = CONFIG.PHASES[0].end;
             const phase2Frame = CONFIG.PHASES[1].end;
             const phase3Frame = CONFIG.PHASES[2].end;
 
-            // Set background images using canvas to convert frames to data URLs
             const staticPhase1 = document.getElementById('staticPhase1');
             const staticPhase2 = document.getElementById('staticPhase2');
             const staticPhase3 = document.getElementById('staticPhase3');
             const staticContainer = document.getElementById('staticHeroContainer');
 
-            // Create temporary canvases to generate background images
-            function frameToDataURL(frameIndex) {
-                const frame = frames[frameIndex];
-                if (!frame) return '';
+            // Use original frame URLs directly (no CORS issues)
+            staticPhase1.style.backgroundImage = `url(${getFramePath(phase1Frame)})`;
+            staticPhase2.style.backgroundImage = `url(${getFramePath(phase2Frame)})`;
+            staticPhase3.style.backgroundImage = `url(${getFramePath(phase3Frame)})`;
 
-                const tempCanvas = document.createElement('canvas');
-                const tempCtx = tempCanvas.getContext('2d');
-
-                // Use actual viewport dimensions for proper sizing
-                tempCanvas.width = window.innerWidth;
-                tempCanvas.height = window.innerHeight;
-
-                // Calculate cover dimensions
-                const canvasRatio = tempCanvas.width / tempCanvas.height;
-                const frameRatio = frame.naturalWidth / frame.naturalHeight;
-
-                let drawWidth, drawHeight, drawX, drawY;
-
-                if (frameRatio > canvasRatio) {
-                    drawHeight = tempCanvas.height;
-                    drawWidth = frame.naturalWidth * (tempCanvas.height / frame.naturalHeight);
-                    drawX = (tempCanvas.width - drawWidth) / 2;
-                    drawY = 0;
-                } else {
-                    drawWidth = tempCanvas.width;
-                    drawHeight = frame.naturalHeight * (tempCanvas.width / frame.naturalWidth);
-                    drawX = 0;
-                    drawY = (tempCanvas.height - drawHeight) / 2;
-                }
-
-                tempCtx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
-                return tempCanvas.toDataURL('image/webp', 0.9);
-            }
-
-            // Set background images
-            staticPhase1.style.backgroundImage = `url(${frameToDataURL(phase1Frame)})`;
-            staticPhase2.style.backgroundImage = `url(${frameToDataURL(phase2Frame)})`;
-            staticPhase3.style.backgroundImage = `url(${frameToDataURL(phase3Frame)})`;
-
-            // Show static container and hide animated hero
             staticContainer.classList.add('active');
             document.body.classList.add('static-mode');
 
-            // Scroll to the appropriate position based on where user was
-            // If they just finished Phase 3, scroll to Phase 3 static section
             const scrollTarget = document.getElementById(`staticPhase${currentPhase + 1}`);
             if (scrollTarget) {
                 scrollTarget.scrollIntoView({ behavior: 'instant' });

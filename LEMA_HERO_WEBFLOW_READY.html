@@ -589,38 +589,9 @@ function switchToStaticMode() {
     const staticPhase3 = document.getElementById('staticPhase3');
     const staticContainer = document.getElementById('staticHeroContainer');
 
-    function frameToDataURL(frameIndex) {
-        const frame = frames[frameIndex];
-        if (!frame) return '';
-
-        const tempCanvas = document.createElement('canvas');
-        const tempCtx = tempCanvas.getContext('2d');
-        tempCanvas.width = window.innerWidth;
-        tempCanvas.height = window.innerHeight;
-
-        const canvasRatio = tempCanvas.width / tempCanvas.height;
-        const frameRatio = frame.naturalWidth / frame.naturalHeight;
-        let drawWidth, drawHeight, drawX, drawY;
-
-        if (frameRatio > canvasRatio) {
-            drawHeight = tempCanvas.height;
-            drawWidth = frame.naturalWidth * (tempCanvas.height / frame.naturalHeight);
-            drawX = (tempCanvas.width - drawWidth) / 2;
-            drawY = 0;
-        } else {
-            drawWidth = tempCanvas.width;
-            drawHeight = frame.naturalHeight * (tempCanvas.width / frame.naturalWidth);
-            drawX = 0;
-            drawY = (tempCanvas.height - drawHeight) / 2;
-        }
-
-        tempCtx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
-        return tempCanvas.toDataURL('image/webp', 0.9);
-    }
-
-    staticPhase1.style.backgroundImage = `url(${frameToDataURL(phase1Frame)})`;
-    staticPhase2.style.backgroundImage = `url(${frameToDataURL(phase2Frame)})`;
-    staticPhase3.style.backgroundImage = `url(${frameToDataURL(phase3Frame)})`;
+    staticPhase1.style.backgroundImage = `url(${getFramePath(phase1Frame)})`;
+    staticPhase2.style.backgroundImage = `url(${getFramePath(phase2Frame)})`;
+    staticPhase3.style.backgroundImage = `url(${getFramePath(phase3Frame)})`;
 
     staticContainer.classList.add('active');
     document.body.classList.add('static-mode');
