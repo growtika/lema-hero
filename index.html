@@ -358,6 +358,35 @@
             margin: 0 auto;
             line-height: 1.6;
         }
+
+        /* ============================================
+           STATIC MODE - 3 stacked sections (no animation)
+        ============================================ */
+        .static-hero-container {
+            display: none;
+        }
+
+        .static-hero-container.active {
+            display: block;
+        }
+
+        .static-hero-section {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .static-hero-section .hero-overlay {
+            display: flex;
+        }
+
+        /* Hide animated hero when in static mode */
+        body.static-mode .hero-section {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -399,6 +428,41 @@
         <!-- Scroll Hint -->
         <div class="scroll-hint" id="scrollHint">Scroll to skip</div>
     </section>
+
+    <!-- Static Hero Container - 3 stacked sections (hidden until animation completes) -->
+    <div class="static-hero-container" id="staticHeroContainer">
+        <!-- Static Phase 1 -->
+        <section class="static-hero-section" id="staticPhase1">
+            <div class="hero-overlay overlay-phase1" style="display: flex;">
+                <div class="hero-content">
+                    <h1 class="hero-headline">Think outside the checkbox</h1>
+                    <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                    <a href="#demo" class="hero-cta">Get a Demo</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Static Phase 2 -->
+        <section class="static-hero-section" id="staticPhase2">
+            <div class="hero-overlay overlay-phase2" style="display: flex;">
+                <div class="hero-content">
+                    <span class="hero-label">Third Parties</span>
+                    <h1 class="hero-headline">Your new single point of failure</h1>
+                    <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl. There are more third parties than ever before, and every AI tool is wired straight into the heart of your business – yet legacy TPRM treats them like static vendors.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Static Phase 3 -->
+        <section class="static-hero-section" id="staticPhase3">
+            <div class="hero-overlay overlay-phase3" style="display: flex;">
+                <div class="hero-content">
+                    <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                    <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data. Finding it means matching every artifact, control, and compliance doc. That's what Risk Engineers were born to do.</p>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- Content After Hero (placeholder) -->
     <section class="content-section">
@@ -474,6 +538,10 @@
         // Animation state - simplified
         let rafId = null;
         let state = 'stopped'; // 'playing', 'dwelling', 'jumping', 'stopped'
+
+        // Static mode - after all animations complete
+        let isStaticMode = false;
+        let allPhasesCompleted = false;
 
         /* ============================================
            FRAME LOADING - Store images in array for instant access
@@ -653,6 +721,9 @@
                         currentFrame = CONFIG.PHASES[currentPhase].start;
                         // Don't show text yet - wait for textAt frame
                         renderFrame(currentFrame);
+                    } else {
+                        // All phases completed
+                        allPhasesCompleted = true;
                     }
                     return;
                 }
@@ -732,6 +803,9 @@
         const SCROLL_UP_COOLDOWN = 400; // Short cooldown for scroll up
 
         function shouldHijackScroll(deltaY) {
+            // Never hijack when in static mode
+            if (isStaticMode) return false;
+
             if (deltaY > 0) {
                 // Scroll down - hijack unless we're done with all phases
                 const isLastPhase = currentPhase === CONFIG.PHASES.length - 1;
@@ -741,7 +815,10 @@
                 }
                 return true;
             } else if (deltaY < 0) {
-                // Scroll up - hijack if we're not at phase 0
+                // Scroll up - hijack to trigger static mode or go to previous phase
+                if (allPhasesCompleted) {
+                    return true; // Hijack to trigger static mode switch
+                }
                 if (currentPhase > 0) {
                     return true;
                 }
@@ -752,6 +829,9 @@
 
         function handleScroll(deltaY) {
             const now = Date.now();
+
+            // If in static mode, let browser handle scrolling naturally
+            if (isStaticMode) return;
 
             // Ignore if currently playing or jumping
             if (state === 'playing' || state === 'jumping') {
@@ -766,10 +846,19 @@
                 lastScrollActionTime = now;
                 playCurrentPhase();
             } else if (deltaY < 0) {
-                // Scroll up - jump to previous phase end frame instantly
+                // Scroll up
                 if (now - lastScrollActionTime < SCROLL_UP_COOLDOWN) {
                     return;
                 }
+
+                // If all phases completed, switch to static mode
+                if (allPhasesCompleted) {
+                    lastScrollActionTime = now;
+                    switchToStaticMode();
+                    return;
+                }
+
+                // Otherwise jump to previous phase end frame
                 if (currentPhase > 0) {
                     lastScrollActionTime = now;
                     jumpToPreviousPhase();
@@ -787,6 +876,76 @@
             renderFrame(currentFrame);
             updatePhaseUI(currentPhase);
             state = 'stopped';
+        }
+
+        /* ============================================
+           STATIC MODE - Switch to 3 stacked static sections
+        ============================================ */
+        function switchToStaticMode() {
+            if (isStaticMode) return;
+
+            isStaticMode = true;
+
+            // Get the end frame images for each phase
+            const phase1Frame = CONFIG.PHASES[0].end;
+            const phase2Frame = CONFIG.PHASES[1].end;
+            const phase3Frame = CONFIG.PHASES[2].end;
+
+            // Set background images using canvas to convert frames to data URLs
+            const staticPhase1 = document.getElementById('staticPhase1');
+            const staticPhase2 = document.getElementById('staticPhase2');
+            const staticPhase3 = document.getElementById('staticPhase3');
+            const staticContainer = document.getElementById('staticHeroContainer');
+
+            // Create temporary canvases to generate background images
+            function frameToDataURL(frameIndex) {
+                const frame = frames[frameIndex];
+                if (!frame) return '';
+
+                const tempCanvas = document.createElement('canvas');
+                const tempCtx = tempCanvas.getContext('2d');
+
+                // Use actual viewport dimensions for proper sizing
+                tempCanvas.width = window.innerWidth;
+                tempCanvas.height = window.innerHeight;
+
+                // Calculate cover dimensions
+                const canvasRatio = tempCanvas.width / tempCanvas.height;
+                const frameRatio = frame.naturalWidth / frame.naturalHeight;
+
+                let drawWidth, drawHeight, drawX, drawY;
+
+                if (frameRatio > canvasRatio) {
+                    drawHeight = tempCanvas.height;
+                    drawWidth = frame.naturalWidth * (tempCanvas.height / frame.naturalHeight);
+                    drawX = (tempCanvas.width - drawWidth) / 2;
+                    drawY = 0;
+                } else {
+                    drawWidth = tempCanvas.width;
+                    drawHeight = frame.naturalHeight * (tempCanvas.width / frame.naturalWidth);
+                    drawX = 0;
+                    drawY = (tempCanvas.height - drawHeight) / 2;
+                }
+
+                tempCtx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+                return tempCanvas.toDataURL('image/webp', 0.9);
+            }
+
+            // Set background images
+            staticPhase1.style.backgroundImage = `url(${frameToDataURL(phase1Frame)})`;
+            staticPhase2.style.backgroundImage = `url(${frameToDataURL(phase2Frame)})`;
+            staticPhase3.style.backgroundImage = `url(${frameToDataURL(phase3Frame)})`;
+
+            // Show static container and hide animated hero
+            staticContainer.classList.add('active');
+            document.body.classList.add('static-mode');
+
+            // Scroll to the appropriate position based on where user was
+            // If they just finished Phase 3, scroll to Phase 3 static section
+            const scrollTarget = document.getElementById(`staticPhase${currentPhase + 1}`);
+            if (scrollTarget) {
+                scrollTarget.scrollIntoView({ behavior: 'instant' });
+            }
         }
 
         function playCurrentPhase() {
