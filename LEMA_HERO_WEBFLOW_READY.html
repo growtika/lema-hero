@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Webflow Ready</title>
+</head>
+<body>
+
+<!--
+================================================================================
+WEBFLOW IMPLEMENTATION GUIDE
+================================================================================
+
+STEP 1: ADD CUSTOM CODE TO SITE SETTINGS
+----------------------------------------
+Go to: Project Settings > Custom Code > Footer Code
+Paste the entire <script> section from this file.
+
+STEP 2: CREATE THE HTML STRUCTURE IN WEBFLOW
+--------------------------------------------
+Create these elements in the Webflow Designer:
+
+1. HERO SECTION (Section element)
+   - Class: hero-section
+   - ID: heroSection
+   - Set to 100vh height, position relative, overflow hidden
+
+2. CANVAS ELEMENT (Embed element)
+   - Inside hero-section, add an Embed element
+   - Paste: <canvas class="hero-canvas" id="heroCanvas"></canvas>
+   - The canvas MUST be added via Embed since Webflow doesn't have native canvas
+
+3. TEXT OVERLAYS (Div blocks)
+   - Create 3 div blocks inside hero-section with classes:
+     - hero-overlay overlay-phase1 (ID: overlay1) - add class "active"
+     - hero-overlay overlay-phase2 (ID: overlay2)
+     - hero-overlay overlay-phase3 (ID: overlay3)
+   - Inside each, add your hero-content div with headline, subtext, CTA
+
+4. STATIC HERO CONTAINER (Div block)
+   - Class: static-hero-container
+   - ID: staticHeroContainer
+   - Inside, create 3 section elements:
+     - static-hero-section (ID: staticPhase1)
+     - static-hero-section (ID: staticPhase2)
+     - static-hero-section (ID: staticPhase3)
+   - Each contains a copy of the corresponding overlay content
+
+STEP 3: ADD STYLES
+------------------
+Go to: Project Settings > Custom Code > Head Code
+Paste the entire <style> section from this file.
+
+STEP 4: UPDATE FRAME PATH
+-------------------------
+In the JavaScript CONFIG section, update FRAME_PATH to your CDN URL:
+FRAME_PATH: 'https://your-webflow-cdn.com/frames/',
+
+================================================================================
+-->
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    overflow-x: hidden;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+}
+
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+}
+
+.hero-overlay.active {
+    display: flex;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.overlay-phase1 .hero-content {
+    color: #3D2314;
+}
+
+.overlay-phase1 .hero-subtext {
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.overlay-phase1 .hero-cta {
+    background: #3D2314;
+    color: #F5F3F0;
+}
+
+.overlay-phase2 .hero-content {
+    color: #FFFFFF;
+}
+
+.overlay-phase2 .hero-label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.overlay-phase2 .hero-subtext {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.overlay-phase3 .hero-content {
+    color: #3D2314;
+}
+
+.overlay-phase3 .hero-subtext {
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.static-hero-container {
+    display: none;
+}
+
+.static-hero-container.active {
+    display: block;
+}
+
+.static-hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+.static-hero-section .hero-overlay {
+    display: flex;
+}
+
+body.static-mode .hero-section {
+    display: none;
+}
+
+@media (max-width: 1024px) {
+    .hero-headline {
+        font-size: 2.5rem;
+    }
+    .hero-subtext {
+        font-size: 0.95rem;
+        max-width: 500px;
+    }
+    .hero-content {
+        max-width: 600px;
+    }
+}
+
+@media (max-width: 768px) {
+    .hero-overlay {
+        padding: 1rem;
+    }
+    .hero-content {
+        max-width: 100%;
+        padding: 0 0.5rem;
+    }
+    .hero-label {
+        font-size: 0.65rem;
+        letter-spacing: 0.15em;
+        margin-bottom: 0.5rem;
+    }
+    .hero-headline {
+        font-size: 1.75rem;
+        margin-bottom: 1rem;
+    }
+    .hero-subtext {
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+    .hero-cta {
+        padding: 0.75rem 1.5rem;
+        font-size: 0.85rem;
+        margin-top: 1.25rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-headline {
+        font-size: 1.5rem;
+    }
+    .hero-subtext {
+        font-size: 0.8rem;
+    }
+}
+</style>
+
+<!-- HERO SECTION - Create this structure in Webflow -->
+<section class="hero-section" id="heroSection">
+
+    <!-- IMPORTANT: Add canvas via Webflow Embed element -->
+    <canvas class="hero-canvas" id="heroCanvas"></canvas>
+
+    <!-- PHASE 1 OVERLAY -->
+    <div class="hero-overlay overlay-phase1 active" id="overlay1">
+        <div class="hero-content">
+            <h1 class="hero-headline">Think outside the checkbox</h1>
+            <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+            <a href="#demo" class="hero-cta">Get a Demo</a>
+        </div>
+    </div>
+
+    <!-- PHASE 2 OVERLAY -->
+    <div class="hero-overlay overlay-phase2" id="overlay2">
+        <div class="hero-content">
+            <span class="hero-label">Third Parties</span>
+            <h1 class="hero-headline">Your new single point of failure</h1>
+            <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl. There are more third parties than ever before, and every AI tool is wired straight into the heart of your business – yet legacy TPRM treats them like static vendors.</p>
+        </div>
+    </div>
+
+    <!-- PHASE 3 OVERLAY -->
+    <div class="hero-overlay overlay-phase3" id="overlay3">
+        <div class="hero-content">
+            <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+            <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data. Finding it means matching every artifact, control, and compliance doc. That's what Risk Engineers were born to do.</p>
+        </div>
+    </div>
+</section>
+
+<!-- STATIC HERO CONTAINER - Shown after animation completes -->
+<div class="static-hero-container" id="staticHeroContainer">
+    <section class="static-hero-section" id="staticPhase1">
+        <div class="hero-overlay overlay-phase1" style="display: flex;">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+    </section>
+    <section class="static-hero-section" id="staticPhase2">
+        <div class="hero-overlay overlay-phase2" style="display: flex;">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl. There are more third parties than ever before, and every AI tool is wired straight into the heart of your business – yet legacy TPRM treats them like static vendors.</p>
+            </div>
+        </div>
+    </section>
+    <section class="static-hero-section" id="staticPhase3">
+        <div class="hero-overlay overlay-phase3" style="display: flex;">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data. Finding it means matching every artifact, control, and compliance doc. That's what Risk Engineers were born to do.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<script>
+const CONFIG = {
+    FRAME_PATH: './', // UPDATE THIS TO YOUR CDN URL: 'https://your-cdn.com/frames/'
+    FRAME_PREFIX: 'Lema_HP_Desktop_Kaleidoscope.',
+    FRAME_EXTENSION: '.webp',
+    TOTAL_FRAMES: 273,
+    FRAME_PADDING: 5,
+    PHASES: [
+        { start: 0, end: 106, textAt: 0 },
+        { start: 107, end: 207, textAt: 137 },
+        { start: 208, end: 272, textAt: 226 }
+    ],
+    FRAME_DURATION: 33,
+    SCROLL_LOCK_DURATION: 1500,
+    SCROLL_UP_COOLDOWN: 400
+};
+
+const canvas = document.getElementById('heroCanvas');
+const ctx = canvas.getContext('2d');
+const heroSection = document.getElementById('heroSection');
+const overlays = [
+    document.getElementById('overlay1'),
+    document.getElementById('overlay2'),
+    document.getElementById('overlay3')
+];
+
+const frames = [];
+let imagesLoaded = 0;
+let currentFrame = 0;
+let currentPhase = 0;
+let rafId = null;
+let state = 'stopped';
+let isStaticMode = false;
+let allPhasesCompleted = false;
+let lastFrameTime = 0;
+let lastScrollActionTime = 0;
+let jumpCompleteTime = 0;
+
+function getFramePath(index) {
+    const paddedNumber = String(index).padStart(CONFIG.FRAME_PADDING, '0');
+    return `${CONFIG.FRAME_PATH}${CONFIG.FRAME_PREFIX}${paddedNumber}${CONFIG.FRAME_EXTENSION}`;
+}
+
+function preloadFrames() {
+    return new Promise((resolve) => {
+        for (let i = 0; i < CONFIG.TOTAL_FRAMES; i++) {
+            const img = new Image();
+            img.onload = () => {
+                imagesLoaded++;
+                if (imagesLoaded === CONFIG.TOTAL_FRAMES) resolve();
+            };
+            img.onerror = () => {
+                console.warn(`Failed to load frame: ${getFramePath(i)}`);
+                imagesLoaded++;
+                if (imagesLoaded === CONFIG.TOTAL_FRAMES) resolve();
+            };
+            img.src = getFramePath(i);
+            frames[i] = img;
+        }
+    });
+}
+
+function setCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function renderFrame(frameIndex) {
+    frameIndex = Math.max(0, Math.min(frameIndex, CONFIG.TOTAL_FRAMES - 1));
+    const frame = frames[frameIndex];
+    if (!frame) return;
+
+    const canvasRatio = canvas.width / canvas.height;
+    const frameRatio = frame.naturalWidth / frame.naturalHeight;
+    let drawWidth, drawHeight, drawX, drawY;
+
+    if (frameRatio > canvasRatio) {
+        drawHeight = canvas.height;
+        drawWidth = frame.naturalWidth * (canvas.height / frame.naturalHeight);
+        drawX = (canvas.width - drawWidth) / 2;
+        drawY = 0;
+    } else {
+        drawWidth = canvas.width;
+        drawHeight = frame.naturalHeight * (canvas.width / frame.naturalWidth);
+        drawX = 0;
+        drawY = (canvas.height - drawHeight) / 2;
+    }
+
+    ctx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+}
+
+function getPhaseForFrame(frameIndex) {
+    for (let i = 0; i < CONFIG.PHASES.length; i++) {
+        if (frameIndex >= CONFIG.PHASES[i].start && frameIndex <= CONFIG.PHASES[i].end) {
+            return i;
+        }
+    }
+    return CONFIG.PHASES.length - 1;
+}
+
+function updatePhaseUI(phaseIndex) {
+    overlays.forEach((overlay, i) => {
+        if (i === phaseIndex) {
+            overlay.classList.add('active');
+        } else {
+            overlay.classList.remove('active');
+        }
+    });
+
+    if (phaseIndex === 1) {
+        heroSection.classList.add('dark-phase');
+    } else {
+        heroSection.classList.remove('dark-phase');
+    }
+
+    currentPhase = phaseIndex;
+}
+
+function scheduleNextFrame() {
+    rafId = requestAnimationFrame(tick);
+}
+
+function tick(now) {
+    if (state === 'jumping' || state !== 'playing') return;
+
+    const elapsed = now - lastFrameTime;
+    if (elapsed >= CONFIG.FRAME_DURATION) {
+        currentFrame++;
+
+        const phaseEnd = CONFIG.PHASES[currentPhase].end;
+        if (currentFrame > phaseEnd) {
+            currentFrame = phaseEnd;
+            renderFrame(currentFrame);
+            state = 'stopped';
+
+            if (currentPhase < CONFIG.PHASES.length - 1) {
+                currentPhase++;
+                currentFrame = CONFIG.PHASES[currentPhase].start;
+                renderFrame(currentFrame);
+            } else {
+                allPhasesCompleted = true;
+            }
+            return;
+        }
+
+        if (currentFrame >= CONFIG.TOTAL_FRAMES) {
+            currentFrame = CONFIG.TOTAL_FRAMES - 1;
+            state = 'stopped';
+            return;
+        }
+
+        renderFrame(currentFrame);
+        lastFrameTime = now;
+
+        const textAtFrame = CONFIG.PHASES[currentPhase].textAt;
+        if (currentFrame === textAtFrame) {
+            updatePhaseUI(currentPhase);
+        }
+    }
+
+    scheduleNextFrame();
+}
+
+function jumpToPhase(phaseIndex) {
+    if (state === 'jumping') return;
+    if (phaseIndex < 0 || phaseIndex >= CONFIG.PHASES.length) return;
+    if (phaseIndex === currentPhase && state === 'playing') return;
+
+    if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+    }
+
+    state = 'jumping';
+    const targetFrame = CONFIG.PHASES[phaseIndex].start;
+    updatePhaseUI(phaseIndex);
+
+    canvas.style.transition = 'opacity 0.25s ease-out';
+    canvas.style.opacity = '0.3';
+
+    setTimeout(() => {
+        currentFrame = targetFrame;
+        renderFrame(currentFrame);
+        canvas.style.opacity = '1';
+
+        setTimeout(() => {
+            canvas.style.transition = '';
+            state = 'playing';
+            lastFrameTime = performance.now();
+            jumpCompleteTime = Date.now();
+            scheduleNextFrame();
+        }, 250);
+    }, 250);
+}
+
+function shouldHijackScroll(deltaY) {
+    if (isStaticMode) return false;
+
+    if (deltaY > 0) {
+        const isLastPhase = currentPhase === CONFIG.PHASES.length - 1;
+        const atPhaseEnd = currentFrame >= CONFIG.PHASES[currentPhase].end;
+        if (isLastPhase && atPhaseEnd) return false;
+        return true;
+    } else if (deltaY < 0) {
+        if (allPhasesCompleted) return true;
+        if (currentPhase > 0) return true;
+        return false;
+    }
+    return false;
+}
+
+function handleScroll(deltaY) {
+    const now = Date.now();
+    if (isStaticMode) return;
+    if (state === 'playing' || state === 'jumping') return;
+
+    if (deltaY > 0) {
+        if (now - lastScrollActionTime < CONFIG.SCROLL_LOCK_DURATION) return;
+        lastScrollActionTime = now;
+        playCurrentPhase();
+    } else if (deltaY < 0) {
+        if (now - lastScrollActionTime < CONFIG.SCROLL_UP_COOLDOWN) return;
+
+        if (allPhasesCompleted) {
+            lastScrollActionTime = now;
+            switchToStaticMode();
+            return;
+        }
+
+        if (currentPhase > 0) {
+            lastScrollActionTime = now;
+            jumpToPreviousPhase();
+        }
+    }
+}
+
+function jumpToPreviousPhase() {
+    const prevPhase = currentPhase - 1;
+    const targetFrame = CONFIG.PHASES[prevPhase].end;
+
+    currentPhase = prevPhase;
+    currentFrame = targetFrame;
+    renderFrame(currentFrame);
+    updatePhaseUI(currentPhase);
+    state = 'stopped';
+}
+
+function switchToStaticMode() {
+    if (isStaticMode) return;
+    isStaticMode = true;
+
+    const phase1Frame = CONFIG.PHASES[0].end;
+    const phase2Frame = CONFIG.PHASES[1].end;
+    const phase3Frame = CONFIG.PHASES[2].end;
+
+    const staticPhase1 = document.getElementById('staticPhase1');
+    const staticPhase2 = document.getElementById('staticPhase2');
+    const staticPhase3 = document.getElementById('staticPhase3');
+    const staticContainer = document.getElementById('staticHeroContainer');
+
+    function frameToDataURL(frameIndex) {
+        const frame = frames[frameIndex];
+        if (!frame) return '';
+
+        const tempCanvas = document.createElement('canvas');
+        const tempCtx = tempCanvas.getContext('2d');
+        tempCanvas.width = window.innerWidth;
+        tempCanvas.height = window.innerHeight;
+
+        const canvasRatio = tempCanvas.width / tempCanvas.height;
+        const frameRatio = frame.naturalWidth / frame.naturalHeight;
+        let drawWidth, drawHeight, drawX, drawY;
+
+        if (frameRatio > canvasRatio) {
+            drawHeight = tempCanvas.height;
+            drawWidth = frame.naturalWidth * (tempCanvas.height / frame.naturalHeight);
+            drawX = (tempCanvas.width - drawWidth) / 2;
+            drawY = 0;
+        } else {
+            drawWidth = tempCanvas.width;
+            drawHeight = frame.naturalHeight * (tempCanvas.width / frame.naturalWidth);
+            drawX = 0;
+            drawY = (tempCanvas.height - drawHeight) / 2;
+        }
+
+        tempCtx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+        return tempCanvas.toDataURL('image/webp', 0.9);
+    }
+
+    staticPhase1.style.backgroundImage = `url(${frameToDataURL(phase1Frame)})`;
+    staticPhase2.style.backgroundImage = `url(${frameToDataURL(phase2Frame)})`;
+    staticPhase3.style.backgroundImage = `url(${frameToDataURL(phase3Frame)})`;
+
+    staticContainer.classList.add('active');
+    document.body.classList.add('static-mode');
+
+    const scrollTarget = document.getElementById(`staticPhase${currentPhase + 1}`);
+    if (scrollTarget) {
+        scrollTarget.scrollIntoView({ behavior: 'instant' });
+    }
+}
+
+function playCurrentPhase() {
+    if (state === 'playing') return;
+    state = 'playing';
+    lastFrameTime = performance.now();
+    scheduleNextFrame();
+}
+
+let touchStartY = 0;
+let touchStartTime = 0;
+
+function handleTouchStart(e) {
+    touchStartY = e.touches[0].clientY;
+    touchStartTime = Date.now();
+}
+
+function handleTouchEnd(e) {
+    const touchEndY = e.changedTouches[0].clientY;
+    const touchEndTime = Date.now();
+    const deltaY = touchStartY - touchEndY;
+    const deltaTime = touchEndTime - touchStartTime;
+
+    if (deltaY > 50 && deltaTime < 500) {
+        handleScroll(deltaY);
+    }
+}
+
+function initEventListeners() {
+    heroSection.addEventListener('wheel', (e) => {
+        if (shouldHijackScroll(e.deltaY)) {
+            e.preventDefault();
+            handleScroll(e.deltaY);
+        }
+    }, { passive: false });
+
+    heroSection.addEventListener('touchstart', handleTouchStart, { passive: true });
+    heroSection.addEventListener('touchend', handleTouchEnd, { passive: true });
+
+    window.addEventListener('resize', () => {
+        setCanvasSize();
+        renderFrame(currentFrame);
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            state = 'stopped';
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = null;
+            }
+        }
+    });
+}
+
+async function init() {
+    setCanvasSize();
+    await preloadFrames();
+    renderFrame(0);
+    updatePhaseUI(0);
+    initEventListeners();
+
+    setTimeout(() => {
+        playCurrentPhase();
+    }, 500);
+}
+
+init();
+</script>
+
+</body>
+</html>
