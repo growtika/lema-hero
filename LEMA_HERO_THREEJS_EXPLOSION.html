@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Three.js Breathing + Explosion</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 400vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#threeCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.overlay-phase1 .hero-content { color: #3D2314; }
+.overlay-phase1 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+.overlay-phase1 .hero-cta { background: #3D2314; color: #F5F3F0; }
+
+.overlay-phase2 .hero-content { color: #FFFFFF; }
+.overlay-phase2 .hero-label { color: rgba(255, 255, 255, 0.6); }
+.overlay-phase2 .hero-subtext { color: rgba(255, 255, 255, 0.8); }
+
+.overlay-phase3 .hero-content { color: #3D2314; }
+.overlay-phase3 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    color: #3D2314;
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <canvas id="threeCanvas"></canvas>
+
+        <div class="hero-overlay overlay-phase1 visible" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase2" id="overlay2">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase3" id="overlay3">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    // Kaleidoscope shapes
+    NUM_WEDGES: 24,
+    PARTICLES_PER_WEDGE: 80,
+    BASE_RADIUS: 180,
+
+    // Breathing animation
+    BREATHING_SPEED: 0.02,
+    BREATHING_AMOUNT: 15,
+    DRIFT_SPEED: 0.008,
+    DRIFT_AMOUNT: 8,
+    ROTATION_SPEED: 0.0003,
+
+    // Explosion
+    EXPLOSION_START: 0.0,
+    EXPLOSION_END: 0.4,
+    EXPLOSION_SPEED: 500,
+    GRAVITY: 150,
+
+    // Fade out
+    FADE_START: 0.35,
+    FADE_END: 0.5,
+
+    // Text overlays
+    TEXT_RANGES: [
+        { start: 0, end: 0.33 },
+        { start: 0.33, end: 0.66 },
+        { start: 0.66, end: 1.0 }
+    ]
+};
+
+// ============================================
+// STATE
+// ============================================
+let scene, camera, renderer, particles;
+let shapes = []; // Each shape stores its current position
+let scrollProgress = 0;
+let hasStartedScrolling = false;
+let explosionStartPositions = null; // Captured when scroll starts
+let time = 0;
+
+// DOM
+const threeCanvas = document.getElementById('threeCanvas');
+const scrollContainer = document.getElementById('scrollContainer');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const overlays = [
+    document.getElementById('overlay1'),
+    document.getElementById('overlay2'),
+    document.getElementById('overlay3')
+];
+
+// ============================================
+// THREE.JS SETUP
+// ============================================
+function initThreeJS() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.z = 600;
+
+    renderer = new THREE.WebGLRenderer({
+        canvas: threeCanvas,
+        alpha: true,
+        antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    createKaleidoscope();
+}
+
+function createKaleidoscope() {
+    const totalParticles = CONFIG.NUM_WEDGES * CONFIG.PARTICLES_PER_WEDGE;
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(totalParticles * 3);
+    const colors = new Float32Array(totalParticles * 3);
+
+    let idx = 0;
+
+    for (let wedge = 0; wedge < CONFIG.NUM_WEDGES; wedge++) {
+        const wedgeAngle = (wedge / CONFIG.NUM_WEDGES) * Math.PI * 2;
+        const wedgeWidth = (Math.PI * 2) / CONFIG.NUM_WEDGES;
+
+        for (let p = 0; p < CONFIG.PARTICLES_PER_WEDGE; p++) {
+            // Random position within wedge
+            const angle = wedgeAngle + (Math.random() - 0.5) * wedgeWidth * 0.9;
+            const radius = CONFIG.BASE_RADIUS * (0.2 + Math.random() * 0.8);
+
+            const baseX = Math.cos(angle) * radius;
+            const baseY = Math.sin(angle) * radius;
+            const baseZ = (Math.random() - 0.5) * 60;
+
+            // Explosion direction (outward + slight randomness)
+            const explosionAngle = angle + (Math.random() - 0.5) * 0.3;
+            const explosionSpeed = CONFIG.EXPLOSION_SPEED * (0.5 + Math.random() * 0.5);
+
+            // Store shape data
+            shapes.push({
+                // Base position (kaleidoscope center)
+                baseX, baseY, baseZ,
+
+                // Current position (updated during breathing)
+                currentX: baseX,
+                currentY: baseY,
+                currentZ: baseZ,
+
+                // Explosion start position (captured when scroll begins)
+                startX: 0,
+                startY: 0,
+                startZ: 0,
+
+                // Explosion velocity
+                explosionVX: Math.cos(explosionAngle) * explosionSpeed,
+                explosionVY: Math.sin(explosionAngle) * explosionSpeed,
+                explosionVZ: (Math.random() - 0.5) * explosionSpeed * 0.3,
+
+                // Per-particle breathing offset
+                breathOffset: Math.random() * Math.PI * 2,
+                driftOffset: Math.random() * Math.PI * 2,
+
+                // Index in buffer
+                idx: idx
+            });
+
+            const i3 = idx * 3;
+            positions[i3] = baseX;
+            positions[i3 + 1] = baseY;
+            positions[i3 + 2] = baseZ;
+
+            // Dark brown color (#3D2314)
+            colors[i3] = 0.24;
+            colors[i3 + 1] = 0.14;
+            colors[i3 + 2] = 0.08;
+
+            idx++;
+        }
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+        size: 4,
+        vertexColors: true,
+        transparent: true,
+        opacity: 1,
+        sizeAttenuation: true
+    });
+
+    particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+}
+
+// ============================================
+// BREATHING ANIMATION
+// ============================================
+function animateBreathing() {
+    const positions = particles.geometry.attributes.position.array;
+
+    for (let i = 0; i < shapes.length; i++) {
+        const shape = shapes[i];
+        const i3 = shape.idx * 3;
+
+        // Breathing (in/out pulse)
+        const breathScale = 1 + Math.sin(time * CONFIG.BREATHING_SPEED + shape.breathOffset) * 0.1;
+
+        // Drift (subtle wandering)
+        const driftX = Math.sin(time * CONFIG.DRIFT_SPEED + shape.driftOffset) * CONFIG.DRIFT_AMOUNT;
+        const driftY = Math.cos(time * CONFIG.DRIFT_SPEED * 0.7 + shape.driftOffset) * CONFIG.DRIFT_AMOUNT;
+
+        // Calculate current position
+        shape.currentX = shape.baseX * breathScale + driftX;
+        shape.currentY = shape.baseY * breathScale + driftY;
+        shape.currentZ = shape.baseZ + Math.sin(time * CONFIG.DRIFT_SPEED * 0.5 + shape.driftOffset) * 5;
+
+        positions[i3] = shape.currentX;
+        positions[i3 + 1] = shape.currentY;
+        positions[i3 + 2] = shape.currentZ;
+    }
+
+    // Gentle rotation of entire kaleidoscope
+    particles.rotation.z = time * CONFIG.ROTATION_SPEED;
+
+    particles.geometry.attributes.position.needsUpdate = true;
+}
+
+// ============================================
+// EXPLOSION ANIMATION (from current position!)
+// ============================================
+function captureExplosionStart() {
+    // Capture WHERE each shape currently is
+    for (let i = 0; i < shapes.length; i++) {
+        const shape = shapes[i];
+        shape.startX = shape.currentX;
+        shape.startY = shape.currentY;
+        shape.startZ = shape.currentZ;
+    }
+    console.log('Explosion start positions captured!');
+}
+
+function animateExplosion(progress) {
+    const positions = particles.geometry.attributes.position.array;
+
+    // Normalize progress within explosion phase
+    const explosionProgress = Math.min(1, (progress - CONFIG.EXPLOSION_START) / (CONFIG.EXPLOSION_END - CONFIG.EXPLOSION_START));
+    const eased = easeOutQuad(explosionProgress);
+
+    for (let i = 0; i < shapes.length; i++) {
+        const shape = shapes[i];
+        const i3 = shape.idx * 3;
+
+        // Explosion from START position (where it was when scroll began)
+        const explosionX = shape.startX + shape.explosionVX * eased;
+        const explosionY = shape.startY + shape.explosionVY * eased - (CONFIG.GRAVITY * eased * eased); // Gravity!
+        const explosionZ = shape.startZ + shape.explosionVZ * eased;
+
+        positions[i3] = explosionX;
+        positions[i3 + 1] = explosionY;
+        positions[i3 + 2] = explosionZ;
+    }
+
+    particles.geometry.attributes.position.needsUpdate = true;
+
+    // Fade out
+    if (progress >= CONFIG.FADE_START) {
+        const fadeProgress = (progress - CONFIG.FADE_START) / (CONFIG.FADE_END - CONFIG.FADE_START);
+        particles.material.opacity = Math.max(0, 1 - fadeProgress);
+    }
+}
+
+function easeOutQuad(t) {
+    return t * (2 - t);
+}
+
+// ============================================
+// TEXT OVERLAYS & BACKGROUND
+// ============================================
+function updateTextOverlays(progress) {
+    overlays.forEach((overlay, i) => {
+        const range = CONFIG.TEXT_RANGES[i];
+        if (progress >= range.start && progress < range.end) {
+            overlay.classList.add('visible');
+        } else {
+            overlay.classList.remove('visible');
+        }
+    });
+
+    // Background color
+    if (progress >= 0.33 && progress < 0.66) {
+        document.body.style.background = '#1a1a1a';
+        // Light particles on dark background
+        updateParticleColors(0.9, 0.85, 0.8);
+    } else {
+        document.body.style.background = '#F5F3F0';
+        // Dark particles on light background
+        updateParticleColors(0.24, 0.14, 0.08);
+    }
+}
+
+function updateParticleColors(r, g, b) {
+    const colors = particles.geometry.attributes.color.array;
+    for (let i = 0; i < shapes.length; i++) {
+        const i3 = i * 3;
+        colors[i3] = r;
+        colors[i3 + 1] = g;
+        colors[i3 + 2] = b;
+    }
+    particles.geometry.attributes.color.needsUpdate = true;
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function onScroll() {
+    const newProgress = getScrollProgress();
+
+    // First scroll? Capture current positions for explosion!
+    if (!hasStartedScrolling && newProgress > 0.001) {
+        hasStartedScrolling = true;
+        captureExplosionStart();
+        scrollIndicator.classList.add('hidden');
+        console.log('Scroll started - explosion begins from current breathing position');
+    }
+
+    scrollProgress = newProgress;
+    updateTextOverlays(scrollProgress);
+}
+
+// ============================================
+// MAIN ANIMATION LOOP
+// ============================================
+function animate() {
+    time++;
+
+    if (!hasStartedScrolling) {
+        // Breathing mode - shapes pulse and drift
+        animateBreathing();
+    } else {
+        // Explosion mode - shapes fly outward from where they were
+        animateExplosion(scrollProgress);
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+}
+
+// ============================================
+// RESIZE
+// ============================================
+function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+    initThreeJS();
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    animate();
+
+    console.log('Initialized - Breathing mode active. Scroll to explode from current position!');
+}
+
+init();
+</script>
+
+</body>
+</html>
