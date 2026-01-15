@@ -54,8 +54,6 @@ body {
     height: 100%;
     z-index: 2;
     pointer-events: none;
-    mix-blend-mode: screen;
-    opacity: 0.4;
 }
 
 .hero-overlay {
@@ -279,12 +277,12 @@ const CONFIG = {
         { start: 0.66, end: 1.0 }
     ],
     PARTICLES: {
-        COUNT: 800,
-        SIZE: 2,
-        BREATHING_SPEED: 0.0008,
-        BREATHING_AMOUNT: 15,
-        DRIFT_SPEED: 0.0003,
-        DRIFT_AMOUNT: 30
+        COUNT: 150,
+        SIZE: 4,
+        BREATHING_SPEED: 0.02,
+        BREATHING_AMOUNT: 8,
+        DRIFT_SPEED: 0.008,
+        DRIFT_AMOUNT: 12
     }
 };
 
@@ -426,10 +424,10 @@ function initParticles() {
 
         particleBasePositions.push({ x, y, z });
 
-        const brightness = 0.5 + Math.random() * 0.5;
-        colors[i3] = brightness;
-        colors[i3 + 1] = brightness * 0.9;
-        colors[i3 + 2] = brightness * 0.8;
+        // Dark brown color matching the design (#3D2314)
+        colors[i3] = 0.24;     // R
+        colors[i3 + 1] = 0.14; // G
+        colors[i3 + 2] = 0.08; // B
     }
 
     geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
@@ -439,8 +437,7 @@ function initParticles() {
         size: CONFIG.PARTICLES.SIZE,
         vertexColors: true,
         transparent: true,
-        opacity: 0.6,
-        blending: THREE.AdditiveBlending,
+        opacity: 0.15,
         sizeAttenuation: true
     });
 
@@ -472,8 +469,31 @@ function animateParticles() {
 
     particles.geometry.attributes.position.needsUpdate = true;
 
+    // Adjust opacity and color based on phase
     const isDarkPhase = scrollProgress >= 0.33 && scrollProgress < 0.66;
-    particles.material.opacity = isDarkPhase ? 0.8 : 0.5;
+    if (isDarkPhase) {
+        // Light particles on dark background
+        const colors = particles.geometry.attributes.color.array;
+        for (let i = 0; i < CONFIG.PARTICLES.COUNT; i++) {
+            const i3 = i * 3;
+            colors[i3] = 0.9;
+            colors[i3 + 1] = 0.85;
+            colors[i3 + 2] = 0.8;
+        }
+        particles.geometry.attributes.color.needsUpdate = true;
+        particles.material.opacity = 0.2;
+    } else {
+        // Dark particles on light background
+        const colors = particles.geometry.attributes.color.array;
+        for (let i = 0; i < CONFIG.PARTICLES.COUNT; i++) {
+            const i3 = i * 3;
+            colors[i3] = 0.24;
+            colors[i3 + 1] = 0.14;
+            colors[i3 + 2] = 0.08;
+        }
+        particles.geometry.attributes.color.needsUpdate = true;
+        particles.material.opacity = 0.15;
+    }
 
     renderer.render(scene, camera);
 }
