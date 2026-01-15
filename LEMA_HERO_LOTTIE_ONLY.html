@@ -22,13 +22,12 @@ body {
 }
 
 .scroll-container {
-    height: 500vh;
+    height: 100vh;
     position: relative;
 }
 
 .hero-section {
-    position: sticky;
-    top: 0;
+    position: relative;
     width: 100%;
     height: 100vh;
     overflow: hidden;
@@ -248,19 +247,20 @@ const CONFIG = {
     TOTAL_FRAMES: 301,
     FRAME_RATE: 25,
 
-    // Breathing phase (before scroll)
+    // Breathing phase (plays continuously in a loop)
     BREATHING_FRAMES: { start: 0, end: 30 },
-    BREATHING_SPEED: 0.5,
+    BREATHING_SPEED: 1.5,  // Much faster breathing
 
-    // Text overlay ranges (based on scroll progress)
+    // Auto-play settings (animation runs automatically)
+    AUTO_PLAY: true,
+    AUTO_PLAY_SPEED: 0.8,  // Frames per animation tick
+
+    // Text overlay ranges (based on animation progress)
     TEXT_RANGES: [
         { start: 0, end: 0.33 },
         { start: 0.33, end: 0.66 },
         { start: 0.66, end: 1.0 }
-    ],
-
-    // Scroll lerp for smooth animation
-    LERP_SPEED: 0.08
+    ]
 };
 
 // ============================================
@@ -268,10 +268,9 @@ const CONFIG = {
 // ============================================
 let lottieAnimation = null;
 let isLoaded = false;
-let hasStartedScrolling = false;
 let currentFrame = 0;
-let targetFrame = 0;
 let breathingDirection = 1;
+let animationPhase = 'breathing'; // 'breathing' or 'sequence'
 let animationRAF = null;
 
 // DOM
@@ -307,17 +306,22 @@ function initLottie() {
 }
 
 // ============================================
-// BREATHING ANIMATION (Phase 0 - before scroll)
+// BREATHING ANIMATION (Fast oscillation frames 0-30)
 // ============================================
 function animateBreathing() {
-    if (hasStartedScrolling) return;
-
     // Oscillate between frame 0 and frame 30 for breathing effect
     currentFrame += CONFIG.BREATHING_SPEED * breathingDirection;
 
     if (currentFrame >= CONFIG.BREATHING_FRAMES.end) {
         currentFrame = CONFIG.BREATHING_FRAMES.end;
         breathingDirection = -1;
+
+        // After one full breath cycle, start the sequence
+        if (CONFIG.AUTO_PLAY) {
+            animationPhase = 'sequence';
+            currentFrame = CONFIG.BREATHING_FRAMES.end;
+            console.log('Breathing complete - starting auto-play sequence');
+        }
     } else if (currentFrame <= CONFIG.BREATHING_FRAMES.start) {
         currentFrame = CONFIG.BREATHING_FRAMES.start;
         breathingDirection = 1;
@@ -327,14 +331,8 @@ function animateBreathing() {
 }
 
 // ============================================
-// SCROLL-LINKED ANIMATION (after first scroll)
+// AUTO-PLAY SEQUENCE (runs without user input)
 // ============================================
-function getScrollProgress() {
-    const scrollTop = window.scrollY;
-    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
-    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
-}
-
 function updateTextOverlays(progress) {
     overlays.forEach((overlay, i) => {
         const range = CONFIG.TEXT_RANGES[i];
@@ -353,14 +351,20 @@ function updateTextOverlays(progress) {
     }
 }
 
-function animateScrollLinked() {
-    if (!hasStartedScrolling) return;
+function animateSequence() {
+    // Advance frame automatically
+    currentFrame += CONFIG.AUTO_PLAY_SPEED;
 
-    const progress = getScrollProgress();
-    targetFrame = progress * (CONFIG.TOTAL_FRAMES - 1);
+    // Loop back to breathing when sequence ends
+    if (currentFrame >= CONFIG.TOTAL_FRAMES - 1) {
+        currentFrame = 0;
+        animationPhase = 'breathing';
+        breathingDirection = 1;
+        console.log('Sequence complete - restarting breathing');
+    }
 
-    // Smooth interpolation
-    currentFrame += (targetFrame - currentFrame) * CONFIG.LERP_SPEED;
+    // Calculate progress for text overlays
+    const progress = currentFrame / (CONFIG.TOTAL_FRAMES - 1);
 
     lottieAnimation.goToAndStop(Math.round(currentFrame), true);
     updateTextOverlays(progress);
@@ -375,32 +379,13 @@ function animate() {
         return;
     }
 
-    if (hasStartedScrolling) {
-        animateScrollLinked();
-    } else {
+    if (animationPhase === 'breathing') {
         animateBreathing();
+    } else {
+        animateSequence();
     }
 
     animationRAF = requestAnimationFrame(animate);
-}
-
-// ============================================
-// SCROLL HANDLING
-// ============================================
-function onScroll() {
-    if (!hasStartedScrolling && window.scrollY > 5) {
-        hasStartedScrolling = true;
-        scrollIndicator.classList.add('hidden');
-        console.log('Started scrolling - switching to scroll-linked mode');
-    }
-}
-
-function onWheel(e) {
-    if (!hasStartedScrolling && e.deltaY > 0) {
-        hasStartedScrolling = true;
-        scrollIndicator.classList.add('hidden');
-        console.log('Wheel detected - switching to scroll-linked mode');
-    }
 }
 
 // ============================================
@@ -409,20 +394,17 @@ function onWheel(e) {
 async function init() {
     await initLottie();
 
-    // Hide loading screen
+    // Hide loading screen and scroll indicator (not needed for auto-play)
     loadingScreen.classList.add('hidden');
+    scrollIndicator.classList.add('hidden');
 
     // Start at frame 0
     lottieAnimation.goToAndStop(0, true);
 
-    // Event listeners
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('wheel', onWheel, { passive: true });
-
-    // Start animation loop
+    // Start animation loop immediately
     animate();
 
-    console.log('Initialized - Breathing mode active');
+    console.log('Initialized - Auto-play mode active');
 }
 
 init();
