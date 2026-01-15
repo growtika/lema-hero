@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Full Lottie Animation</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 500vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#lottieContainer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.overlay-phase1 .hero-content { color: #3D2314; }
+.overlay-phase1 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+.overlay-phase1 .hero-cta { background: #3D2314; color: #F5F3F0; }
+
+.overlay-phase2 .hero-content { color: #FFFFFF; }
+.overlay-phase2 .hero-label { color: rgba(255, 255, 255, 0.6); }
+.overlay-phase2 .hero-subtext { color: rgba(255, 255, 255, 0.8); }
+
+.overlay-phase3 .hero-content { color: #3D2314; }
+.overlay-phase3 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    display: none;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    color: #3D2314;
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #F5F3F0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-text {
+    color: #3D2314;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">Loading animation...</div>
+</div>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <div id="lottieContainer"></div>
+
+        <!-- Text Overlays -->
+        <div class="hero-overlay overlay-phase1 visible" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase2" id="overlay2">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase3" id="overlay3">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    LOTTIE_PATH: './Lema_Hero_Anim_Test.json',
+    TOTAL_FRAMES: 301,
+    FRAME_RATE: 25,
+
+    // Breathing phase (before scroll)
+    BREATHING_FRAMES: { start: 0, end: 30 },
+    BREATHING_SPEED: 0.5,
+
+    // Text overlay ranges (based on scroll progress)
+    TEXT_RANGES: [
+        { start: 0, end: 0.33 },
+        { start: 0.33, end: 0.66 },
+        { start: 0.66, end: 1.0 }
+    ],
+
+    // Scroll lerp for smooth animation
+    LERP_SPEED: 0.08
+};
+
+// ============================================
+// STATE
+// ============================================
+let lottieAnimation = null;
+let isLoaded = false;
+let hasStartedScrolling = false;
+let currentFrame = 0;
+let targetFrame = 0;
+let breathingDirection = 1;
+let animationRAF = null;
+
+// DOM
+const lottieContainer = document.getElementById('lottieContainer');
+const scrollContainer = document.getElementById('scrollContainer');
+const loadingScreen = document.getElementById('loadingScreen');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const overlays = [
+    document.getElementById('overlay1'),
+    document.getElementById('overlay2'),
+    document.getElementById('overlay3')
+];
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    return new Promise((resolve) => {
+        lottieAnimation = lottie.loadAnimation({
+            container: lottieContainer,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.LOTTIE_PATH
+        });
+
+        lottieAnimation.addEventListener('DOMLoaded', () => {
+            console.log('Lottie loaded, total frames:', lottieAnimation.totalFrames);
+            isLoaded = true;
+            resolve();
+        });
+    });
+}
+
+// ============================================
+// BREATHING ANIMATION (Phase 0 - before scroll)
+// ============================================
+function animateBreathing() {
+    if (hasStartedScrolling) return;
+
+    // Oscillate between frame 0 and frame 30 for breathing effect
+    currentFrame += CONFIG.BREATHING_SPEED * breathingDirection;
+
+    if (currentFrame >= CONFIG.BREATHING_FRAMES.end) {
+        currentFrame = CONFIG.BREATHING_FRAMES.end;
+        breathingDirection = -1;
+    } else if (currentFrame <= CONFIG.BREATHING_FRAMES.start) {
+        currentFrame = CONFIG.BREATHING_FRAMES.start;
+        breathingDirection = 1;
+    }
+
+    lottieAnimation.goToAndStop(Math.round(currentFrame), true);
+}
+
+// ============================================
+// SCROLL-LINKED ANIMATION (after first scroll)
+// ============================================
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function updateTextOverlays(progress) {
+    overlays.forEach((overlay, i) => {
+        const range = CONFIG.TEXT_RANGES[i];
+        if (progress >= range.start && progress < range.end) {
+            overlay.classList.add('visible');
+        } else {
+            overlay.classList.remove('visible');
+        }
+    });
+
+    // Background color based on progress
+    if (progress >= 0.33 && progress < 0.66) {
+        document.body.style.background = '#1a1a1a';
+    } else {
+        document.body.style.background = '#F5F3F0';
+    }
+}
+
+function animateScrollLinked() {
+    if (!hasStartedScrolling) return;
+
+    const progress = getScrollProgress();
+    targetFrame = progress * (CONFIG.TOTAL_FRAMES - 1);
+
+    // Smooth interpolation
+    currentFrame += (targetFrame - currentFrame) * CONFIG.LERP_SPEED;
+
+    lottieAnimation.goToAndStop(Math.round(currentFrame), true);
+    updateTextOverlays(progress);
+}
+
+// ============================================
+// MAIN ANIMATION LOOP
+// ============================================
+function animate() {
+    if (!isLoaded) {
+        animationRAF = requestAnimationFrame(animate);
+        return;
+    }
+
+    if (hasStartedScrolling) {
+        animateScrollLinked();
+    } else {
+        animateBreathing();
+    }
+
+    animationRAF = requestAnimationFrame(animate);
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function onScroll() {
+    if (!hasStartedScrolling && window.scrollY > 5) {
+        hasStartedScrolling = true;
+        scrollIndicator.classList.add('hidden');
+        console.log('Started scrolling - switching to scroll-linked mode');
+    }
+}
+
+function onWheel(e) {
+    if (!hasStartedScrolling && e.deltaY > 0) {
+        hasStartedScrolling = true;
+        scrollIndicator.classList.add('hidden');
+        console.log('Wheel detected - switching to scroll-linked mode');
+    }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+async function init() {
+    await initLottie();
+
+    // Hide loading screen
+    loadingScreen.classList.add('hidden');
+
+    // Start at frame 0
+    lottieAnimation.goToAndStop(0, true);
+
+    // Event listeners
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('wheel', onWheel, { passive: true });
+
+    // Start animation loop
+    animate();
+
+    console.log('Initialized - Breathing mode active');
+}
+
+init();
+</script>
+
+</body>
+</html>
