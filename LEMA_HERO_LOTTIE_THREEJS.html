@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Lottie + Three.js Explosion</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 500vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#lottieContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vmin;
+    height: 80vmin;
+    z-index: 2;
+    transition: opacity 0.5s ease;
+}
+
+#threeCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.overlay-phase1 .hero-content { color: #3D2314; }
+.overlay-phase1 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+.overlay-phase1 .hero-cta { background: #3D2314; color: #F5F3F0; }
+
+.overlay-phase2 .hero-content { color: #FFFFFF; }
+.overlay-phase2 .hero-label { color: rgba(255, 255, 255, 0.6); }
+.overlay-phase2 .hero-subtext { color: rgba(255, 255, 255, 0.8); }
+
+.overlay-phase3 .hero-content { color: #3D2314; }
+.overlay-phase3 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    color: #3D2314;
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.debug-info {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    z-index: 1000;
+    border-radius: 4px;
+    display: none;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+    #lottieContainer { width: 90vmin; height: 90vmin; }
+}
+</style>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <canvas id="threeCanvas"></canvas>
+        <div id="lottieContainer"></div>
+
+        <div class="hero-overlay overlay-phase1 visible" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase2" id="overlay2">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase3" id="overlay3">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<div class="debug-info" id="debugInfo"></div>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    LOTTIE_PATH: './Swedish.json',
+    BREATHING_SPEED: 0.015,
+    BREATHING_SCALE_MIN: 0.95,
+    BREATHING_SCALE_MAX: 1.05,
+    EXPLOSION_START: 0.05,
+    EXPLOSION_END: 0.4,
+    PARTICLE_COUNT: 2000,
+    TEXT_RANGES: [
+        { start: 0, end: 0.33 },
+        { start: 0.33, end: 0.66 },
+        { start: 0.66, end: 1.0 }
+    ]
+};
+
+// ============================================
+// STATE
+// ============================================
+let scrollProgress = 0;
+let lottieAnimation = null;
+let breathingTime = 0;
+let hasExploded = false;
+
+// Three.js
+let scene, camera, renderer, particles;
+let particlePositions = [];
+let particleVelocities = [];
+let particleColors = [];
+
+// DOM
+const lottieContainer = document.getElementById('lottieContainer');
+const threeCanvas = document.getElementById('threeCanvas');
+const scrollContainer = document.getElementById('scrollContainer');
+const overlays = [
+    document.getElementById('overlay1'),
+    document.getElementById('overlay2'),
+    document.getElementById('overlay3')
+];
+const debugInfo = document.getElementById('debugInfo');
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    lottieAnimation = lottie.loadAnimation({
+        container: lottieContainer,
+        renderer: 'svg',
+        loop: true,
+        autoplay: true,
+        path: CONFIG.LOTTIE_PATH
+    });
+
+    lottieAnimation.addEventListener('DOMLoaded', () => {
+        console.log('Lottie loaded');
+    });
+}
+
+// ============================================
+// THREE.JS SETUP - Particles for explosion
+// ============================================
+function initThreeJS() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.z = 600;
+
+    renderer = new THREE.WebGLRenderer({
+        canvas: threeCanvas,
+        alpha: true,
+        antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    createParticles();
+}
+
+function createParticles() {
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(CONFIG.PARTICLE_COUNT * 3);
+    const colors = new Float32Array(CONFIG.PARTICLE_COUNT * 3);
+
+    // Create particles in a kaleidoscope-like circular pattern
+    const numShapes = 24;
+    const particlesPerShape = Math.floor(CONFIG.PARTICLE_COUNT / numShapes);
+
+    for (let shape = 0; shape < numShapes; shape++) {
+        const angle = (shape / numShapes) * Math.PI * 2;
+        const baseRadius = 150 + Math.random() * 50;
+
+        for (let p = 0; p < particlesPerShape; p++) {
+            const idx = (shape * particlesPerShape + p) * 3;
+
+            // Position in wedge shape
+            const wedgeAngle = angle + (Math.random() - 0.5) * (Math.PI / numShapes);
+            const radius = baseRadius * (0.3 + Math.random() * 0.7);
+
+            const x = Math.cos(wedgeAngle) * radius;
+            const y = Math.sin(wedgeAngle) * radius;
+            const z = (Math.random() - 0.5) * 50;
+
+            positions[idx] = x;
+            positions[idx + 1] = y;
+            positions[idx + 2] = z;
+
+            // Store initial position for animation
+            particlePositions.push({ x, y, z, origX: x, origY: y, origZ: z });
+
+            // Explosion velocity (outward from center)
+            const speed = 2 + Math.random() * 3;
+            particleVelocities.push({
+                x: Math.cos(wedgeAngle) * speed,
+                y: Math.sin(wedgeAngle) * speed,
+                z: (Math.random() - 0.5) * speed
+            });
+
+            // Dark brown color (#3D2314)
+            colors[idx] = 0.24;
+            colors[idx + 1] = 0.14;
+            colors[idx + 2] = 0.08;
+        }
+    }
+
+    geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+    const material = new THREE.PointsMaterial({
+        size: 3,
+        vertexColors: true,
+        transparent: true,
+        opacity: 0,
+        sizeAttenuation: true
+    });
+
+    particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+}
+
+// ============================================
+// BREATHING ANIMATION (Lottie scale)
+// ============================================
+function updateBreathing() {
+    if (scrollProgress < CONFIG.EXPLOSION_START) {
+        breathingTime += CONFIG.BREATHING_SPEED;
+        const breathScale = CONFIG.BREATHING_SCALE_MIN +
+            (Math.sin(breathingTime) * 0.5 + 0.5) *
+            (CONFIG.BREATHING_SCALE_MAX - CONFIG.BREATHING_SCALE_MIN);
+
+        lottieContainer.style.transform = `translate(-50%, -50%) scale(${breathScale})`;
+    }
+}
+
+// ============================================
+// EXPLOSION ANIMATION (Three.js particles)
+// ============================================
+function updateExplosion() {
+    const explosionProgress = Math.max(0, Math.min(1,
+        (scrollProgress - CONFIG.EXPLOSION_START) / (CONFIG.EXPLOSION_END - CONFIG.EXPLOSION_START)
+    ));
+
+    // Fade out Lottie, fade in particles
+    lottieContainer.style.opacity = 1 - explosionProgress;
+    particles.material.opacity = explosionProgress * 0.8;
+
+    // Update particle positions based on explosion progress
+    const positions = particles.geometry.attributes.position.array;
+
+    for (let i = 0; i < particlePositions.length; i++) {
+        const i3 = i * 3;
+        const p = particlePositions[i];
+        const v = particleVelocities[i];
+
+        // Lerp from original position to exploded position
+        const explodeDistance = explosionProgress * 300;
+        positions[i3] = p.origX + v.x * explodeDistance;
+        positions[i3 + 1] = p.origY + v.y * explodeDistance;
+        positions[i3 + 2] = p.origZ + v.z * explodeDistance;
+    }
+
+    particles.geometry.attributes.position.needsUpdate = true;
+
+    // Update background color based on progress
+    if (scrollProgress >= 0.33 && scrollProgress < 0.66) {
+        document.body.style.background = '#1a1a1a';
+        // Change particle colors to light
+        const colors = particles.geometry.attributes.color.array;
+        for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+            colors[i * 3] = 0.9;
+            colors[i * 3 + 1] = 0.85;
+            colors[i * 3 + 2] = 0.8;
+        }
+        particles.geometry.attributes.color.needsUpdate = true;
+    } else {
+        document.body.style.background = '#F5F3F0';
+        // Dark particles
+        const colors = particles.geometry.attributes.color.array;
+        for (let i = 0; i < CONFIG.PARTICLE_COUNT; i++) {
+            colors[i * 3] = 0.24;
+            colors[i * 3 + 1] = 0.14;
+            colors[i * 3 + 2] = 0.08;
+        }
+        particles.geometry.attributes.color.needsUpdate = true;
+    }
+}
+
+// ============================================
+// TEXT OVERLAYS
+// ============================================
+function updateTextOverlays() {
+    overlays.forEach((overlay, i) => {
+        const range = CONFIG.TEXT_RANGES[i];
+        if (scrollProgress >= range.start && scrollProgress < range.end) {
+            overlay.classList.add('visible');
+        } else {
+            overlay.classList.remove('visible');
+        }
+    });
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function onScroll() {
+    scrollProgress = getScrollProgress();
+    updateTextOverlays();
+
+    // Debug
+    // debugInfo.textContent = `Scroll: ${(scrollProgress * 100).toFixed(1)}%`;
+}
+
+// ============================================
+// ANIMATION LOOP
+// ============================================
+function animate() {
+    updateBreathing();
+    updateExplosion();
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+}
+
+// ============================================
+// RESIZE
+// ============================================
+function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+}
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+    initLottie();
+    initThreeJS();
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    animate();
+}
+
+init();
+</script>
+
+</body>
+</html>
