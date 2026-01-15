@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Direct Scroll-Linked</title>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: auto;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+}
+
+.scroll-container {
+    height: 400vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+}
+
+.hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hero-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.overlay-phase1 .hero-content {
+    color: #3D2314;
+}
+
+.overlay-phase1 .hero-subtext {
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.overlay-phase1 .hero-cta {
+    background: #3D2314;
+    color: #F5F3F0;
+}
+
+.overlay-phase2 .hero-content {
+    color: #FFFFFF;
+}
+
+.overlay-phase2 .hero-label {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.overlay-phase2 .hero-subtext {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.overlay-phase3 .hero-content {
+    color: #3D2314;
+}
+
+.overlay-phase3 .hero-subtext {
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    color: #3D2314;
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #F5F3F0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-text {
+    color: #3D2314;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.loading-bar {
+    width: 200px;
+    height: 3px;
+    background: rgba(61, 35, 20, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    height: 100%;
+    background: #3D2314;
+    width: 0%;
+    transition: width 0.1s ease;
+}
+
+@media (max-width: 1024px) {
+    .hero-headline { font-size: 2.5rem; }
+    .hero-subtext { font-size: 0.95rem; max-width: 500px; }
+    .hero-content { max-width: 600px; }
+}
+
+@media (max-width: 768px) {
+    .hero-overlay { padding: 1rem; }
+    .hero-content { max-width: 100%; padding: 0 0.5rem; }
+    .hero-label { font-size: 0.65rem; letter-spacing: 0.15em; margin-bottom: 0.5rem; }
+    .hero-headline { font-size: 1.75rem; margin-bottom: 1rem; }
+    .hero-subtext { font-size: 0.875rem; line-height: 1.6; }
+    .hero-cta { padding: 0.75rem 1.5rem; font-size: 0.85rem; margin-top: 1.25rem; }
+}
+
+@media (max-width: 480px) {
+    .hero-headline { font-size: 1.5rem; }
+    .hero-subtext { font-size: 0.8rem; }
+}
+</style>
+
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">Loading...</div>
+    <div class="loading-bar">
+        <div class="loading-progress" id="loadingProgress"></div>
+    </div>
+</div>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <canvas class="hero-canvas" id="heroCanvas"></canvas>
+
+        <div class="hero-overlay overlay-phase1 visible" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase2" id="overlay2">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl. There are more third parties than ever before, and every AI tool is wired straight into the heart of your business – yet legacy TPRM treats them like static vendors.</p>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase3" id="overlay3">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data. Finding it means matching every artifact, control, and compliance doc. That's what Risk Engineers were born to do.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content. This section appears after the hero animation completes.</p>
+</section>
+
+<script>
+const CONFIG = {
+    FRAME_PATH: 'https://pub-d21919fc94094f5ea79bbd4436095b6a.r2.dev/frames/',
+    FRAME_PREFIX: 'Lema_HP_Desktop_Kaleidoscope.',
+    FRAME_EXTENSION: '.webp',
+    TOTAL_FRAMES: 273,
+    FRAME_PADDING: 5,
+    LERP_SPEED: 0.12,
+    TEXT_RANGES: [
+        { start: 0, end: 0.33 },
+        { start: 0.33, end: 0.66 },
+        { start: 0.66, end: 1.0 }
+    ]
+};
+
+const canvas = document.getElementById('heroCanvas');
+const ctx = canvas.getContext('2d');
+const scrollContainer = document.getElementById('scrollContainer');
+const loadingScreen = document.getElementById('loadingScreen');
+const loadingProgress = document.getElementById('loadingProgress');
+const overlays = [
+    document.getElementById('overlay1'),
+    document.getElementById('overlay2'),
+    document.getElementById('overlay3')
+];
+
+const frames = [];
+let imagesLoaded = 0;
+let currentFrame = 0;
+let targetFrame = 0;
+let isReady = false;
+
+function getFramePath(index) {
+    const paddedNumber = String(index).padStart(CONFIG.FRAME_PADDING, '0');
+    return `${CONFIG.FRAME_PATH}${CONFIG.FRAME_PREFIX}${paddedNumber}${CONFIG.FRAME_EXTENSION}`;
+}
+
+function preloadFrames() {
+    return new Promise((resolve) => {
+        for (let i = 0; i < CONFIG.TOTAL_FRAMES; i++) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onload = () => {
+                imagesLoaded++;
+                const percent = (imagesLoaded / CONFIG.TOTAL_FRAMES) * 100;
+                loadingProgress.style.width = percent + '%';
+                if (imagesLoaded === CONFIG.TOTAL_FRAMES) resolve();
+            };
+
+            img.onerror = () => {
+                imagesLoaded++;
+                const percent = (imagesLoaded / CONFIG.TOTAL_FRAMES) * 100;
+                loadingProgress.style.width = percent + '%';
+                if (imagesLoaded === CONFIG.TOTAL_FRAMES) resolve();
+            };
+
+            img.src = getFramePath(i);
+            frames[i] = img;
+        }
+    });
+}
+
+function setCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function renderFrame(frameIndex) {
+    frameIndex = Math.max(0, Math.min(Math.round(frameIndex), CONFIG.TOTAL_FRAMES - 1));
+    const frame = frames[frameIndex];
+    if (!frame || !frame.complete) return;
+
+    const canvasRatio = canvas.width / canvas.height;
+    const frameRatio = frame.naturalWidth / frame.naturalHeight;
+    let drawWidth, drawHeight, drawX, drawY;
+
+    if (frameRatio > canvasRatio) {
+        drawHeight = canvas.height;
+        drawWidth = frame.naturalWidth * (canvas.height / frame.naturalHeight);
+        drawX = (canvas.width - drawWidth) / 2;
+        drawY = 0;
+    } else {
+        drawWidth = canvas.width;
+        drawHeight = frame.naturalHeight * (canvas.width / frame.naturalWidth);
+        drawX = 0;
+        drawY = (canvas.height - drawHeight) / 2;
+    }
+
+    ctx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+}
+
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function updateTextOverlays(progress) {
+    overlays.forEach((overlay, i) => {
+        const range = CONFIG.TEXT_RANGES[i];
+        if (progress >= range.start && progress < range.end) {
+            overlay.classList.add('visible');
+        } else {
+            overlay.classList.remove('visible');
+        }
+    });
+}
+
+function onScroll() {
+    if (!isReady) return;
+
+    const progress = getScrollProgress();
+    targetFrame = progress * (CONFIG.TOTAL_FRAMES - 1);
+    updateTextOverlays(progress);
+}
+
+function animate() {
+    currentFrame += (targetFrame - currentFrame) * CONFIG.LERP_SPEED;
+
+    if (Math.abs(targetFrame - currentFrame) > 0.1) {
+        renderFrame(currentFrame);
+    }
+
+    requestAnimationFrame(animate);
+}
+
+function init() {
+    setCanvasSize();
+
+    preloadFrames().then(() => {
+        isReady = true;
+        loadingScreen.classList.add('hidden');
+
+        renderFrame(0);
+        updateTextOverlays(0);
+
+        window.addEventListener('scroll', onScroll, { passive: true });
+        window.addEventListener('resize', () => {
+            setCanvasSize();
+            renderFrame(Math.round(currentFrame));
+        });
+
+        animate();
+    });
+}
+
+init();
+</script>
+
+</body>
+</html>
