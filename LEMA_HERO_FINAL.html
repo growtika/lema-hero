@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Lottie Breathing → Explosion → WebP Sequence</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 500vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#lottieContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 80vmin;
+    height: 80vmin;
+    z-index: 2;
+}
+
+#lottieContainer.hidden {
+    display: none;
+}
+
+.hero-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.hero-canvas.visible {
+    opacity: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.overlay-phase1 .hero-content { color: #3D2314; }
+.overlay-phase1 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+.overlay-phase1 .hero-cta { background: #3D2314; color: #F5F3F0; }
+
+.overlay-phase2 .hero-content { color: #FFFFFF; }
+.overlay-phase2 .hero-label { color: rgba(255, 255, 255, 0.6); }
+.overlay-phase2 .hero-subtext { color: rgba(255, 255, 255, 0.8); }
+
+.overlay-phase3 .hero-content { color: #3D2314; }
+.overlay-phase3 .hero-subtext { color: rgba(61, 35, 20, 0.75); }
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    display: none;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+.content-section h2 {
+    font-size: 2rem;
+    color: #3D2314;
+    margin-bottom: 1rem;
+}
+
+.content-section p {
+    color: #666;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #F5F3F0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    transition: opacity 0.5s ease;
+}
+
+.loading-screen.hidden {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-text {
+    color: #3D2314;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.loading-bar {
+    width: 200px;
+    height: 3px;
+    background: rgba(61, 35, 20, 0.15);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.loading-progress {
+    height: 100%;
+    background: #3D2314;
+    width: 0%;
+    transition: width 0.1s ease;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+    #lottieContainer { width: 90vmin; height: 90vmin; }
+}
+</style>
+
+<div class="loading-screen" id="loadingScreen">
+    <div class="loading-text">Loading...</div>
+    <div class="loading-bar">
+        <div class="loading-progress" id="loadingProgress"></div>
+    </div>
+</div>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <!-- Lottie (Phase 0 + Phase 1) -->
+        <div id="lottieContainer"></div>
+
+        <!-- WebP Canvas (Phase 2) -->
+        <canvas class="hero-canvas" id="heroCanvas"></canvas>
+
+        <!-- Text Overlays -->
+        <div class="hero-overlay overlay-phase1 visible" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase2" id="overlay2">
+            <div class="hero-content">
+                <span class="hero-label">Third Parties</span>
+                <h1 class="hero-headline">Your new single point of failure</h1>
+                <p class="hero-subtext">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+            </div>
+        </div>
+
+        <div class="hero-overlay overlay-phase3" id="overlay3">
+            <div class="hero-content">
+                <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    // Lottie
+    LOTTIE_PATH: './Swedish.json',
+    LOTTIE_EXPLOSION_END_FRAME: 60,
+
+    // Breathing effect
+    BREATHING_SPEED: 0.03,
+    BREATHING_SCALE_MIN: 0.97,
+    BREATHING_SCALE_MAX: 1.03,
+
+    // WebP Sequence
+    FRAME_PATH: 'https://pub-d21919fc94094f5ea79bbd4436095b6a.r2.dev/frames/',
+    FRAME_PREFIX: 'Lema_HP_Desktop_Kaleidoscope.',
+    FRAME_EXTENSION: '.webp',
+    TOTAL_FRAMES: 273,
+    FRAME_PADDING: 5,
+    LERP_SPEED: 0.12,
+
+    // Text overlay ranges (for WebP phase)
+    TEXT_RANGES: [
+        { start: 0, end: 0.33 },
+        { start: 0.33, end: 0.66 },
+        { start: 0.66, end: 1.0 }
+    ]
+};
+
+// ============================================
+// STATE
+// ============================================
+let currentPhase = 0; // 0 = breathing, 1 = explosion, 2 = webp
+let lottieAnimation = null;
+let breathingTime = 0;
+let breathingRAF = null;
+let hasScrolled = false;
+
+// WebP state
+const frames = [];
+let imagesLoaded = 0;
+let currentFrame = 0;
+let targetFrame = 0;
+let webpRAF = null;
+
+// DOM
+const lottieContainer = document.getElementById('lottieContainer');
+const canvas = document.getElementById('heroCanvas');
+const ctx = canvas.getContext('2d');
+const scrollContainer = document.getElementById('scrollContainer');
+const loadingScreen = document.getElementById('loadingScreen');
+const loadingProgress = document.getElementById('loadingProgress');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const overlays = [
+    document.getElementById('overlay1'),
+    document.getElementById('overlay2'),
+    document.getElementById('overlay3')
+];
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    return new Promise((resolve) => {
+        lottieAnimation = lottie.loadAnimation({
+            container: lottieContainer,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.LOTTIE_PATH
+        });
+
+        lottieAnimation.addEventListener('DOMLoaded', () => {
+            console.log('Lottie loaded, total frames:', lottieAnimation.totalFrames);
+            lottieAnimation.goToAndStop(0, true);
+            resolve();
+        });
+
+        lottieAnimation.addEventListener('complete', () => {
+            console.log('Lottie explosion complete');
+            onExplosionComplete();
+        });
+    });
+}
+
+// ============================================
+// PHASE 0: BREATHING ANIMATION
+// ============================================
+function startBreathing() {
+    function breathe() {
+        if (currentPhase !== 0) return;
+
+        breathingTime += CONFIG.BREATHING_SPEED;
+        const breathScale = CONFIG.BREATHING_SCALE_MIN +
+            (Math.sin(breathingTime) * 0.5 + 0.5) *
+            (CONFIG.BREATHING_SCALE_MAX - CONFIG.BREATHING_SCALE_MIN);
+
+        lottieContainer.style.transform = `translate(-50%, -50%) scale(${breathScale})`;
+
+        breathingRAF = requestAnimationFrame(breathe);
+    }
+
+    breathe();
+}
+
+function stopBreathing() {
+    if (breathingRAF) {
+        cancelAnimationFrame(breathingRAF);
+        breathingRAF = null;
+    }
+    lottieContainer.style.transform = 'translate(-50%, -50%) scale(1)';
+}
+
+// ============================================
+// PHASE 1: EXPLOSION (Lottie plays)
+// ============================================
+function triggerExplosion() {
+    if (currentPhase !== 0) return;
+
+    console.log('Triggering explosion');
+    currentPhase = 1;
+    hasScrolled = true;
+
+    stopBreathing();
+    scrollIndicator.classList.add('hidden');
+
+    // Play Lottie explosion
+    lottieAnimation.play();
+}
+
+function onExplosionComplete() {
+    currentPhase = 2;
+
+    // Hide Lottie, show WebP canvas
+    lottieContainer.classList.add('hidden');
+    canvas.classList.add('visible');
+
+    // Start WebP scroll-linked animation
+    startWebPAnimation();
+}
+
+// ============================================
+// PHASE 2: WEBP SEQUENCE (scroll-linked)
+// ============================================
+function getFramePath(index) {
+    const paddedNumber = String(index).padStart(CONFIG.FRAME_PADDING, '0');
+    return `${CONFIG.FRAME_PATH}${CONFIG.FRAME_PREFIX}${paddedNumber}${CONFIG.FRAME_EXTENSION}`;
+}
+
+function preloadFrames() {
+    return new Promise((resolve) => {
+        for (let i = 0; i < CONFIG.TOTAL_FRAMES; i++) {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+
+            img.onload = () => {
+                imagesLoaded++;
+                const percent = (imagesLoaded / CONFIG.TOTAL_FRAMES) * 100;
+                loadingProgress.style.width = percent + '%';
+                if (imagesLoaded === CONFIG.TOTAL_FRAMES) resolve();
+            };
+
+            img.onerror = () => {
+                imagesLoaded++;
+                const percent = (imagesLoaded / CONFIG.TOTAL_FRAMES) * 100;
+                loadingProgress.style.width = percent + '%';
+                if (imagesLoaded === CONFIG.TOTAL_FRAMES) resolve();
+            };
+
+            img.src = getFramePath(i);
+            frames[i] = img;
+        }
+    });
+}
+
+function setCanvasSize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+}
+
+function renderFrame(frameIndex) {
+    frameIndex = Math.max(0, Math.min(Math.round(frameIndex), CONFIG.TOTAL_FRAMES - 1));
+    const frame = frames[frameIndex];
+    if (!frame || !frame.complete) return;
+
+    const canvasRatio = canvas.width / canvas.height;
+    const frameRatio = frame.naturalWidth / frame.naturalHeight;
+    let drawWidth, drawHeight, drawX, drawY;
+
+    if (frameRatio > canvasRatio) {
+        drawHeight = canvas.height;
+        drawWidth = frame.naturalWidth * (canvas.height / frame.naturalHeight);
+        drawX = (canvas.width - drawWidth) / 2;
+        drawY = 0;
+    } else {
+        drawWidth = canvas.width;
+        drawHeight = frame.naturalHeight * (canvas.width / frame.naturalWidth);
+        drawX = 0;
+        drawY = (canvas.height - drawHeight) / 2;
+    }
+
+    ctx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+}
+
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function updateTextOverlays(progress) {
+    overlays.forEach((overlay, i) => {
+        const range = CONFIG.TEXT_RANGES[i];
+        if (progress >= range.start && progress < range.end) {
+            overlay.classList.add('visible');
+        } else {
+            overlay.classList.remove('visible');
+        }
+    });
+
+    // Update background for dark phase
+    if (progress >= 0.33 && progress < 0.66) {
+        document.body.style.background = '#1a1a1a';
+    } else {
+        document.body.style.background = '#F5F3F0';
+    }
+}
+
+function startWebPAnimation() {
+    function animateWebP() {
+        if (currentPhase !== 2) return;
+
+        const progress = getScrollProgress();
+        targetFrame = progress * (CONFIG.TOTAL_FRAMES - 1);
+
+        currentFrame += (targetFrame - currentFrame) * CONFIG.LERP_SPEED;
+
+        renderFrame(currentFrame);
+        updateTextOverlays(progress);
+
+        webpRAF = requestAnimationFrame(animateWebP);
+    }
+
+    // Render first frame
+    renderFrame(0);
+    updateTextOverlays(0);
+
+    animateWebP();
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function onScroll() {
+    // Phase 0: First scroll triggers explosion
+    if (currentPhase === 0 && window.scrollY > 10) {
+        triggerExplosion();
+    }
+}
+
+function onWheel(e) {
+    // Phase 0: Any scroll down triggers explosion
+    if (currentPhase === 0 && e.deltaY > 0) {
+        e.preventDefault();
+        triggerExplosion();
+    }
+}
+
+// ============================================
+// RESIZE
+// ============================================
+function onResize() {
+    setCanvasSize();
+    if (currentPhase === 2) {
+        renderFrame(Math.round(currentFrame));
+    }
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+async function init() {
+    setCanvasSize();
+
+    // Load both Lottie and WebP frames in parallel
+    await Promise.all([
+        initLottie(),
+        preloadFrames()
+    ]);
+
+    // Hide loading screen
+    loadingScreen.classList.add('hidden');
+
+    // Start Phase 0: Breathing
+    currentPhase = 0;
+    startBreathing();
+
+    // Event listeners
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('wheel', onWheel, { passive: false });
+    window.addEventListener('resize', onResize);
+
+    console.log('Initialized - Phase 0: Breathing');
+}
+
+init();
+</script>
+
+</body>
+</html>
