@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Kaleidoscope</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 600vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#kaleidoscopeCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+#webpCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+#webpCanvas.visible {
+    opacity: 1;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #3D2314;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    background: #3D2314;
+    color: #F5F3F0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <canvas id="kaleidoscopeCanvas"></canvas>
+        <canvas id="webpCanvas"></canvas>
+
+        <div class="hero-overlay visible" id="overlay1">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    // Kaleidoscope
+    NUM_SHAPES: 40,
+    SHAPE_SIZE: 35,
+    KALEIDOSCOPE_RADIUS: 160,
+
+    // Breathing
+    BREATH_SPEED: 0.008,
+    BREATH_AMOUNT: 12,
+    DRIFT_SPEED: 0.003,
+    DRIFT_AMOUNT: 6,
+    ROTATION_SPEED: 0.0002,
+
+    // Explosion
+    EXPLOSION_DURATION: 0.15, // 15% of scroll = explosion phase
+    EXPLOSION_FORCE: 800,
+    GRAVITY: 400,
+    SPIN_SPEED: 8,
+
+    // WebP sequence
+    WEBP_START: 0.15, // WebP takes over after explosion
+    FRAME_PATH: 'https://pub-d21919fc94094f5ea79bbd4436095b6a.r2.dev/frames/',
+    TOTAL_FRAMES: 273,
+    LERP_SPEED: 0.1
+};
+
+// ============================================
+// STATE
+// ============================================
+let scene, camera, renderer;
+let shapes = [];
+let phase = 'breathing'; // 'breathing', 'exploding', 'webp'
+let time = 0;
+let scrollProgress = 0;
+let explosionStartTime = 0;
+
+// WebP
+let webpCanvas, webpCtx;
+let frames = [];
+let currentFrame = 0;
+let framesLoaded = 0;
+
+// DOM
+const kaleidoscopeCanvas = document.getElementById('kaleidoscopeCanvas');
+const scrollContainer = document.getElementById('scrollContainer');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const overlay1 = document.getElementById('overlay1');
+
+// ============================================
+// THREE.JS SETUP
+// ============================================
+function initThreeJS() {
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 0.1, 2000);
+    camera.position.z = 500;
+
+    renderer = new THREE.WebGLRenderer({
+        canvas: kaleidoscopeCanvas,
+        alpha: true,
+        antialias: true
+    });
+    renderer.setSize(window.innerWidth, window.innerHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    createKaleidoscope();
+}
+
+function createKaleidoscope() {
+    // Create angular wedge shapes arranged in a circle
+    const angleStep = (Math.PI * 2) / CONFIG.NUM_SHAPES;
+
+    for (let i = 0; i < CONFIG.NUM_SHAPES; i++) {
+        const angle = i * angleStep;
+
+        // Create wedge geometry (triangle-ish)
+        const geometry = new THREE.BufferGeometry();
+        const size = CONFIG.SHAPE_SIZE * (0.7 + Math.random() * 0.6);
+
+        // Wedge vertices pointing outward
+        const vertices = new Float32Array([
+            0, 0, 0,
+            size * 0.8, size * 0.3, 0,
+            size, -size * 0.4, 0,
+            size * 0.5, -size * 0.2, 0
+        ]);
+
+        const indices = [0, 1, 2, 0, 2, 3];
+
+        geometry.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        geometry.setIndex(indices);
+        geometry.computeVertexNormals();
+
+        // Dark brown color with slight variation
+        const colorVariation = 0.9 + Math.random() * 0.2;
+        const material = new THREE.MeshBasicMaterial({
+            color: new THREE.Color(0.24 * colorVariation, 0.14 * colorVariation, 0.08 * colorVariation),
+            side: THREE.DoubleSide,
+            transparent: true,
+            opacity: 1
+        });
+
+        const mesh = new THREE.Mesh(geometry, material);
+
+        // Position in circle
+        const radius = CONFIG.KALEIDOSCOPE_RADIUS * (0.6 + Math.random() * 0.8);
+        const baseX = Math.cos(angle) * radius;
+        const baseY = Math.sin(angle) * radius;
+
+        mesh.position.set(baseX, baseY, (Math.random() - 0.5) * 30);
+        mesh.rotation.z = angle + Math.PI / 2; // Point outward
+
+        scene.add(mesh);
+
+        // Store shape data
+        shapes.push({
+            mesh,
+            baseX,
+            baseY,
+            baseZ: mesh.position.z,
+            baseRotation: mesh.rotation.z,
+            currentX: baseX,
+            currentY: baseY,
+            currentZ: mesh.position.z,
+            // Explosion properties
+            startX: 0,
+            startY: 0,
+            startZ: 0,
+            startRotation: 0,
+            explosionAngle: angle + (Math.random() - 0.5) * 0.5,
+            explosionSpeed: CONFIG.EXPLOSION_FORCE * (0.6 + Math.random() * 0.8),
+            spinDirection: Math.random() > 0.5 ? 1 : -1,
+            // Per-shape animation offsets
+            breathOffset: Math.random() * Math.PI * 2,
+            driftOffsetX: Math.random() * Math.PI * 2,
+            driftOffsetY: Math.random() * Math.PI * 2
+        });
+    }
+
+    console.log(`Created ${CONFIG.NUM_SHAPES} kaleidoscope shapes`);
+}
+
+// ============================================
+// BREATHING ANIMATION
+// ============================================
+function animateBreathing() {
+    for (const shape of shapes) {
+        // Breathing pulse (in/out)
+        const breathScale = 1 + Math.sin(time * CONFIG.BREATH_SPEED + shape.breathOffset) * 0.08;
+
+        // Gentle drift
+        const driftX = Math.sin(time * CONFIG.DRIFT_SPEED + shape.driftOffsetX) * CONFIG.DRIFT_AMOUNT;
+        const driftY = Math.cos(time * CONFIG.DRIFT_SPEED * 0.8 + shape.driftOffsetY) * CONFIG.DRIFT_AMOUNT;
+
+        // Update current position
+        shape.currentX = shape.baseX * breathScale + driftX;
+        shape.currentY = shape.baseY * breathScale + driftY;
+        shape.currentZ = shape.baseZ + Math.sin(time * CONFIG.DRIFT_SPEED * 0.5 + shape.breathOffset) * 3;
+
+        shape.mesh.position.x = shape.currentX;
+        shape.mesh.position.y = shape.currentY;
+        shape.mesh.position.z = shape.currentZ;
+
+        // Subtle rotation wobble
+        shape.mesh.rotation.z = shape.baseRotation + Math.sin(time * CONFIG.DRIFT_SPEED + shape.breathOffset) * 0.05;
+    }
+
+    // Gentle overall rotation
+    scene.rotation.z = time * CONFIG.ROTATION_SPEED;
+}
+
+// ============================================
+// EXPLOSION - CAPTURE START POSITIONS
+// ============================================
+function captureExplosionStart() {
+    for (const shape of shapes) {
+        // Capture WHERE each shape is RIGHT NOW
+        shape.startX = shape.currentX;
+        shape.startY = shape.currentY;
+        shape.startZ = shape.currentZ;
+        shape.startRotation = shape.mesh.rotation.z;
+    }
+    explosionStartTime = time;
+    console.log('Explosion started from current positions!');
+}
+
+// ============================================
+// EXPLOSION ANIMATION
+// ============================================
+function animateExplosion(progress) {
+    // Normalize progress within explosion phase (0 to 1)
+    const explosionProgress = Math.min(1, progress / CONFIG.EXPLOSION_DURATION);
+    const eased = easeOutQuad(explosionProgress);
+
+    for (const shape of shapes) {
+        // Fly outward from START position
+        const moveX = Math.cos(shape.explosionAngle) * shape.explosionSpeed * eased;
+        const moveY = Math.sin(shape.explosionAngle) * shape.explosionSpeed * eased;
+        const gravity = CONFIG.GRAVITY * eased * eased; // Accelerating fall
+
+        shape.mesh.position.x = shape.startX + moveX;
+        shape.mesh.position.y = shape.startY + moveY - gravity;
+        shape.mesh.position.z = shape.startZ + (Math.random() - 0.5) * 50 * eased;
+
+        // Spin while flying
+        shape.mesh.rotation.z = shape.startRotation + CONFIG.SPIN_SPEED * eased * shape.spinDirection;
+
+        // Fade out
+        shape.mesh.material.opacity = Math.max(0, 1 - explosionProgress * 1.2);
+    }
+
+    // Reset scene rotation during explosion
+    scene.rotation.z = 0;
+}
+
+function easeOutQuad(t) {
+    return t * (2 - t);
+}
+
+// ============================================
+// WEBP SEQUENCE
+// ============================================
+function initWebPCanvas() {
+    webpCanvas = document.getElementById('webpCanvas');
+    webpCtx = webpCanvas.getContext('2d');
+    webpCanvas.width = window.innerWidth;
+    webpCanvas.height = window.innerHeight;
+}
+
+function preloadFrames() {
+    for (let i = 0; i < CONFIG.TOTAL_FRAMES; i++) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            framesLoaded++;
+            if (framesLoaded === CONFIG.TOTAL_FRAMES) {
+                console.log('All WebP frames loaded');
+            }
+        };
+        img.src = `${CONFIG.FRAME_PATH}frame_${String(i).padStart(4, '0')}.webp`;
+        frames.push(img);
+    }
+}
+
+function drawWebPFrame(frameIndex) {
+    const frame = frames[Math.floor(frameIndex)];
+    if (!frame || !frame.complete) return;
+
+    const canvas = webpCanvas;
+    const ctx = webpCtx;
+
+    // Clear
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // Draw with cover behavior
+    const imgRatio = frame.width / frame.height;
+    const canvasRatio = canvas.width / canvas.height;
+
+    let drawWidth, drawHeight, drawX, drawY;
+
+    if (canvasRatio > imgRatio) {
+        drawWidth = canvas.width;
+        drawHeight = canvas.width / imgRatio;
+        drawX = 0;
+        drawY = (canvas.height - drawHeight) / 2;
+    } else {
+        drawHeight = canvas.height;
+        drawWidth = canvas.height * imgRatio;
+        drawX = (canvas.width - drawWidth) / 2;
+        drawY = 0;
+    }
+
+    ctx.drawImage(frame, drawX, drawY, drawWidth, drawHeight);
+}
+
+function animateWebP(progress) {
+    // Map progress (0.15 to 1) to frame index (0 to 272)
+    const webpProgress = (progress - CONFIG.WEBP_START) / (1 - CONFIG.WEBP_START);
+    const targetFrame = Math.max(0, Math.min(CONFIG.TOTAL_FRAMES - 1, webpProgress * (CONFIG.TOTAL_FRAMES - 1)));
+
+    // Smooth interpolation
+    currentFrame += (targetFrame - currentFrame) * CONFIG.LERP_SPEED;
+
+    drawWebPFrame(currentFrame);
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function onScroll() {
+    const newProgress = getScrollProgress();
+
+    // Transition from breathing to explosion
+    if (phase === 'breathing' && newProgress > 0.001) {
+        phase = 'exploding';
+        captureExplosionStart();
+        scrollIndicator.classList.add('hidden');
+    }
+
+    // Transition from explosion to WebP
+    if (phase === 'exploding' && newProgress >= CONFIG.WEBP_START) {
+        phase = 'webp';
+        document.getElementById('webpCanvas').classList.add('visible');
+        overlay1.classList.remove('visible');
+    }
+
+    // Can scroll back to explosion
+    if (phase === 'webp' && newProgress < CONFIG.WEBP_START) {
+        phase = 'exploding';
+        document.getElementById('webpCanvas').classList.remove('visible');
+        overlay1.classList.add('visible');
+    }
+
+    scrollProgress = newProgress;
+}
+
+// ============================================
+// MAIN ANIMATION LOOP
+// ============================================
+function animate() {
+    time++;
+
+    if (phase === 'breathing') {
+        animateBreathing();
+    } else if (phase === 'exploding') {
+        animateExplosion(scrollProgress);
+    }
+
+    if (phase === 'webp') {
+        animateWebP(scrollProgress);
+    }
+
+    renderer.render(scene, camera);
+    requestAnimationFrame(animate);
+}
+
+// ============================================
+// RESIZE
+// ============================================
+function onResize() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+
+    if (webpCanvas) {
+        webpCanvas.width = window.innerWidth;
+        webpCanvas.height = window.innerHeight;
+    }
+}
+
+// ============================================
+// INIT
+// ============================================
+function init() {
+    initThreeJS();
+    initWebPCanvas();
+    preloadFrames();
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onResize);
+
+    animate();
+
+    console.log('Kaleidoscope ready - breathing. Scroll to explode!');
+}
+
+init();
+</script>
+
+</body>
+</html>
