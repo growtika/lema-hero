@@ -277,12 +277,12 @@ const CONFIG = {
         { start: 0.66, end: 1.0 }
     ],
     PARTICLES: {
-        COUNT: 150,
-        SIZE: 4,
-        BREATHING_SPEED: 0.02,
-        BREATHING_AMOUNT: 8,
-        DRIFT_SPEED: 0.008,
-        DRIFT_AMOUNT: 12
+        COUNT: 100,
+        SIZE: 6,
+        BREATHING_SPEED: 0.05,
+        BREATHING_AMOUNT: 20,
+        DRIFT_SPEED: 0.02,
+        DRIFT_AMOUNT: 25
     }
 };
 
@@ -437,7 +437,7 @@ function initParticles() {
         size: CONFIG.PARTICLES.SIZE,
         vertexColors: true,
         transparent: true,
-        opacity: 0.15,
+        opacity: 0.35,
         sizeAttenuation: true
     });
 
@@ -481,7 +481,7 @@ function animateParticles() {
             colors[i3 + 2] = 0.8;
         }
         particles.geometry.attributes.color.needsUpdate = true;
-        particles.material.opacity = 0.2;
+        particles.material.opacity = 0.4;
     } else {
         // Dark particles on light background
         const colors = particles.geometry.attributes.color.array;
@@ -492,7 +492,7 @@ function animateParticles() {
             colors[i3 + 2] = 0.08;
         }
         particles.geometry.attributes.color.needsUpdate = true;
-        particles.material.opacity = 0.15;
+        particles.material.opacity = 0.35;
     }
 
     renderer.render(scene, camera);
@@ -531,11 +531,24 @@ function onScroll() {
 }
 
 // ============================================
+// PARTICLE-ONLY ANIMATION (runs immediately)
+// ============================================
+function animateParticlesOnly() {
+    animateParticles();
+    if (!isReady) {
+        requestAnimationFrame(animateParticlesOnly);
+    }
+}
+
+// ============================================
 // INITIALIZATION
 // ============================================
 function init() {
     setCanvasSize();
     initParticles();
+
+    // Start particle animation IMMEDIATELY (before frames load)
+    animateParticlesOnly();
 
     preloadFrames().then(() => {
         isReady = true;
@@ -547,6 +560,7 @@ function init() {
         window.addEventListener('scroll', onScroll, { passive: true });
         window.addEventListener('resize', onWindowResize);
 
+        // Start full animation loop (WebP + particles)
         animate();
     });
 }
