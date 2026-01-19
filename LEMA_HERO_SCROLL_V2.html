@@ -244,8 +244,12 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    LOTTIE2_PATH: './Section_2_fixed.json',
-    LOTTIE3_PATH: './Section_3_fixed.json',
+    LOTTIE2_PATH: './Section_2_clean.json',
+    LOTTIE3_PATH: './Section_3_clean.json',
+
+    // Lottie start frames (from original JSON ip values)
+    LOTTIE2_START_FRAME: 162,
+    LOTTIE3_START_FRAME: 237,
 
     // Scroll thresholds (0-1)
     PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
@@ -339,11 +343,11 @@ function showPhase2() {
     phase3Layer.classList.remove('visible');
     scrollIndicator.classList.add('hidden');
 
-    // Trigger Lottie 2 (plays once)
+    // Trigger Lottie 2 (plays once from correct start frame)
     if (!lottie2Triggered) {
         lottie2Triggered = true;
-        console.log('Phase 2: Playing Lottie');
-        lottie2Anim.play();
+        console.log('Phase 2: Playing Lottie from frame', CONFIG.LOTTIE2_START_FRAME);
+        lottie2Anim.goToAndPlay(CONFIG.LOTTIE2_START_FRAME, true);
     }
 }
 
@@ -352,11 +356,11 @@ function showPhase3() {
     phase2Layer.classList.remove('visible');
     phase3Layer.classList.add('visible');
 
-    // Trigger Lottie 3 (plays once)
+    // Trigger Lottie 3 (plays once from correct start frame)
     if (!lottie3Triggered) {
         lottie3Triggered = true;
-        console.log('Phase 3: Playing Lottie transition');
-        lottie3Anim.play();
+        console.log('Phase 3: Playing Lottie from frame', CONFIG.LOTTIE3_START_FRAME);
+        lottie3Anim.goToAndPlay(CONFIG.LOTTIE3_START_FRAME, true);
     }
 }
 

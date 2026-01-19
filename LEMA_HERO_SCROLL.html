@@ -241,8 +241,12 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    SECTION2_PATH: './Section_2_fixed.json',
-    SECTION3_PATH: './Section_3_fixed.json',
+    SECTION2_PATH: './Section_2_clean.json',
+    SECTION3_PATH: './Section_3_clean.json',
+
+    // Lottie start frames (from original JSON ip values)
+    LOTTIE2_START_FRAME: 162,
+    LOTTIE3_START_FRAME: 237,
 
     // Scroll thresholds (0-1)
     PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
@@ -313,12 +317,12 @@ function playSection2() {
     if (section2Played) return;
     section2Played = true;
 
-    console.log('Phase 2: Playing explosion');
+    console.log('Phase 2: Playing explosion from frame', CONFIG.LOTTIE2_START_FRAME);
     section2Layer.classList.add('visible');
     section2Layer.style.background = '#1a1a1a';
     scrollIndicator.classList.add('hidden');
 
-    section2Anim.play();
+    section2Anim.goToAndPlay(CONFIG.LOTTIE2_START_FRAME, true);
 
     section2Anim.addEventListener('complete', () => {
         section2Complete = true;
@@ -331,11 +335,11 @@ function playSection3() {
     if (section3Played) return;
     section3Played = true;
 
-    console.log('Phase 3: Playing');
+    console.log('Phase 3: Playing from frame', CONFIG.LOTTIE3_START_FRAME);
     section3Layer.classList.add('visible');
     section3Layer.style.background = '#F5F3F0';
 
-    section3Anim.play();
+    section3Anim.goToAndPlay(CONFIG.LOTTIE3_START_FRAME, true);
 
     section3Anim.addEventListener('complete', () => {
         section3Complete = true;
