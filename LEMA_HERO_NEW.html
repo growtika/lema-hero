@@ -319,6 +319,9 @@ function initLottie() {
 // ============================================
 // PLAY FUNCTIONS (once only, stay on final frame)
 // ============================================
+let section2Complete = false;
+let section3Complete = false;
+
 function playSection2() {
     if (section2Played) return;
     section2Played = true;
@@ -329,8 +332,10 @@ function playSection2() {
     section2Anim.play();
 
     section2Anim.addEventListener('complete', () => {
-        console.log('Section 2 complete - staying on final frame');
+        section2Complete = true;
+        console.log('Section 2 complete - frozen on final frame');
         debug.textContent = 'Section 2 done';
+        // Force final frame
         section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
     });
 }
@@ -345,10 +350,22 @@ function playSection3() {
     section3Anim.play();
 
     section3Anim.addEventListener('complete', () => {
-        console.log('Section 3 complete - staying on final frame');
+        section3Complete = true;
+        console.log('Section 3 complete - frozen on final frame');
         debug.textContent = 'All done!';
+        // Force final frame
         section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     });
+}
+
+// Keep sections frozen on final frame when scrolling back
+function keepFrozen() {
+    if (section2Complete) {
+        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+    }
+    if (section3Complete) {
+        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
+    }
 }
 
 // ============================================
@@ -396,6 +413,9 @@ async function init() {
     console.log('Hero ready - 3 separate sections');
 
     setupObservers();
+
+    // On any scroll, ensure completed sections stay frozen
+    window.addEventListener('scroll', keepFrozen, { passive: true });
 }
 
 init();
