@@ -250,7 +250,7 @@ const CONFIG = {
 
     // Scroll thresholds (0-1)
     PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
-    PHASE3_START: 0.02   // Phase 3 starts immediately after (2% scroll)
+    PHASE3_START: 0.15   // Phase 3 starts at 15% scroll
 };
 
 // ============================================
@@ -328,9 +328,7 @@ function playSection2() {
     section2Anim.addEventListener('complete', () => {
         section2Complete = true;
         section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-        console.log('Phase 2 complete - triggering Phase 3');
-        // Automatically trigger Phase 3 when Phase 2 completes
-        playSection3();
+        console.log('Phase 2 complete - frozen');
     });
 }
 
@@ -375,9 +373,12 @@ function onScroll() {
     // Update debug
     debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
 
-    // Trigger Phase 2 on scroll (Phase 3 triggers automatically when Phase 2 completes)
+    // Trigger phase changes (only forward, lotties play once)
     if (newPhase >= 2 && !section2Played) {
         playSection2();
+    }
+    if (newPhase >= 3 && !section3Played) {
+        playSection3();
     }
 
     // Keep frozen frames when scrolling back
