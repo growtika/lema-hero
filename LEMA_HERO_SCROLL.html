@@ -17,7 +17,7 @@
 
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-    background: #F5F3F0;
+    background: #1a1a1a;
     overflow-x: hidden;
 }
 
@@ -32,10 +32,9 @@ body {
     width: 100%;
     height: 100vh;
     overflow: hidden;
-    background: #F5F3F0;
 }
 
-/* All three layers stacked */
+/* All three layers stacked - FULLSCREEN */
 #videoLayer,
 #section2Layer,
 #section3Layer {
@@ -48,30 +47,30 @@ body {
 
 #videoLayer {
     z-index: 1;
+    background: #F5F3F0;
 }
 
 #section2Layer {
     z-index: 2;
     opacity: 0;
     pointer-events: none;
+    background: #1a1a1a;
 }
 
 #section3Layer {
     z-index: 3;
     opacity: 0;
     pointer-events: none;
+    background: #F5F3F0;
 }
 
-#section2Layer.visible {
-    opacity: 1;
-    pointer-events: auto;
-}
-
+#section2Layer.visible,
 #section3Layer.visible {
     opacity: 1;
     pointer-events: auto;
 }
 
+/* Video fullscreen cover */
 #heroVideo {
     position: absolute;
     top: 50%;
@@ -84,9 +83,24 @@ body {
     object-fit: cover;
 }
 
+/* Lottie container - FULLSCREEN with cover behavior */
 .lottie-container {
+    position: absolute;
+    top: 0;
+    left: 0;
     width: 100%;
     height: 100%;
+}
+
+.lottie-container svg {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto !important;
+    height: auto !important;
 }
 
 /* Text overlays */
@@ -246,10 +260,10 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    SECTION2_PATH: './Section_2_clean.json',
-    SECTION3_PATH: './Section_3_clean.json',
+    SECTION2_PATH: './Section_2.json',
+    SECTION3_PATH: './Section_3.json',
 
-    // Lottie start frames (actual content starts here)
+    // Lottie start frames (from JSON ip values)
     LOTTIE2_START_FRAME: 162,
     LOTTIE3_START_FRAME: 237,
 
@@ -288,12 +302,14 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION2_PATH
+            path: CONFIG.SECTION2_PATH,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice'
+            }
         });
 
         section2Anim.addEventListener('DOMLoaded', () => {
             console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
-            // Set to first visible frame
             section2Anim.goToAndStop(CONFIG.LOTTIE2_START_FRAME, true);
             loaded++;
             if (loaded === 2) resolve();
@@ -304,12 +320,14 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION3_PATH
+            path: CONFIG.SECTION3_PATH,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice'
+            }
         });
 
         section3Anim.addEventListener('DOMLoaded', () => {
             console.log('Section 3 loaded:', section3Anim.totalFrames, 'frames');
-            // Set to first visible frame
             section3Anim.goToAndStop(CONFIG.LOTTIE3_START_FRAME, true);
             loaded++;
             if (loaded === 2) resolve();
@@ -328,7 +346,6 @@ function triggerPhase2() {
     section2Layer.classList.add('visible');
     scrollIndicator.classList.add('hidden');
 
-    // Play from start frame
     section2Anim.goToAndPlay(CONFIG.LOTTIE2_START_FRAME, true);
 }
 
@@ -339,7 +356,6 @@ function triggerPhase3() {
     console.log('Phase 3: Showing layer and playing Lottie');
     section3Layer.classList.add('visible');
 
-    // Play from start frame
     section3Anim.goToAndPlay(CONFIG.LOTTIE3_START_FRAME, true);
 }
 
@@ -355,7 +371,6 @@ function getScrollProgress() {
 function onScroll() {
     const progress = getScrollProgress();
 
-    // Determine phase
     let newPhase = 1;
     if (progress >= CONFIG.PHASE3_START) {
         newPhase = 3;
@@ -363,10 +378,8 @@ function onScroll() {
         newPhase = 2;
     }
 
-    // Update debug
     debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
 
-    // Trigger phases (one-way, lotties play once)
     if (newPhase >= 2) {
         triggerPhase2();
     }
@@ -386,7 +399,7 @@ async function init() {
     await initLottie();
 
     debug.textContent = 'Phase: 1 | Scroll: 0%';
-    console.log('Ready - Phase 1: looping video, scroll triggers phases 2 & 3');
+    console.log('Ready - scroll to trigger phases');
 
     window.addEventListener('scroll', onScroll, { passive: true });
 }
