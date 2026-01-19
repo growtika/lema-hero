@@ -244,8 +244,8 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    LOTTIE2_PATH: './Section_2_clean.json',
-    LOTTIE3_PATH: './Section_3_clean.json',
+    LOTTIE2_PATH: './Section_2_fixed.json',
+    LOTTIE3_PATH: './Section_3_fixed.json',
 
     // Scroll thresholds (0-1)
     PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
@@ -363,13 +363,16 @@ function showPhase3() {
 // ============================================
 // SCROLL HANDLING
 // ============================================
+let lastScrollTime = 0;
+let scrollRAF = null;
+
 function getScrollProgress() {
     const scrollTop = window.scrollY;
     const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
     return Math.max(0, Math.min(1, scrollTop / scrollHeight));
 }
 
-function onScroll() {
+function handleScroll() {
     const progress = getScrollProgress();
 
     // Determine phase based on scroll
@@ -383,24 +386,33 @@ function onScroll() {
     // Update debug
     debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
 
-    // Show appropriate phase
-    if (newPhase === 1) {
-        showPhase1();
-    } else if (newPhase === 2) {
-        showPhase2();
-    } else {
-        showPhase3();
+    // Only update if phase changed
+    if (newPhase !== currentPhase) {
+        if (newPhase === 1) {
+            showPhase1();
+        } else if (newPhase === 2) {
+            showPhase2();
+        } else {
+            showPhase3();
+        }
+        currentPhase = newPhase;
     }
 
     // Keep Lotties on final frame if complete
-    if (lottie2Complete) {
+    if (lottie2Complete && lottie2Anim) {
         lottie2Anim.goToAndStop(lottie2Anim.totalFrames - 1, true);
     }
-    if (lottie3Complete) {
+    if (lottie3Complete && lottie3Anim) {
         lottie3Anim.goToAndStop(lottie3Anim.totalFrames - 1, true);
     }
+}
 
-    currentPhase = newPhase;
+function onScroll() {
+    // Use requestAnimationFrame for smooth scroll handling
+    if (scrollRAF) {
+        cancelAnimationFrame(scrollRAF);
+    }
+    scrollRAF = requestAnimationFrame(handleScroll);
 }
 
 // ============================================
@@ -414,7 +426,13 @@ async function init() {
     debug.textContent = 'Phase: 1 | Scroll: 0%';
     console.log('Ready - Lottie plays in Phase 2 AND Phase 3');
 
+    // Reset scroll position on load
+    window.scrollTo(0, 0);
+
     window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Initial check in case page loaded with scroll
+    handleScroll();
 }
 
 init();
