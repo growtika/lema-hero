@@ -317,12 +317,13 @@ function playSection2() {
     if (section2Played) return;
     section2Played = true;
 
-    console.log('Phase 2: Playing explosion from frame', CONFIG.LOTTIE2_START_FRAME);
+    console.log('Phase 2: Playing Lottie');
     section2Layer.classList.add('visible');
     section2Layer.style.background = '#1a1a1a';
     scrollIndicator.classList.add('hidden');
 
-    section2Anim.goToAndPlay(CONFIG.LOTTIE2_START_FRAME, true);
+    // Play from frame 0 (Lottie normalizes ip internally)
+    section2Anim.goToAndPlay(0, true);
 
     section2Anim.addEventListener('complete', () => {
         section2Complete = true;
@@ -335,11 +336,12 @@ function playSection3() {
     if (section3Played) return;
     section3Played = true;
 
-    console.log('Phase 3: Playing from frame', CONFIG.LOTTIE3_START_FRAME);
+    console.log('Phase 3: Playing Lottie');
     section3Layer.classList.add('visible');
     section3Layer.style.background = '#F5F3F0';
 
-    section3Anim.goToAndPlay(CONFIG.LOTTIE3_START_FRAME, true);
+    // Play from frame 0 (Lottie normalizes ip internally)
+    section3Anim.goToAndPlay(0, true);
 
     section3Anim.addEventListener('complete', () => {
         section3Complete = true;
