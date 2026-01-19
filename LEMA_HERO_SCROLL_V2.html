@@ -212,8 +212,9 @@ body {
             </div>
         </div>
 
-        <!-- PHASE 2: Static dark section (no animation here) -->
+        <!-- PHASE 2: Lottie explosion -->
         <div id="phase2Layer">
+            <div id="lottie2Container" class="lottie-container"></div>
             <div class="text-overlay">
                 <div class="hero-content">
                     <span class="hero-label">Third Parties</span>
@@ -223,9 +224,9 @@ body {
             </div>
         </div>
 
-        <!-- PHASE 3: Lottie transition (animation happens here) -->
+        <!-- PHASE 3: Lottie transition -->
         <div id="phase3Layer">
-            <div id="lottieContainer" class="lottie-container"></div>
+            <div id="lottie3Container" class="lottie-container"></div>
             <div class="text-overlay">
                 <div class="hero-content">
                     <h1 class="hero-headline">The rise of the Risk Engineer</h1>
@@ -243,8 +244,8 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    // Using Section 2 Lottie for the 2→3 transition
-    LOTTIE_PATH: './Section_2_clean.json',
+    LOTTIE2_PATH: './Section_2_clean.json',
+    LOTTIE3_PATH: './Section_3_clean.json',
 
     // Scroll thresholds (0-1)
     PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
@@ -254,10 +255,12 @@ const CONFIG = {
 // ============================================
 // STATE
 // ============================================
-let lottieAnim = null;
-let lottieLoaded = false;
-let lottieTriggered = false;
-let lottieComplete = false;
+let lottie2Anim = null;
+let lottie3Anim = null;
+let lottie2Triggered = false;
+let lottie3Triggered = false;
+let lottie2Complete = false;
+let lottie3Complete = false;
 let currentPhase = 1;
 
 // DOM
@@ -265,7 +268,8 @@ const scrollContainer = document.getElementById('scrollContainer');
 const phase1Layer = document.getElementById('phase1Layer');
 const phase2Layer = document.getElementById('phase2Layer');
 const phase3Layer = document.getElementById('phase3Layer');
-const lottieContainer = document.getElementById('lottieContainer');
+const lottie2Container = document.getElementById('lottie2Container');
+const lottie3Container = document.getElementById('lottie3Container');
 const scrollIndicator = document.getElementById('scrollIndicator');
 const debug = document.getElementById('debug');
 
@@ -274,24 +278,48 @@ const debug = document.getElementById('debug');
 // ============================================
 function initLottie() {
     return new Promise((resolve) => {
-        lottieAnim = lottie.loadAnimation({
-            container: lottieContainer,
+        let loaded = 0;
+
+        // Lottie for Phase 2
+        lottie2Anim = lottie.loadAnimation({
+            container: lottie2Container,
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.LOTTIE_PATH
+            path: CONFIG.LOTTIE2_PATH
         });
 
-        lottieAnim.addEventListener('DOMLoaded', () => {
-            console.log('Lottie loaded:', lottieAnim.totalFrames, 'frames');
-            lottieLoaded = true;
-            resolve();
+        lottie2Anim.addEventListener('DOMLoaded', () => {
+            console.log('Lottie 2 loaded:', lottie2Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
         });
 
-        lottieAnim.addEventListener('complete', () => {
-            lottieComplete = true;
-            console.log('Lottie complete - frozen on final frame');
-            lottieAnim.goToAndStop(lottieAnim.totalFrames - 1, true);
+        lottie2Anim.addEventListener('complete', () => {
+            lottie2Complete = true;
+            console.log('Lottie 2 complete - frozen');
+            lottie2Anim.goToAndStop(lottie2Anim.totalFrames - 1, true);
+        });
+
+        // Lottie for Phase 3
+        lottie3Anim = lottie.loadAnimation({
+            container: lottie3Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.LOTTIE3_PATH
+        });
+
+        lottie3Anim.addEventListener('DOMLoaded', () => {
+            console.log('Lottie 3 loaded:', lottie3Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
+        });
+
+        lottie3Anim.addEventListener('complete', () => {
+            lottie3Complete = true;
+            console.log('Lottie 3 complete - frozen');
+            lottie3Anim.goToAndStop(lottie3Anim.totalFrames - 1, true);
         });
     });
 }
@@ -310,6 +338,13 @@ function showPhase2() {
     phase2Layer.classList.add('visible');
     phase3Layer.classList.remove('visible');
     scrollIndicator.classList.add('hidden');
+
+    // Trigger Lottie 2 (plays once)
+    if (!lottie2Triggered) {
+        lottie2Triggered = true;
+        console.log('Phase 2: Playing Lottie');
+        lottie2Anim.play();
+    }
 }
 
 function showPhase3() {
@@ -317,11 +352,11 @@ function showPhase3() {
     phase2Layer.classList.remove('visible');
     phase3Layer.classList.add('visible');
 
-    // Trigger Lottie animation (plays once)
-    if (!lottieTriggered && lottieLoaded) {
-        lottieTriggered = true;
+    // Trigger Lottie 3 (plays once)
+    if (!lottie3Triggered) {
+        lottie3Triggered = true;
         console.log('Phase 3: Playing Lottie transition');
-        lottieAnim.play();
+        lottie3Anim.play();
     }
 }
 
@@ -357,9 +392,12 @@ function onScroll() {
         showPhase3();
     }
 
-    // Keep Lottie on final frame if complete
-    if (lottieComplete) {
-        lottieAnim.goToAndStop(lottieAnim.totalFrames - 1, true);
+    // Keep Lotties on final frame if complete
+    if (lottie2Complete) {
+        lottie2Anim.goToAndStop(lottie2Anim.totalFrames - 1, true);
+    }
+    if (lottie3Complete) {
+        lottie3Anim.goToAndStop(lottie3Anim.totalFrames - 1, true);
     }
 
     currentPhase = newPhase;
@@ -374,7 +412,7 @@ async function init() {
     await initLottie();
 
     debug.textContent = 'Phase: 1 | Scroll: 0%';
-    console.log('Ready - Lottie transition happens between Phase 2 and 3');
+    console.log('Ready - Lottie plays in Phase 2 AND Phase 3');
 
     window.addEventListener('scroll', onScroll, { passive: true });
 }
