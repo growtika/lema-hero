@@ -15,10 +15,15 @@
     box-sizing: border-box;
 }
 
+html, body {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
 body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
     background: #1a1a1a;
-    overflow-x: hidden;
 }
 
 .scroll-container {
@@ -29,20 +34,19 @@ body {
 .hero-section {
     position: sticky;
     top: 0;
-    width: 100%;
+    width: 100vw;
     height: 100vh;
     overflow: hidden;
 }
 
-/* All three layers stacked - FULLSCREEN */
-#videoLayer,
-#section2Layer,
-#section3Layer {
+/* All layers - TRUE FULLSCREEN */
+.layer {
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
-    height: 100%;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 }
 
 #videoLayer {
@@ -70,7 +74,7 @@ body {
     pointer-events: auto;
 }
 
-/* Video fullscreen cover */
+/* Video - fullscreen cover */
 #heroVideo {
     position: absolute;
     top: 50%;
@@ -83,24 +87,25 @@ body {
     object-fit: cover;
 }
 
-/* Lottie container - FULLSCREEN with cover behavior */
-.lottie-container {
+/* Lottie wrapper - fills viewport */
+.lottie-wrapper {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
-.lottie-container svg {
+/* Lottie container - scale to cover */
+.lottie-container {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    min-width: 100%;
-    min-height: 100%;
-    width: auto !important;
-    height: auto !important;
+    /* Will be sized by JS to cover viewport */
 }
 
 /* Text overlays */
@@ -156,7 +161,7 @@ body {
     pointer-events: auto;
 }
 
-/* Dark theme for phase 2 */
+/* Dark theme */
 .hero-headline.dark { color: #FFFFFF; }
 .hero-subtext.dark { color: rgba(255, 255, 255, 0.8); }
 .hero-label {
@@ -186,21 +191,19 @@ body {
     60% { transform: translateX(-50%) translateY(-5px); }
 }
 
-.scroll-indicator.hidden {
-    opacity: 0;
-}
+.scroll-indicator.hidden { opacity: 0; }
 
-/* Debug */
 .debug {
     position: fixed;
     top: 10px;
     left: 10px;
-    background: rgba(0,0,0,0.7);
+    background: rgba(0,0,0,0.8);
     color: white;
-    padding: 10px;
+    padding: 10px 15px;
     font-size: 12px;
     z-index: 9999;
     font-family: monospace;
+    border-radius: 4px;
 }
 
 @media (max-width: 768px) {
@@ -215,7 +218,7 @@ body {
     <section class="hero-section" id="heroSection">
 
         <!-- PHASE 1: MP4 Loop -->
-        <div id="videoLayer">
+        <div id="videoLayer" class="layer">
             <video id="heroVideo" autoplay loop muted playsinline>
                 <source src="./Lema_Hero_Loop.mp4" type="video/mp4">
             </video>
@@ -228,9 +231,11 @@ body {
             </div>
         </div>
 
-        <!-- PHASE 2: Lottie Section 2 -->
-        <div id="section2Layer">
-            <div id="section2Container" class="lottie-container"></div>
+        <!-- PHASE 2: Lottie -->
+        <div id="section2Layer" class="layer">
+            <div class="lottie-wrapper">
+                <div id="section2Container" class="lottie-container"></div>
+            </div>
             <div class="text-overlay">
                 <div class="hero-content">
                     <span class="hero-label">Third Parties</span>
@@ -240,9 +245,11 @@ body {
             </div>
         </div>
 
-        <!-- PHASE 3: Lottie Section 3 -->
-        <div id="section3Layer">
-            <div id="section3Container" class="lottie-container"></div>
+        <!-- PHASE 3: Lottie -->
+        <div id="section3Layer" class="layer">
+            <div class="lottie-wrapper">
+                <div id="section3Container" class="lottie-container"></div>
+            </div>
             <div class="text-overlay">
                 <div class="hero-content">
                     <h1 class="hero-headline">The rise of the Risk Engineer</h1>
@@ -256,32 +263,22 @@ body {
 </div>
 
 <script>
-// ============================================
-// CONFIGURATION
-// ============================================
 const CONFIG = {
     SECTION2_PATH: './Section_2.json',
     SECTION3_PATH: './Section_3.json',
-
-    // Lottie start frames (from JSON ip values)
-    LOTTIE2_START_FRAME: 162,
-    LOTTIE3_START_FRAME: 237,
-
-    // Scroll thresholds (0-1)
-    PHASE2_START: 0.01,  // Phase 2 at 1% scroll
-    PHASE3_START: 0.5    // Phase 3 at 50% scroll
+    PHASE2_START: 0.01,
+    PHASE3_START: 0.5
 };
 
-// ============================================
-// STATE
-// ============================================
+// Lottie dimensions
+const LOTTIE_WIDTH = 1920;
+const LOTTIE_HEIGHT = 1080;
+
 let section2Anim = null;
 let section3Anim = null;
 let section2Triggered = false;
 let section3Triggered = false;
-let currentPhase = 1;
 
-// DOM
 const scrollContainer = document.getElementById('scrollContainer');
 const section2Layer = document.getElementById('section2Layer');
 const section3Layer = document.getElementById('section3Layer');
@@ -290,27 +287,40 @@ const section3Container = document.getElementById('section3Container');
 const scrollIndicator = document.getElementById('scrollIndicator');
 const debug = document.getElementById('debug');
 
-// ============================================
-// LOTTIE SETUP
-// ============================================
+// Scale container to cover viewport (like object-fit: cover)
+function scaleLottieContainer(container) {
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+
+    const scaleX = vw / LOTTIE_WIDTH;
+    const scaleY = vh / LOTTIE_HEIGHT;
+    const scale = Math.max(scaleX, scaleY);
+
+    const width = LOTTIE_WIDTH * scale;
+    const height = LOTTIE_HEIGHT * scale;
+
+    container.style.width = width + 'px';
+    container.style.height = height + 'px';
+}
+
 function initLottie() {
     return new Promise((resolve) => {
         let loaded = 0;
+
+        // Scale containers
+        scaleLottieContainer(section2Container);
+        scaleLottieContainer(section3Container);
 
         section2Anim = lottie.loadAnimation({
             container: section2Container,
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION2_PATH,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice'
-            }
+            path: CONFIG.SECTION2_PATH
         });
 
         section2Anim.addEventListener('DOMLoaded', () => {
-            console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
-            section2Anim.goToAndStop(CONFIG.LOTTIE2_START_FRAME, true);
+            console.log('Section 2 loaded, frames:', section2Anim.totalFrames);
             loaded++;
             if (loaded === 2) resolve();
         });
@@ -320,48 +330,40 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION3_PATH,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice'
-            }
+            path: CONFIG.SECTION3_PATH
         });
 
         section3Anim.addEventListener('DOMLoaded', () => {
-            console.log('Section 3 loaded:', section3Anim.totalFrames, 'frames');
-            section3Anim.goToAndStop(CONFIG.LOTTIE3_START_FRAME, true);
+            console.log('Section 3 loaded, frames:', section3Anim.totalFrames);
             loaded++;
             if (loaded === 2) resolve();
         });
     });
 }
 
-// ============================================
-// PHASE TRANSITIONS
-// ============================================
 function triggerPhase2() {
     if (section2Triggered) return;
     section2Triggered = true;
 
-    console.log('Phase 2: Showing layer and playing Lottie');
+    console.log('Phase 2: Playing');
     section2Layer.classList.add('visible');
     scrollIndicator.classList.add('hidden');
 
-    section2Anim.goToAndPlay(CONFIG.LOTTIE2_START_FRAME, true);
+    // Play from beginning (frame 0 = ip frame 162 internally)
+    section2Anim.goToAndPlay(0, true);
 }
 
 function triggerPhase3() {
     if (section3Triggered) return;
     section3Triggered = true;
 
-    console.log('Phase 3: Showing layer and playing Lottie');
+    console.log('Phase 3: Playing');
     section3Layer.classList.add('visible');
 
-    section3Anim.goToAndPlay(CONFIG.LOTTIE3_START_FRAME, true);
+    // Play from beginning
+    section3Anim.goToAndPlay(0, true);
 }
 
-// ============================================
-// SCROLL HANDLING
-// ============================================
 function getScrollProgress() {
     const scrollTop = window.scrollY;
     const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
@@ -371,36 +373,30 @@ function getScrollProgress() {
 function onScroll() {
     const progress = getScrollProgress();
 
-    let newPhase = 1;
+    let phase = 1;
     if (progress >= CONFIG.PHASE3_START) {
-        newPhase = 3;
+        phase = 3;
     } else if (progress >= CONFIG.PHASE2_START) {
-        newPhase = 2;
+        phase = 2;
     }
 
-    debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
+    debug.textContent = `Phase: ${phase} | Scroll: ${(progress * 100).toFixed(0)}%`;
 
-    if (newPhase >= 2) {
-        triggerPhase2();
-    }
-    if (newPhase >= 3) {
-        triggerPhase3();
-    }
-
-    currentPhase = newPhase;
+    if (phase >= 2) triggerPhase2();
+    if (phase >= 3) triggerPhase3();
 }
 
-// ============================================
-// INIT
-// ============================================
+// Handle resize
+window.addEventListener('resize', () => {
+    scaleLottieContainer(section2Container);
+    scaleLottieContainer(section3Container);
+});
+
 async function init() {
     debug.textContent = 'Loading...';
-
     await initLottie();
-
     debug.textContent = 'Phase: 1 | Scroll: 0%';
-    console.log('Ready - scroll to trigger phases');
-
+    console.log('Ready');
     window.addEventListener('scroll', onScroll, { passive: true });
 }
 
