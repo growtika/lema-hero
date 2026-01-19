@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - Scroll V2 (Transition 2→3)</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 300vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+/* All three layers stacked */
+#phase1Layer,
+#phase2Layer,
+#phase3Layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+#phase1Layer {
+    z-index: 1;
+}
+
+#phase2Layer {
+    z-index: 2;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: #1a1a1a;
+}
+
+#phase3Layer {
+    z-index: 3;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    background: #F5F3F0;
+}
+
+#phase1Layer.visible,
+#phase2Layer.visible,
+#phase3Layer.visible {
+    opacity: 1;
+}
+
+#heroVideo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+}
+
+.lottie-container {
+    width: 100%;
+    height: 100%;
+}
+
+/* Text overlays */
+.text-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #3D2314;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    background: #3D2314;
+    color: #F5F3F0;
+    pointer-events: auto;
+}
+
+/* Dark theme for phase 2 */
+.hero-headline.dark { color: #FFFFFF; }
+.hero-subtext.dark { color: rgba(255, 255, 255, 0.8); }
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
+}
+
+/* Debug */
+.debug {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    z-index: 9999;
+    font-family: monospace;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="debug" id="debug">Loading...</div>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+
+        <!-- PHASE 1: MP4 Loop -->
+        <div id="phase1Layer" class="visible">
+            <video id="heroVideo" autoplay loop muted playsinline>
+                <source src="./Lema_Hero_Loop.mp4" type="video/mp4">
+            </video>
+            <div class="text-overlay">
+                <div class="hero-content">
+                    <h1 class="hero-headline">Think outside the checkbox</h1>
+                    <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses.</p>
+                    <a href="#" class="hero-cta">Get a Demo</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 2: Static dark section (no animation here) -->
+        <div id="phase2Layer">
+            <div class="text-overlay">
+                <div class="hero-content">
+                    <span class="hero-label">Third Parties</span>
+                    <h1 class="hero-headline dark">Your new single point of failure</h1>
+                    <p class="hero-subtext dark">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 3: Lottie transition (animation happens here) -->
+        <div id="phase3Layer">
+            <div id="lottieContainer" class="lottie-container"></div>
+            <div class="text-overlay">
+                <div class="hero-content">
+                    <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+                    <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+    </section>
+</div>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    // Using Section 2 Lottie for the 2→3 transition
+    LOTTIE_PATH: './Section_2_clean.json',
+
+    // Scroll thresholds (0-1)
+    PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
+    PHASE3_START: 0.5    // Phase 3 starts at 50% scroll
+};
+
+// ============================================
+// STATE
+// ============================================
+let lottieAnim = null;
+let lottieLoaded = false;
+let lottieTriggered = false;
+let lottieComplete = false;
+let currentPhase = 1;
+
+// DOM
+const scrollContainer = document.getElementById('scrollContainer');
+const phase1Layer = document.getElementById('phase1Layer');
+const phase2Layer = document.getElementById('phase2Layer');
+const phase3Layer = document.getElementById('phase3Layer');
+const lottieContainer = document.getElementById('lottieContainer');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const debug = document.getElementById('debug');
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    return new Promise((resolve) => {
+        lottieAnim = lottie.loadAnimation({
+            container: lottieContainer,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.LOTTIE_PATH
+        });
+
+        lottieAnim.addEventListener('DOMLoaded', () => {
+            console.log('Lottie loaded:', lottieAnim.totalFrames, 'frames');
+            lottieLoaded = true;
+            resolve();
+        });
+
+        lottieAnim.addEventListener('complete', () => {
+            lottieComplete = true;
+            console.log('Lottie complete - frozen on final frame');
+            lottieAnim.goToAndStop(lottieAnim.totalFrames - 1, true);
+        });
+    });
+}
+
+// ============================================
+// PHASE TRANSITIONS
+// ============================================
+function showPhase1() {
+    phase1Layer.classList.add('visible');
+    phase2Layer.classList.remove('visible');
+    phase3Layer.classList.remove('visible');
+}
+
+function showPhase2() {
+    phase1Layer.classList.remove('visible');
+    phase2Layer.classList.add('visible');
+    phase3Layer.classList.remove('visible');
+    scrollIndicator.classList.add('hidden');
+}
+
+function showPhase3() {
+    phase1Layer.classList.remove('visible');
+    phase2Layer.classList.remove('visible');
+    phase3Layer.classList.add('visible');
+
+    // Trigger Lottie animation (plays once)
+    if (!lottieTriggered && lottieLoaded) {
+        lottieTriggered = true;
+        console.log('Phase 3: Playing Lottie transition');
+        lottieAnim.play();
+    }
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function onScroll() {
+    const progress = getScrollProgress();
+
+    // Determine phase based on scroll
+    let newPhase = 1;
+    if (progress >= CONFIG.PHASE3_START) {
+        newPhase = 3;
+    } else if (progress >= CONFIG.PHASE2_START) {
+        newPhase = 2;
+    }
+
+    // Update debug
+    debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
+
+    // Show appropriate phase
+    if (newPhase === 1) {
+        showPhase1();
+    } else if (newPhase === 2) {
+        showPhase2();
+    } else {
+        showPhase3();
+    }
+
+    // Keep Lottie on final frame if complete
+    if (lottieComplete) {
+        lottieAnim.goToAndStop(lottieAnim.totalFrames - 1, true);
+    }
+
+    currentPhase = newPhase;
+}
+
+// ============================================
+// INIT
+// ============================================
+async function init() {
+    debug.textContent = 'Loading...';
+
+    await initLottie();
+
+    debug.textContent = 'Phase: 1 | Scroll: 0%';
+    console.log('Ready - Lottie transition happens between Phase 2 and 3');
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+}
+
+init();
+</script>
+
+</body>
+</html>
