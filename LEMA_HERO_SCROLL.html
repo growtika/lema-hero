@@ -53,18 +53,23 @@ body {
 #section2Layer {
     z-index: 2;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
 #section3Layer {
     z-index: 3;
     opacity: 0;
-    transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-#section2Layer.visible,
+#section2Layer.visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
 #section3Layer.visible {
     opacity: 1;
+    pointer-events: auto;
 }
 
 #heroVideo {
@@ -209,7 +214,7 @@ body {
             </div>
         </div>
 
-        <!-- PHASE 2: Lottie Explosion -->
+        <!-- PHASE 2: Lottie Section 2 -->
         <div id="section2Layer">
             <div id="section2Container" class="lottie-container"></div>
             <div class="text-overlay">
@@ -221,7 +226,7 @@ body {
             </div>
         </div>
 
-        <!-- PHASE 3: Lottie Continued -->
+        <!-- PHASE 3: Lottie Section 3 -->
         <div id="section3Layer">
             <div id="section3Container" class="lottie-container"></div>
             <div class="text-overlay">
@@ -244,13 +249,13 @@ const CONFIG = {
     SECTION2_PATH: './Section_2_clean.json',
     SECTION3_PATH: './Section_3_clean.json',
 
-    // Lottie start frames (from original JSON ip values)
+    // Lottie start frames (actual content starts here)
     LOTTIE2_START_FRAME: 162,
     LOTTIE3_START_FRAME: 237,
 
     // Scroll thresholds (0-1)
-    PHASE2_START: 0.01,  // Phase 2 starts at 1% scroll
-    PHASE3_START: 0.5    // Phase 3 starts at 50% scroll
+    PHASE2_START: 0.01,  // Phase 2 at 1% scroll
+    PHASE3_START: 0.5    // Phase 3 at 50% scroll
 };
 
 // ============================================
@@ -258,10 +263,8 @@ const CONFIG = {
 // ============================================
 let section2Anim = null;
 let section3Anim = null;
-let section2Played = false;
-let section3Played = false;
-let section2Complete = false;
-let section3Complete = false;
+let section2Triggered = false;
+let section3Triggered = false;
 let currentPhase = 1;
 
 // DOM
@@ -290,6 +293,8 @@ function initLottie() {
 
         section2Anim.addEventListener('DOMLoaded', () => {
             console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
+            // Set to first visible frame
+            section2Anim.goToAndStop(CONFIG.LOTTIE2_START_FRAME, true);
             loaded++;
             if (loaded === 2) resolve();
         });
@@ -304,6 +309,8 @@ function initLottie() {
 
         section3Anim.addEventListener('DOMLoaded', () => {
             console.log('Section 3 loaded:', section3Anim.totalFrames, 'frames');
+            // Set to first visible frame
+            section3Anim.goToAndStop(CONFIG.LOTTIE3_START_FRAME, true);
             loaded++;
             if (loaded === 2) resolve();
         });
@@ -313,39 +320,27 @@ function initLottie() {
 // ============================================
 // PHASE TRANSITIONS
 // ============================================
-function playSection2() {
-    if (section2Played) return;
-    section2Played = true;
+function triggerPhase2() {
+    if (section2Triggered) return;
+    section2Triggered = true;
 
-    console.log('Phase 2: Playing explosion from frame', CONFIG.LOTTIE2_START_FRAME);
+    console.log('Phase 2: Showing layer and playing Lottie');
     section2Layer.classList.add('visible');
-    section2Layer.style.background = '#1a1a1a';
     scrollIndicator.classList.add('hidden');
 
+    // Play from start frame
     section2Anim.goToAndPlay(CONFIG.LOTTIE2_START_FRAME, true);
-
-    section2Anim.addEventListener('complete', () => {
-        section2Complete = true;
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-        console.log('Phase 2 complete - frozen');
-    });
 }
 
-function playSection3() {
-    if (section3Played) return;
-    section3Played = true;
+function triggerPhase3() {
+    if (section3Triggered) return;
+    section3Triggered = true;
 
-    console.log('Phase 3: Playing from frame', CONFIG.LOTTIE3_START_FRAME);
+    console.log('Phase 3: Showing layer and playing Lottie');
     section3Layer.classList.add('visible');
-    section3Layer.style.background = '#F5F3F0';
 
+    // Play from start frame
     section3Anim.goToAndPlay(CONFIG.LOTTIE3_START_FRAME, true);
-
-    section3Anim.addEventListener('complete', () => {
-        section3Complete = true;
-        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
-        console.log('Phase 3 complete - frozen');
-    });
 }
 
 // ============================================
@@ -360,7 +355,7 @@ function getScrollProgress() {
 function onScroll() {
     const progress = getScrollProgress();
 
-    // Determine phase based on scroll
+    // Determine phase
     let newPhase = 1;
     if (progress >= CONFIG.PHASE3_START) {
         newPhase = 3;
@@ -371,35 +366,12 @@ function onScroll() {
     // Update debug
     debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
 
-    // Trigger phase changes (only forward, lotties play once)
-    if (newPhase >= 2 && !section2Played) {
-        playSection2();
+    // Trigger phases (one-way, lotties play once)
+    if (newPhase >= 2) {
+        triggerPhase2();
     }
-    if (newPhase >= 3 && !section3Played) {
-        playSection3();
-    }
-
-    // Keep frozen frames when scrolling back
-    if (section2Complete) {
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-    }
-    if (section3Complete) {
-        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
-    }
-
-    // Show/hide layers based on scroll position (for scroll back)
-    if (progress < CONFIG.PHASE2_START) {
-        // Back to phase 1 - but lotties stay frozen if played
-        section2Layer.classList.remove('visible');
-        section3Layer.classList.remove('visible');
-    } else if (progress < CONFIG.PHASE3_START) {
-        // Phase 2 area
-        section2Layer.classList.add('visible');
-        section3Layer.classList.remove('visible');
-    } else {
-        // Phase 3 area
-        section2Layer.classList.add('visible');
-        section3Layer.classList.add('visible');
+    if (newPhase >= 3) {
+        triggerPhase3();
     }
 
     currentPhase = newPhase;
@@ -414,7 +386,7 @@ async function init() {
     await initLottie();
 
     debug.textContent = 'Phase: 1 | Scroll: 0%';
-    console.log('Ready - 3 phases in one sticky section');
+    console.log('Ready - Phase 1: looping video, scroll triggers phases 2 & 3');
 
     window.addEventListener('scroll', onScroll, { passive: true });
 }
