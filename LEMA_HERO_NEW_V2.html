@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - New V2</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+/* SECTION 1: Hero with MP4 */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#heroVideo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* SECTION 2 & 3: Lottie sections */
+.lottie-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+.lottie-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.section-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Text overlay */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.hidden {
+    opacity: 0;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #3D2314;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    background: #3D2314;
+    color: #F5F3F0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* Dark text variant for Section 2 */
+.hero-headline.dark { color: #FFFFFF; }
+.hero-subtext.dark { color: rgba(255, 255, 255, 0.8); }
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#section2 {
+    background: #1a1a1a;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+/* Debug info */
+.debug {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    z-index: 9999;
+    font-family: monospace;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="debug" id="debug">Loading...</div>
+
+<!-- SECTION 1: Hero with looping MP4 -->
+<section class="hero-section" id="section1">
+    <video id="heroVideo" autoplay loop muted playsinline>
+        <source src="./Lema_Hero_Loop_v2.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <h1 class="hero-headline">Think outside the checkbox</h1>
+            <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+            <a href="#section2" class="hero-cta">Get a Demo</a>
+        </div>
+    </div>
+    <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+</section>
+
+<!-- SECTION 2: Lottie explosion -->
+<section class="lottie-section" id="section2">
+    <div id="section2Container" class="lottie-container"></div>
+    <div class="section-overlay">
+        <div class="hero-content">
+            <span class="hero-label">Third Parties</span>
+            <h1 class="hero-headline dark">Your new single point of failure</h1>
+            <p class="hero-subtext dark">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: Lottie continued -->
+<section class="lottie-section" id="section3">
+    <div id="section3Container" class="lottie-container"></div>
+    <div class="section-overlay">
+        <div class="hero-content">
+            <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+            <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: Content continues -->
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    SECTION2_PATH: './Section_2_v2.json',
+    SECTION3_PATH: './Section_3_v2.json'
+};
+
+// ============================================
+// STATE
+// ============================================
+let section2Anim = null;
+let section3Anim = null;
+let section2Played = false;
+let section3Played = false;
+let section2Complete = false;
+let section3Complete = false;
+
+// DOM
+const section2El = document.getElementById('section2');
+const section3El = document.getElementById('section3');
+const section2Container = document.getElementById('section2Container');
+const section3Container = document.getElementById('section3Container');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const debug = document.getElementById('debug');
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    return new Promise((resolve) => {
+        let loaded = 0;
+
+        // Section 2
+        section2Anim = lottie.loadAnimation({
+            container: section2Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.SECTION2_PATH
+        });
+
+        section2Anim.addEventListener('DOMLoaded', () => {
+            console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
+        });
+
+        // Section 3
+        section3Anim = lottie.loadAnimation({
+            container: section3Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.SECTION3_PATH
+        });
+
+        section3Anim.addEventListener('DOMLoaded', () => {
+            console.log('Section 3 loaded:', section3Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
+        });
+    });
+}
+
+// ============================================
+// PLAY FUNCTIONS (once only, stay on final frame)
+// ============================================
+function playSection2() {
+    if (section2Played) return;
+    section2Played = true;
+
+    console.log('Playing Section 2');
+    debug.textContent = 'Section 2 playing...';
+
+    // Play from frame 0
+    section2Anim.goToAndPlay(0, true);
+
+    section2Anim.addEventListener('complete', () => {
+        section2Complete = true;
+        console.log('Section 2 complete - frozen on final frame');
+        debug.textContent = 'Section 2 done';
+        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+    });
+}
+
+function playSection3() {
+    if (section3Played) return;
+    section3Played = true;
+
+    console.log('Playing Section 3');
+    debug.textContent = 'Section 3 playing...';
+
+    // Play from frame 0
+    section3Anim.goToAndPlay(0, true);
+
+    section3Anim.addEventListener('complete', () => {
+        section3Complete = true;
+        console.log('Section 3 complete - frozen on final frame');
+        debug.textContent = 'All done!';
+        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
+    });
+}
+
+// Keep sections frozen on final frame when scrolling back
+function keepFrozen() {
+    if (section2Complete) {
+        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+    }
+    if (section3Complete) {
+        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
+    }
+}
+
+// ============================================
+// INTERSECTION OBSERVER (trigger when section enters view)
+// ============================================
+function setupObservers() {
+    const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.3  // Trigger when 30% of section is visible
+    };
+
+    // Observer for Section 2
+    const observer2 = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                playSection2();
+                scrollIndicator.classList.add('hidden');
+            }
+        });
+    }, options);
+
+    // Observer for Section 3
+    const observer3 = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                playSection3();
+            }
+        });
+    }, options);
+
+    observer2.observe(section2El);
+    observer3.observe(section3El);
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+async function init() {
+    debug.textContent = 'Loading...';
+
+    await initLottie();
+
+    debug.textContent = 'Ready! Scroll down.';
+    console.log('Hero V2 ready - 3 separate sections with new files');
+
+    setupObservers();
+
+    // On any scroll, ensure completed sections stay frozen
+    window.addEventListener('scroll', keepFrozen, { passive: true });
+}
+
+init();
+</script>
+
+</body>
+</html>
