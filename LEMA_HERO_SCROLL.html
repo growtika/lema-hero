@@ -307,41 +307,40 @@ function initLottie() {
 }
 
 // ============================================
-// PHASE TRANSITIONS
+// PHASE TRANSITIONS (scroll-linked, not time-based)
 // ============================================
-function playSection2() {
-    if (section2Played) return;
-    section2Played = true;
-
-    console.log('Phase 2: Playing explosion');
+function showSection2() {
+    if (!section2Played) {
+        section2Played = true;
+        console.log('Phase 2: Started');
+        scrollIndicator.classList.add('hidden');
+    }
     section2Layer.classList.add('visible');
     section2Layer.style.background = '#1a1a1a';
-    scrollIndicator.classList.add('hidden');
-
-    section2Anim.play();
-
-    section2Anim.addEventListener('complete', () => {
-        section2Complete = true;
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-        console.log('Phase 2 complete - frozen');
-    });
 }
 
-function playSection3() {
-    if (section3Played) return;
-    section3Played = true;
-
-    console.log('Phase 3: Playing');
+function showSection3() {
+    if (!section3Played) {
+        section3Played = true;
+        console.log('Phase 3: Started');
+    }
     section3Layer.classList.add('visible');
     section3Layer.style.background = '#F5F3F0';
+}
 
-    section3Anim.play();
+// Scrub Lottie based on scroll position within phase
+function scrubSection2(progress) {
+    // progress 0-1 within phase 2
+    const frame = Math.floor(progress * (section2Anim.totalFrames - 1));
+    section2Anim.goToAndStop(frame, true);
+    if (progress >= 1) section2Complete = true;
+}
 
-    section3Anim.addEventListener('complete', () => {
-        section3Complete = true;
-        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
-        console.log('Phase 3 complete - frozen');
-    });
+function scrubSection3(progress) {
+    // progress 0-1 within phase 3
+    const frame = Math.floor(progress * (section3Anim.totalFrames - 1));
+    section3Anim.goToAndStop(frame, true);
+    if (progress >= 1) section3Complete = true;
 }
 
 // ============================================
@@ -356,49 +355,49 @@ function getScrollProgress() {
 function onScroll() {
     const progress = getScrollProgress();
 
-    // Determine phase based on scroll
-    let newPhase = 1;
-    if (progress >= CONFIG.PHASE3_START) {
-        newPhase = 3;
-    } else if (progress >= CONFIG.PHASE2_START) {
-        newPhase = 2;
-    }
-
     // Update debug
-    debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
+    debug.textContent = `Scroll: ${(progress * 100).toFixed(0)}%`;
 
-    // Trigger phase changes (only forward, lotties play once)
-    if (newPhase >= 2 && !section2Played) {
-        playSection2();
-    }
-    if (newPhase >= 3 && !section3Played) {
-        playSection3();
-    }
-
-    // Keep frozen frames when scrolling back
-    if (section2Complete) {
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-    }
-    if (section3Complete) {
-        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
-    }
-
-    // Show/hide layers based on scroll position (for scroll back)
+    // PHASE 1: 0% - 1%
     if (progress < CONFIG.PHASE2_START) {
-        // Back to phase 1 - but lotties stay frozen if played
         section2Layer.classList.remove('visible');
         section3Layer.classList.remove('visible');
-    } else if (progress < CONFIG.PHASE3_START) {
-        // Phase 2 area
-        section2Layer.classList.add('visible');
-        section3Layer.classList.remove('visible');
-    } else {
-        // Phase 3 area
-        section2Layer.classList.add('visible');
-        section3Layer.classList.add('visible');
+        currentPhase = 1;
     }
+    // PHASE 2: 1% - 50% (scrub through Lottie 2)
+    else if (progress < CONFIG.PHASE3_START) {
+        showSection2();
+        section3Layer.classList.remove('visible');
+        currentPhase = 2;
 
-    currentPhase = newPhase;
+        // Scrub animation based on position within phase 2
+        if (!section2Complete) {
+            const phase2Progress = (progress - CONFIG.PHASE2_START) / (CONFIG.PHASE3_START - CONFIG.PHASE2_START);
+            scrubSection2(phase2Progress);
+        } else {
+            // Already complete - stay on final frame
+            section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+        }
+    }
+    // PHASE 3: 50% - 100% (scrub through Lottie 3)
+    else {
+        showSection2();
+        showSection3();
+        currentPhase = 3;
+
+        // Section 2 stays on final frame
+        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+        section2Complete = true;
+
+        // Scrub animation based on position within phase 3
+        if (!section3Complete) {
+            const phase3Progress = (progress - CONFIG.PHASE3_START) / (1 - CONFIG.PHASE3_START);
+            scrubSection3(phase3Progress);
+        } else {
+            // Already complete - stay on final frame
+            section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
+        }
+    }
 }
 
 // ============================================
