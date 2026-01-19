@@ -374,10 +374,12 @@ function onScroll() {
     debug.textContent = `Phase: ${newPhase} | Scroll: ${(progress * 100).toFixed(0)}%`;
 
     // Trigger phase changes (only forward, lotties play once)
+    // Phase 2 must be triggered before Phase 3 can start
     if (newPhase >= 2 && !section2Played) {
         playSection2();
     }
-    if (newPhase >= 3 && !section3Played) {
+    // Only trigger Phase 3 if Phase 2 has already been triggered
+    if (newPhase >= 3 && !section3Played && section2Played) {
         playSection3();
     }
 
