@@ -22,13 +22,12 @@ body {
 }
 
 .scroll-container {
-    height: 400vh;
+    height: auto;
     position: relative;
 }
 
 .hero-section {
-    position: sticky;
-    top: 0;
+    position: relative;
     width: 100%;
     height: 100vh;
     overflow: hidden;
@@ -220,15 +219,13 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    // Scroll thresholds
-    SECTION2_START: 0.1,   // Start Section 2 at 10% scroll
-    SECTION2_END: 0.4,     // Section 2 ends at 40% scroll
-    SECTION3_START: 0.4,   // Start Section 3 at 40% scroll
-    SECTION3_END: 0.7,     // Section 3 ends at 70% scroll
-
     // Lottie files
     SECTION2_PATH: './Section_2_clean.json',
-    SECTION3_PATH: './Section_3_clean.json'
+    SECTION3_PATH: './Section_3_clean.json',
+
+    // Timing (in milliseconds)
+    SECTION2_DELAY: 3000,  // Start Section 2 after 3 seconds
+    SECTION3_DELAY: 1000   // Start Section 3 after Section 2 ends + 1 second
 };
 
 // ============================================
@@ -236,14 +233,10 @@ const CONFIG = {
 // ============================================
 let section2Anim = null;
 let section3Anim = null;
-let section2Played = false;  // Has Section 2 completed?
-let section3Played = false;  // Has Section 3 completed?
-let section2TotalFrames = 0;
-let section3TotalFrames = 0;
-let maxScrollReached = 0;    // Track furthest scroll position
+let section2Played = false;
+let section3Played = false;
 
 // DOM
-const scrollContainer = document.getElementById('scrollContainer');
 const section2Container = document.getElementById('section2Container');
 const section3Container = document.getElementById('section3Container');
 const heroOverlay = document.getElementById('heroOverlay');
@@ -254,127 +247,115 @@ const debug = document.getElementById('debug');
 // LOTTIE SETUP
 // ============================================
 function initLottie() {
-    // Section 2 - Explosion
-    section2Anim = lottie.loadAnimation({
-        container: section2Container,
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        path: CONFIG.SECTION2_PATH
-    });
+    return new Promise((resolve) => {
+        let loaded = 0;
 
-    section2Anim.addEventListener('DOMLoaded', () => {
-        section2TotalFrames = section2Anim.totalFrames;
-        console.log('Section 2 loaded:', section2TotalFrames, 'frames');
-    });
+        // Section 2 - Explosion
+        section2Anim = lottie.loadAnimation({
+            container: section2Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.SECTION2_PATH
+        });
 
-    // Section 3
-    section3Anim = lottie.loadAnimation({
-        container: section3Container,
-        renderer: 'svg',
-        loop: false,
-        autoplay: false,
-        path: CONFIG.SECTION3_PATH
-    });
+        section2Anim.addEventListener('DOMLoaded', () => {
+            console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
+        });
 
-    section3Anim.addEventListener('DOMLoaded', () => {
-        section3TotalFrames = section3Anim.totalFrames;
-        console.log('Section 3 loaded:', section3TotalFrames, 'frames');
+        // Section 3
+        section3Anim = lottie.loadAnimation({
+            container: section3Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.SECTION3_PATH
+        });
+
+        section3Anim.addEventListener('DOMLoaded', () => {
+            console.log('Section 3 loaded:', section3Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
+        });
     });
 }
 
 // ============================================
-// SCROLL HANDLING
+// AUTO-PLAY SEQUENCE
 // ============================================
-function getScrollProgress() {
-    const scrollTop = window.scrollY;
-    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
-    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+function playSection2() {
+    if (section2Played) return;
+
+    console.log('Playing Section 2 (explosion)');
+    debug.textContent = 'Playing Section 2...';
+
+    section2Container.classList.add('visible');
+    heroOverlay.classList.add('hidden');
+    scrollIndicator.classList.add('hidden');
+
+    section2Anim.play();
+    section2Played = true;
+
+    // When Section 2 completes, play Section 3
+    section2Anim.addEventListener('complete', () => {
+        console.log('Section 2 complete');
+        debug.textContent = 'Section 2 done, waiting for Section 3...';
+
+        setTimeout(() => {
+            playSection3();
+        }, CONFIG.SECTION3_DELAY);
+    });
 }
 
-function updateAnimation() {
-    const progress = getScrollProgress();
+function playSection3() {
+    if (section3Played) return;
 
-    // Track max scroll reached (for "no replay on scroll back" behavior)
-    maxScrollReached = Math.max(maxScrollReached, progress);
+    console.log('Playing Section 3');
+    debug.textContent = 'Playing Section 3...';
 
-    // Update debug
-    debug.textContent = `Scroll: ${(progress * 100).toFixed(1)}% | Max: ${(maxScrollReached * 100).toFixed(1)}% | S2: ${section2Played ? 'done' : 'pending'} | S3: ${section3Played ? 'done' : 'pending'}`;
+    section2Container.classList.remove('visible');
+    section3Container.classList.add('visible');
 
-    // Hide scroll indicator once scrolling starts
-    if (progress > 0.01) {
-        scrollIndicator.classList.add('hidden');
-    }
+    section3Anim.play();
+    section3Played = true;
 
-    // ========== SECTION 2 LOGIC ==========
-    if (progress >= CONFIG.SECTION2_START && progress < CONFIG.SECTION3_START) {
-        // Show Section 2
-        section2Container.classList.add('visible');
-        section3Container.classList.remove('visible');
-        heroOverlay.classList.add('hidden');
-
-        if (!section2Played) {
-            // Still playing forward - scrub through animation
-            const section2Progress = (progress - CONFIG.SECTION2_START) / (CONFIG.SECTION2_END - CONFIG.SECTION2_START);
-            const frame = Math.min(section2TotalFrames - 1, section2Progress * section2TotalFrames);
-            section2Anim.goToAndStop(frame, true);
-
-            // Mark as played when we reach the end
-            if (section2Progress >= 1) {
-                section2Played = true;
-                section2Anim.goToAndStop(section2TotalFrames - 1, true);
-            }
-        } else {
-            // Already played - stay on final frame
-            section2Anim.goToAndStop(section2TotalFrames - 1, true);
-        }
-    }
-
-    // ========== SECTION 3 LOGIC ==========
-    else if (progress >= CONFIG.SECTION3_START) {
-        // Show Section 3
-        section2Container.classList.remove('visible');
-        section3Container.classList.add('visible');
-        heroOverlay.classList.add('hidden');
-
-        if (!section3Played) {
-            // Still playing forward - scrub through animation
-            const section3Progress = (progress - CONFIG.SECTION3_START) / (CONFIG.SECTION3_END - CONFIG.SECTION3_START);
-            const frame = Math.min(section3TotalFrames - 1, section3Progress * section3TotalFrames);
-            section3Anim.goToAndStop(frame, true);
-
-            // Mark as played when we reach the end
-            if (section3Progress >= 1) {
-                section3Played = true;
-                section3Anim.goToAndStop(section3TotalFrames - 1, true);
-            }
-        } else {
-            // Already played - stay on final frame
-            section3Anim.goToAndStop(section3TotalFrames - 1, true);
-        }
-    }
-
-    // ========== HERO (MP4) SECTION ==========
-    else {
-        // Back at top - show MP4 video (which loops automatically)
-        section2Container.classList.remove('visible');
-        section3Container.classList.remove('visible');
-        heroOverlay.classList.remove('hidden');
-    }
+    // When Section 3 completes
+    section3Anim.addEventListener('complete', () => {
+        console.log('Section 3 complete - all done!');
+        debug.textContent = 'All sections complete. MP4 keeps looping.';
+    });
 }
 
+// ============================================
+// SCROLL TRIGGER (alternative to timer)
+// ============================================
 function onScroll() {
-    requestAnimationFrame(updateAnimation);
+    // First scroll triggers Section 2 (if not already played)
+    if (!section2Played && window.scrollY > 10) {
+        playSection2();
+    }
 }
 
 // ============================================
 // INITIALIZATION
 // ============================================
-function init() {
-    initLottie();
+async function init() {
+    debug.textContent = 'Loading Lottie files...';
+
+    await initLottie();
+
+    debug.textContent = 'Ready! MP4 looping. Scroll to trigger explosion.';
+    console.log('Hero initialized - MP4 loops, scroll triggers Lottie sections');
+
+    // Listen for scroll to trigger Section 2
     window.addEventListener('scroll', onScroll, { passive: true });
-    updateAnimation(); // Initial state
-    console.log('Hero initialized - MP4 loops, scroll for Lottie sections');
+
+    // OR auto-play after delay (uncomment below if you want auto-play instead of scroll trigger)
+    // setTimeout(() => {
+    //     playSection2();
+    // }, CONFIG.SECTION2_DELAY);
 }
 
 init();
