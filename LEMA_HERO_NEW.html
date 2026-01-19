@@ -21,11 +21,7 @@ body {
     overflow-x: hidden;
 }
 
-.scroll-container {
-    height: auto;
-    position: relative;
-}
-
+/* SECTION 1: Hero with MP4 */
 .hero-section {
     position: relative;
     width: 100%;
@@ -34,7 +30,6 @@ body {
     background: #F5F3F0;
 }
 
-/* MP4 Video - always loops in background */
 #heroVideo {
     position: absolute;
     top: 50%;
@@ -48,23 +43,37 @@ body {
     z-index: 1;
 }
 
-/* Lottie containers - overlay on top */
-#section2Container,
-#section3Container {
+/* SECTION 2 & 3: Lottie sections */
+.lottie-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+.lottie-container {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 2;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.3s ease;
+    z-index: 1;
 }
 
-#section2Container.visible,
-#section3Container.visible {
-    opacity: 1;
+.section-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 10;
 }
 
 /* Text overlay */
@@ -132,6 +141,22 @@ body {
     opacity: 0.9;
 }
 
+/* Dark text variant for Section 2 */
+.hero-headline.dark { color: #FFFFFF; }
+.hero-subtext.dark { color: rgba(255, 255, 255, 0.8); }
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#section2 {
+    background: #1a1a1a;
+}
+
 .scroll-indicator {
     position: absolute;
     bottom: 30px;
@@ -183,32 +208,45 @@ body {
 
 <div class="debug" id="debug">Loading...</div>
 
-<div class="scroll-container" id="scrollContainer">
-    <section class="hero-section" id="heroSection">
-        <!-- MP4 Video - loops continuously -->
-        <video id="heroVideo" autoplay loop muted playsinline>
-            <source src="./Lema_Hero_Loop.mp4" type="video/mp4">
-        </video>
-
-        <!-- Lottie Section 2 (explosion) -->
-        <div id="section2Container"></div>
-
-        <!-- Lottie Section 3 -->
-        <div id="section3Container"></div>
-
-        <!-- Text overlay -->
-        <div class="hero-overlay" id="heroOverlay">
-            <div class="hero-content">
-                <h1 class="hero-headline">Think outside the checkbox</h1>
-                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
-                <a href="#demo" class="hero-cta">Get a Demo</a>
-            </div>
+<!-- SECTION 1: Hero with looping MP4 -->
+<section class="hero-section" id="section1">
+    <video id="heroVideo" autoplay loop muted playsinline>
+        <source src="./Lema_Hero_Loop.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <h1 class="hero-headline">Think outside the checkbox</h1>
+            <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+            <a href="#section2" class="hero-cta">Get a Demo</a>
         </div>
+    </div>
+    <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+</section>
 
-        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
-    </section>
-</div>
+<!-- SECTION 2: Lottie explosion -->
+<section class="lottie-section" id="section2">
+    <div id="section2Container" class="lottie-container"></div>
+    <div class="section-overlay">
+        <div class="hero-content">
+            <span class="hero-label">Third Parties</span>
+            <h1 class="hero-headline dark">Your new single point of failure</h1>
+            <p class="hero-subtext dark">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+        </div>
+    </div>
+</section>
 
+<!-- SECTION 3: Lottie continued -->
+<section class="lottie-section" id="section3">
+    <div id="section3Container" class="lottie-container"></div>
+    <div class="section-overlay">
+        <div class="hero-content">
+            <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+            <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: Content continues -->
 <section class="content-section">
     <h2>Welcome to Lema</h2>
     <p>Continue scrolling to explore more content.</p>
@@ -219,13 +257,8 @@ body {
 // CONFIGURATION
 // ============================================
 const CONFIG = {
-    // Lottie files
     SECTION2_PATH: './Section_2_clean.json',
-    SECTION3_PATH: './Section_3_clean.json',
-
-    // Timing (in milliseconds)
-    SECTION2_DELAY: 3000,  // Start Section 2 after 3 seconds
-    SECTION3_DELAY: 1000   // Start Section 3 after Section 2 ends + 1 second
+    SECTION3_PATH: './Section_3_clean.json'
 };
 
 // ============================================
@@ -237,9 +270,10 @@ let section2Played = false;
 let section3Played = false;
 
 // DOM
+const section2El = document.getElementById('section2');
+const section3El = document.getElementById('section3');
 const section2Container = document.getElementById('section2Container');
 const section3Container = document.getElementById('section3Container');
-const heroOverlay = document.getElementById('heroOverlay');
 const scrollIndicator = document.getElementById('scrollIndicator');
 const debug = document.getElementById('debug');
 
@@ -283,79 +317,85 @@ function initLottie() {
 }
 
 // ============================================
-// AUTO-PLAY SEQUENCE
+// PLAY FUNCTIONS (once only, stay on final frame)
 // ============================================
 function playSection2() {
     if (section2Played) return;
-
-    console.log('Playing Section 2 (explosion)');
-    debug.textContent = 'Playing Section 2...';
-
-    section2Container.classList.add('visible');
-    heroOverlay.classList.add('hidden');
-    scrollIndicator.classList.add('hidden');
-
-    section2Anim.play();
     section2Played = true;
 
-    // When Section 2 completes, play Section 3
-    section2Anim.addEventListener('complete', () => {
-        console.log('Section 2 complete');
-        debug.textContent = 'Section 2 done, waiting for Section 3...';
+    console.log('Playing Section 2');
+    debug.textContent = 'Section 2 playing...';
 
-        setTimeout(() => {
-            playSection3();
-        }, CONFIG.SECTION3_DELAY);
+    section2Anim.play();
+
+    section2Anim.addEventListener('complete', () => {
+        console.log('Section 2 complete - staying on final frame');
+        debug.textContent = 'Section 2 done';
+        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
     });
 }
 
 function playSection3() {
     if (section3Played) return;
-
-    console.log('Playing Section 3');
-    debug.textContent = 'Playing Section 3...';
-
-    section2Container.classList.remove('visible');
-    section3Container.classList.add('visible');
-
-    section3Anim.play();
     section3Played = true;
 
-    // When Section 3 completes
+    console.log('Playing Section 3');
+    debug.textContent = 'Section 3 playing...';
+
+    section3Anim.play();
+
     section3Anim.addEventListener('complete', () => {
-        console.log('Section 3 complete - all done!');
-        debug.textContent = 'All sections complete. MP4 keeps looping.';
+        console.log('Section 3 complete - staying on final frame');
+        debug.textContent = 'All done!';
+        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     });
 }
 
 // ============================================
-// SCROLL TRIGGER (alternative to timer)
+// INTERSECTION OBSERVER (trigger when section enters view)
 // ============================================
-function onScroll() {
-    // First scroll triggers Section 2 (if not already played)
-    if (!section2Played && window.scrollY > 10) {
-        playSection2();
-    }
+function setupObservers() {
+    const options = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.3  // Trigger when 30% of section is visible
+    };
+
+    // Observer for Section 2
+    const observer2 = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                playSection2();
+                scrollIndicator.classList.add('hidden');
+            }
+        });
+    }, options);
+
+    // Observer for Section 3
+    const observer3 = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                playSection3();
+            }
+        });
+    }, options);
+
+    observer2.observe(section2El);
+    observer3.observe(section3El);
 }
 
 // ============================================
 // INITIALIZATION
 // ============================================
 async function init() {
-    debug.textContent = 'Loading Lottie files...';
+    debug.textContent = 'Loading...';
 
     await initLottie();
 
-    debug.textContent = 'Ready! MP4 looping. Scroll to trigger explosion.';
-    console.log('Hero initialized - MP4 loops, scroll triggers Lottie sections');
+    debug.textContent = 'Ready! Scroll down.';
+    console.log('Hero ready - 3 separate sections');
 
-    // Listen for scroll to trigger Section 2
-    window.addEventListener('scroll', onScroll, { passive: true });
-
-    // OR auto-play after delay (uncomment below if you want auto-play instead of scroll trigger)
-    // setTimeout(() => {
-    //     playSection2();
-    // }, CONFIG.SECTION2_DELAY);
+    setupObservers();
 }
 
 init();
