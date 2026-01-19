@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - New</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+.scroll-container {
+    height: 400vh;
+    position: relative;
+}
+
+.hero-section {
+    position: sticky;
+    top: 0;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+/* MP4 Video - always loops in background */
+#heroVideo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* Lottie containers - overlay on top */
+#section2Container,
+#section3Container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+#section2Container.visible,
+#section3Container.visible {
+    opacity: 1;
+}
+
+/* Text overlay */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.hidden {
+    opacity: 0;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #3D2314;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    background: #3D2314;
+    color: #F5F3F0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+/* Debug info */
+.debug {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    z-index: 9999;
+    font-family: monospace;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="debug" id="debug">Loading...</div>
+
+<div class="scroll-container" id="scrollContainer">
+    <section class="hero-section" id="heroSection">
+        <!-- MP4 Video - loops continuously -->
+        <video id="heroVideo" autoplay loop muted playsinline>
+            <source src="./Lema_Hero_Loop.mp4" type="video/mp4">
+        </video>
+
+        <!-- Lottie Section 2 (explosion) -->
+        <div id="section2Container"></div>
+
+        <!-- Lottie Section 3 -->
+        <div id="section3Container"></div>
+
+        <!-- Text overlay -->
+        <div class="hero-overlay" id="heroOverlay">
+            <div class="hero-content">
+                <h1 class="hero-headline">Think outside the checkbox</h1>
+                <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+                <a href="#demo" class="hero-cta">Get a Demo</a>
+            </div>
+        </div>
+
+        <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
+    </section>
+</div>
+
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    // Scroll thresholds
+    SECTION2_START: 0.1,   // Start Section 2 at 10% scroll
+    SECTION2_END: 0.4,     // Section 2 ends at 40% scroll
+    SECTION3_START: 0.4,   // Start Section 3 at 40% scroll
+    SECTION3_END: 0.7,     // Section 3 ends at 70% scroll
+
+    // Lottie files
+    SECTION2_PATH: './Section_2_clean.json',
+    SECTION3_PATH: './Section_3_clean.json'
+};
+
+// ============================================
+// STATE
+// ============================================
+let section2Anim = null;
+let section3Anim = null;
+let section2Played = false;  // Has Section 2 completed?
+let section3Played = false;  // Has Section 3 completed?
+let section2TotalFrames = 0;
+let section3TotalFrames = 0;
+let maxScrollReached = 0;    // Track furthest scroll position
+
+// DOM
+const scrollContainer = document.getElementById('scrollContainer');
+const section2Container = document.getElementById('section2Container');
+const section3Container = document.getElementById('section3Container');
+const heroOverlay = document.getElementById('heroOverlay');
+const scrollIndicator = document.getElementById('scrollIndicator');
+const debug = document.getElementById('debug');
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    // Section 2 - Explosion
+    section2Anim = lottie.loadAnimation({
+        container: section2Container,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        path: CONFIG.SECTION2_PATH
+    });
+
+    section2Anim.addEventListener('DOMLoaded', () => {
+        section2TotalFrames = section2Anim.totalFrames;
+        console.log('Section 2 loaded:', section2TotalFrames, 'frames');
+    });
+
+    // Section 3
+    section3Anim = lottie.loadAnimation({
+        container: section3Container,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        path: CONFIG.SECTION3_PATH
+    });
+
+    section3Anim.addEventListener('DOMLoaded', () => {
+        section3TotalFrames = section3Anim.totalFrames;
+        console.log('Section 3 loaded:', section3TotalFrames, 'frames');
+    });
+}
+
+// ============================================
+// SCROLL HANDLING
+// ============================================
+function getScrollProgress() {
+    const scrollTop = window.scrollY;
+    const scrollHeight = scrollContainer.offsetHeight - window.innerHeight;
+    return Math.max(0, Math.min(1, scrollTop / scrollHeight));
+}
+
+function updateAnimation() {
+    const progress = getScrollProgress();
+
+    // Track max scroll reached (for "no replay on scroll back" behavior)
+    maxScrollReached = Math.max(maxScrollReached, progress);
+
+    // Update debug
+    debug.textContent = `Scroll: ${(progress * 100).toFixed(1)}% | Max: ${(maxScrollReached * 100).toFixed(1)}% | S2: ${section2Played ? 'done' : 'pending'} | S3: ${section3Played ? 'done' : 'pending'}`;
+
+    // Hide scroll indicator once scrolling starts
+    if (progress > 0.01) {
+        scrollIndicator.classList.add('hidden');
+    }
+
+    // ========== SECTION 2 LOGIC ==========
+    if (progress >= CONFIG.SECTION2_START && progress < CONFIG.SECTION3_START) {
+        // Show Section 2
+        section2Container.classList.add('visible');
+        section3Container.classList.remove('visible');
+        heroOverlay.classList.add('hidden');
+
+        if (!section2Played) {
+            // Still playing forward - scrub through animation
+            const section2Progress = (progress - CONFIG.SECTION2_START) / (CONFIG.SECTION2_END - CONFIG.SECTION2_START);
+            const frame = Math.min(section2TotalFrames - 1, section2Progress * section2TotalFrames);
+            section2Anim.goToAndStop(frame, true);
+
+            // Mark as played when we reach the end
+            if (section2Progress >= 1) {
+                section2Played = true;
+                section2Anim.goToAndStop(section2TotalFrames - 1, true);
+            }
+        } else {
+            // Already played - stay on final frame
+            section2Anim.goToAndStop(section2TotalFrames - 1, true);
+        }
+    }
+
+    // ========== SECTION 3 LOGIC ==========
+    else if (progress >= CONFIG.SECTION3_START) {
+        // Show Section 3
+        section2Container.classList.remove('visible');
+        section3Container.classList.add('visible');
+        heroOverlay.classList.add('hidden');
+
+        if (!section3Played) {
+            // Still playing forward - scrub through animation
+            const section3Progress = (progress - CONFIG.SECTION3_START) / (CONFIG.SECTION3_END - CONFIG.SECTION3_START);
+            const frame = Math.min(section3TotalFrames - 1, section3Progress * section3TotalFrames);
+            section3Anim.goToAndStop(frame, true);
+
+            // Mark as played when we reach the end
+            if (section3Progress >= 1) {
+                section3Played = true;
+                section3Anim.goToAndStop(section3TotalFrames - 1, true);
+            }
+        } else {
+            // Already played - stay on final frame
+            section3Anim.goToAndStop(section3TotalFrames - 1, true);
+        }
+    }
+
+    // ========== HERO (MP4) SECTION ==========
+    else {
+        // Back at top - show MP4 video (which loops automatically)
+        section2Container.classList.remove('visible');
+        section3Container.classList.remove('visible');
+        heroOverlay.classList.remove('hidden');
+    }
+}
+
+function onScroll() {
+    requestAnimationFrame(updateAnimation);
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+function init() {
+    initLottie();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    updateAnimation(); // Initial state
+    console.log('Hero initialized - MP4 loops, scroll for Lottie sections');
+}
+
+init();
+</script>
+
+</body>
+</html>
