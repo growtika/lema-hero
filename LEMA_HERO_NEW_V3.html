@@ -61,6 +61,11 @@ body {
     z-index: 1;
 }
 
+.lottie-container svg {
+    width: 100% !important;
+    height: 100% !important;
+}
+
 .section-overlay {
     position: absolute;
     top: 0;
@@ -291,7 +296,10 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION2_PATH
+            path: CONFIG.SECTION2_PATH,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice'
+            }
         });
 
         section2Anim.addEventListener('DOMLoaded', () => {
@@ -306,7 +314,10 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION3_PATH
+            path: CONFIG.SECTION3_PATH,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice'
+            }
         });
 
         section3Anim.addEventListener('DOMLoaded', () => {
