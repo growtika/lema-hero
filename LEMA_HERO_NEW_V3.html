@@ -338,6 +338,9 @@ function playSection2() {
     console.log('Playing Section 2');
     debug.textContent = 'Section 2 playing...';
 
+    // Slow down animation for smoother feel (0.7 = 70% speed)
+    section2Anim.setSpeed(0.7);
+
     // Play from frame 0
     section2Anim.goToAndPlay(0, true);
 
@@ -355,6 +358,9 @@ function playSection3() {
 
     console.log('Playing Section 3');
     debug.textContent = 'Section 3 playing...';
+
+    // Slow down animation for smoother feel (0.7 = 70% speed)
+    section3Anim.setSpeed(0.7);
 
     // Play from frame 0
     section3Anim.goToAndPlay(0, true);
@@ -384,7 +390,7 @@ function setupObservers() {
     const options = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.3  // Trigger when 30% of section is visible
+        threshold: 0.5  // Trigger when 50% of section is visible (delayed trigger)
     };
 
     // Observer for Section 2
