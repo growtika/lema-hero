@@ -192,6 +192,34 @@ body {
     min-height: 50vh;
 }
 
+/* Logo Strip */
+.logo-strip {
+    width: 100%;
+    padding: 40px 0;
+    background: #0a1a1f;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 60px;
+    flex-wrap: wrap;
+}
+
+.logo-strip img {
+    height: 32px;
+    width: auto;
+    opacity: 0.7;
+}
+
+@media (max-width: 768px) {
+    .logo-strip {
+        gap: 30px;
+        padding: 30px 20px;
+    }
+    .logo-strip img {
+        height: 24px;
+    }
+}
+
 /* Debug info */
 .debug {
     position: fixed;
@@ -226,6 +254,16 @@ body {
         </div>
     </div>
 </section>
+
+<!-- Logo Strip -->
+<div class="logo-strip">
+    <img src="./logo-ipsum.jpg" alt="Partner logo">
+    <img src="./logo-ipsum.jpg" alt="Partner logo">
+    <img src="./logo-ipsum.jpg" alt="Partner logo">
+    <img src="./logo-ipsum.jpg" alt="Partner logo">
+    <img src="./logo-ipsum.jpg" alt="Partner logo">
+    <img src="./logo-ipsum.jpg" alt="Partner logo">
+</div>
 
 <!-- SECTION 2: Lottie explosion -->
 <section class="lottie-section" id="section2">
