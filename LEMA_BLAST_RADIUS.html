@@ -119,7 +119,7 @@
     background-image: url('./assets/kaleidoscope-bg-2.svg');
     background-repeat: repeat;
     background-size: 300px;
-    opacity: 0.5;
+    opacity: 0.35;
     pointer-events: none;
   }
 
@@ -285,6 +285,81 @@
     font-size: 15px; line-height: 1.7; opacity: 0.6;
     max-width: 700px; margin: 0 auto;
   }
+
+  /* ── Bottom label (Agentic Risk Engineering) ── */
+  .how-bottom-label {
+    text-align: center; margin-top: 40px; position: relative;
+    z-index: 10; cursor: pointer; display: inline-block;
+  }
+  .how-bottom-label .bl-title { font-size: 18px; font-weight: 600; margin-bottom: 4px; }
+  .how-bottom-label .bl-subtitle { font-size: 13px; color: #8A8580; margin-bottom: 14px; }
+  .how-bottom-label .bl-icon {
+    width: 36px; height: 36px; border-radius: 50%;
+    border: 2px solid #071517; margin: 0 auto;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, transform 0.3s;
+  }
+  .how-bottom-label:hover .bl-icon {
+    background: #071517; transform: scale(1.1);
+  }
+  .how-bottom-label:hover .bl-icon svg line { stroke: #EDEAE5; }
+
+  .bl-popup {
+    position: absolute; left: 50%; bottom: 100%;
+    transform: translateX(-50%) translateY(-8px);
+    width: 680px; background: #FFFFFF; border-radius: 16px;
+    padding: 32px;
+    box-shadow: 0 12px 60px rgba(0,0,0,0.14), 0 2px 12px rgba(0,0,0,0.06);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.35s, transform 0.35s; z-index: 100;
+    text-align: left;
+  }
+  .how-bottom-label:hover .bl-popup {
+    opacity: 1; transform: translateX(-50%) translateY(-16px);
+    pointer-events: auto;
+  }
+  .bl-popup-header { font-size: 18px; font-weight: 700; color: #071517; margin-bottom: 20px; }
+  .bl-popup-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .bl-discovered {
+    background: #FAFAF8; border-radius: 10px; padding: 18px; border: 1px solid #EDEAE5;
+  }
+  .bl-discovered-title { font-size: 14px; font-weight: 700; color: #071517; margin-bottom: 14px; }
+  .bl-nodes {
+    display: flex; align-items: center; justify-content: center;
+    gap: 8px; margin-bottom: 8px; height: 80px;
+  }
+  .bl-node { display: flex; flex-direction: column; align-items: center; font-size: 10px; color: #6B6560; gap: 4px; }
+  .bl-node-circle {
+    width: 40px; height: 40px; border-radius: 50%;
+    border: 1.5px solid #BCBAB5;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bl-node-circle svg { width: 18px; height: 18px; color: #8A8580; }
+  .bl-node-center { border-color: #5BB89A; background: rgba(91,184,154,0.08); }
+  .bl-node-center svg { color: #5BB89A; }
+  .bl-node-label { font-size: 10px; color: #6B6560; text-align: center; max-width: 70px; line-height: 1.3; }
+  .bl-node-conn { width: 20px; height: 1px; background: #BCBAB5; }
+  .bl-threat { border-top: 1px solid #EDEAE5; padding-top: 14px; }
+  .bl-threat-title { font-size: 12px; font-weight: 700; color: #071517; margin-bottom: 6px; }
+  .bl-threat-text { font-size: 12px; line-height: 1.55; color: #6B6560; }
+  .bl-impact {
+    background: #FEF2F0; border-radius: 10px; padding: 18px; border: 1px solid #F5D5CF;
+  }
+  .bl-impact-header { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .bl-impact-title { font-size: 14px; font-weight: 700; color: #C0392B; }
+  .bl-impact-text { font-size: 12px; line-height: 1.55; color: #6B6560; }
+  .bl-action {
+    background: #FAFAF8; border-radius: 10px; padding: 18px; border: 1px solid #EDEAE5;
+  }
+  .bl-action-title { font-size: 14px; font-weight: 700; color: #071517; margin-bottom: 14px; }
+  .bl-action-item { display: flex; gap: 10px; margin-bottom: 14px; }
+  .bl-action-item:last-child { margin-bottom: 0; }
+  .bl-action-bullet {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 1.5px solid #BCBAB5; flex-shrink: 0; margin-top: 2px;
+  }
+  .bl-action-name { font-size: 12px; font-weight: 700; color: #071517; margin-bottom: 2px; }
+  .bl-action-desc { font-size: 11px; line-height: 1.5; color: #8A8580; }
 
   /* ── COMPARISON (DARK) ── */
   .compare-section {
@@ -622,7 +697,7 @@
       <div class="how-col">
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="12" x2="15" y2="15"/>
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
           </svg>
         </div>
         <h4>Lema Intelligence</h4>
@@ -631,7 +706,7 @@
       <div class="how-col">
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
           </svg>
         </div>
         <h4>Security &amp; IT Stack</h4>
@@ -640,7 +715,7 @@
       <div class="how-col">
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/>
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
           </svg>
         </div>
         <h4>Business Context</h4>
@@ -666,6 +741,102 @@
 
     <div class="how-center-block">
       <p>Lema compares the <strong>"Legal Reality"</strong> (Col 3) against the <strong>"Technical Reality"</strong> (Col 2). If the contract says "Marketing Data" but Wiz sees access to "Production DB," we trigger a violation.</p>
+    </div>
+
+    <!-- Bottom label: Agentic Risk Engineering (hoverable) -->
+    <div style="text-align:center; margin-top: 16px;">
+      <div class="how-bottom-label">
+        <div class="bl-title">Agentic Risk Engineering</div>
+        <div class="bl-subtitle">Uncover verified, hidden risks</div>
+        <div class="bl-icon">
+          <svg viewBox="0 0 14 14" fill="none" stroke="#071517" stroke-width="1.8">
+            <line x1="7" y1="2" x2="7" y2="12"/>
+            <line x1="2" y1="7" x2="12" y2="7"/>
+          </svg>
+        </div>
+
+        <!-- Upward-opening popup -->
+        <div class="bl-popup">
+          <div class="bl-popup-header">Agentic Risk Engineering</div>
+          <div class="bl-popup-grid">
+            <!-- Left column -->
+            <div>
+              <div class="bl-discovered">
+                <div class="bl-discovered-title">Discovered</div>
+                <div class="bl-nodes">
+                  <div class="bl-node">
+                    <div class="bl-node-label">Layoffs</div>
+                    <div class="bl-node-circle">
+                      <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+                    </div>
+                  </div>
+                  <div class="bl-node-conn"></div>
+                  <div class="bl-node">
+                    <div class="bl-node-label">Encryption<br>Gap</div>
+                    <div class="bl-node-circle">
+                      <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+                    </div>
+                  </div>
+                  <div class="bl-node">
+                    <div class="bl-node-circle bl-node-center" style="width:50px;height:50px;">
+                      <svg viewBox="0 0 20 20" fill="currentColor" style="width:22px;height:22px;">
+                        <circle cx="6" cy="8" r="2.5"/><circle cx="14" cy="8" r="2.5"/><circle cx="10" cy="14" r="2.5"/>
+                        <line x1="6" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="0.8"/>
+                        <line x1="6" y1="8" x2="10" y2="14" stroke="currentColor" stroke-width="0.8"/>
+                        <line x1="14" y1="8" x2="10" y2="14" stroke="currentColor" stroke-width="0.8"/>
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="bl-node-conn"></div>
+                  <div class="bl-node">
+                    <div class="bl-node-label">High-Level<br>Permissions</div>
+                    <div class="bl-node-circle">
+                      <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="bl-threat">
+                <div class="bl-threat-title">Threat Scenario Validated</div>
+                <div class="bl-threat-text">New privileges expose production data to an unstable vendor with open vulnerabilities.</div>
+              </div>
+            </div>
+            <!-- Right column -->
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div class="bl-impact">
+                <div class="bl-impact-header">
+                  <div class="bl-impact-title">Impact</div>
+                  <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                    <path d="M9 1.5 L16.5 15 L1.5 15 Z" fill="#F5D5CF" stroke="#C0392B" stroke-width="1"/>
+                    <text x="9" y="13" text-anchor="middle" fill="#C0392B" font-size="10" font-weight="700">!</text>
+                  </svg>
+                </div>
+                <div class="bl-impact-text">Vendor has escalated permissions to live cloud production. Correlated with encryp...</div>
+              </div>
+              <div class="bl-action">
+                <div class="bl-action-title">Action items</div>
+                <div class="bl-action-item">
+                  <div style="display:flex;flex-direction:column;align-items:center;gap:0;">
+                    <div class="bl-action-bullet"></div>
+                    <div style="width:1.5px;height:30px;background:#EDEAE5;"></div>
+                  </div>
+                  <div>
+                    <div class="bl-action-name">Revoke Access</div>
+                    <div class="bl-action-desc">Signal Cloud Security to rollback new permissions immediately.</div>
+                  </div>
+                </div>
+                <div class="bl-action-item">
+                  <div class="bl-action-bullet"></div>
+                  <div>
+                    <div class="bl-action-name">Enforce Controls</div>
+                    <div class="bl-action-desc">Mandate encryption upgrades and require proof of staffing capacity.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -726,18 +897,76 @@
 
 <!-- ═══════════════ CTA (GREEN BG) ═══════════════ -->
 <section class="cta-section">
-  <!-- Corner geometric shapes -->
+  <!-- Corner geometric shapes (kaleidoscope pattern) -->
   <div class="cta-geo cta-geo-tl">
-    <svg viewBox="0 0 320 320" fill="none"><rect x="20" y="20" width="120" height="120" rx="8" fill="#071517"/><rect x="160" y="20" width="80" height="80" rx="8" transform="rotate(45 200 60)" fill="#071517"/><rect x="20" y="180" width="80" height="80" rx="8" transform="rotate(45 60 220)" fill="#071517"/><rect x="160" y="160" width="100" height="100" rx="8" fill="#071517"/><polygon points="280,40 320,80 240,80" fill="#071517"/><polygon points="40,280 80,320 0,320" fill="#071517"/></svg>
+    <svg viewBox="0 0 320 320" fill="#071517" opacity="0.35">
+      <rect x="40" y="40" width="60" height="60"/>
+      <rect x="30" y="30" width="30" height="30" transform="rotate(45 45 45)"/>
+      <rect x="120" y="40" width="40" height="40"/>
+      <polygon points="80,140 100,120 120,140 100,160"/>
+      <rect x="40" y="120" width="40" height="40"/>
+      <polygon points="160,60 180,40 200,60 180,80"/>
+      <rect x="140" y="100" width="30" height="30"/>
+      <polygon points="40,200 60,180 80,200 60,220"/>
+      <rect x="100" y="160" width="50" height="50"/>
+      <polygon points="200,100 220,80 240,100 220,120"/>
+      <polygon points="20,160 40,140 60,160"/>
+      <rect x="180" y="140" width="30" height="30"/>
+      <polygon points="140,220 160,200 180,220 160,240"/>
+      <rect x="220" y="160" width="40" height="40"/>
+      <polygon points="60,260 80,240 100,260"/>
+    </svg>
   </div>
-  <div class="cta-geo cta-geo-tr">
-    <svg viewBox="0 0 320 320" fill="none"><rect x="180" y="20" width="120" height="120" rx="8" fill="#071517"/><rect x="60" y="20" width="80" height="80" rx="8" transform="rotate(45 100 60)" fill="#071517"/><rect x="180" y="180" width="80" height="80" rx="8" transform="rotate(45 220 220)" fill="#071517"/><rect x="60" y="160" width="100" height="100" rx="8" fill="#071517"/><polygon points="40,40 0,80 80,80" fill="#071517"/><polygon points="280,280 240,320 320,320" fill="#071517"/></svg>
+  <div class="cta-geo cta-geo-tr" style="transform: scaleX(-1);">
+    <svg viewBox="0 0 320 320" fill="#071517" opacity="0.35">
+      <rect x="40" y="40" width="60" height="60"/>
+      <rect x="30" y="30" width="30" height="30" transform="rotate(45 45 45)"/>
+      <rect x="120" y="40" width="40" height="40"/>
+      <polygon points="80,140 100,120 120,140 100,160"/>
+      <rect x="40" y="120" width="40" height="40"/>
+      <polygon points="160,60 180,40 200,60 180,80"/>
+      <rect x="140" y="100" width="30" height="30"/>
+      <polygon points="40,200 60,180 80,200 60,220"/>
+      <rect x="100" y="160" width="50" height="50"/>
+      <polygon points="200,100 220,80 240,100 220,120"/>
+      <polygon points="20,160 40,140 60,160"/>
+      <rect x="180" y="140" width="30" height="30"/>
+      <polygon points="140,220 160,200 180,220 160,240"/>
+      <rect x="220" y="160" width="40" height="40"/>
+      <polygon points="60,260 80,240 100,260"/>
+    </svg>
   </div>
-  <div class="cta-geo cta-geo-bl">
-    <svg viewBox="0 0 320 320" fill="none"><rect x="20" y="180" width="120" height="120" rx="8" fill="#071517"/><rect x="160" y="220" width="80" height="80" rx="8" transform="rotate(45 200 260)" fill="#071517"/><rect x="20" y="20" width="80" height="80" rx="8" transform="rotate(45 60 60)" fill="#071517"/><rect x="160" y="60" width="100" height="100" rx="8" fill="#071517"/><polygon points="280,280 320,240 240,240" fill="#071517"/><polygon points="40,40 80,0 0,0" fill="#071517"/></svg>
+  <div class="cta-geo cta-geo-bl" style="transform: scaleY(-1);">
+    <svg viewBox="0 0 320 320" fill="#071517" opacity="0.35">
+      <rect x="40" y="40" width="60" height="60"/>
+      <rect x="30" y="30" width="30" height="30" transform="rotate(45 45 45)"/>
+      <rect x="120" y="40" width="40" height="40"/>
+      <polygon points="80,140 100,120 120,140 100,160"/>
+      <rect x="40" y="120" width="40" height="40"/>
+      <polygon points="160,60 180,40 200,60 180,80"/>
+      <rect x="140" y="100" width="30" height="30"/>
+      <polygon points="40,200 60,180 80,200 60,220"/>
+      <rect x="100" y="160" width="50" height="50"/>
+      <polygon points="200,100 220,80 240,100 220,120"/>
+      <polygon points="20,160 40,140 60,160"/>
+      <rect x="180" y="140" width="30" height="30"/>
+    </svg>
   </div>
-  <div class="cta-geo cta-geo-br">
-    <svg viewBox="0 0 320 320" fill="none"><rect x="180" y="180" width="120" height="120" rx="8" fill="#071517"/><rect x="60" y="220" width="80" height="80" rx="8" transform="rotate(45 100 260)" fill="#071517"/><rect x="180" y="20" width="80" height="80" rx="8" transform="rotate(45 220 60)" fill="#071517"/><rect x="60" y="60" width="100" height="100" rx="8" fill="#071517"/><polygon points="40,280 0,240 80,240" fill="#071517"/><polygon points="280,40 240,0 320,0" fill="#071517"/></svg>
+  <div class="cta-geo cta-geo-br" style="transform: scale(-1,-1);">
+    <svg viewBox="0 0 320 320" fill="#071517" opacity="0.35">
+      <rect x="40" y="40" width="60" height="60"/>
+      <rect x="30" y="30" width="30" height="30" transform="rotate(45 45 45)"/>
+      <rect x="120" y="40" width="40" height="40"/>
+      <polygon points="80,140 100,120 120,140 100,160"/>
+      <rect x="40" y="120" width="40" height="40"/>
+      <polygon points="160,60 180,40 200,60 180,80"/>
+      <rect x="140" y="100" width="30" height="30"/>
+      <polygon points="40,200 60,180 80,200 60,220"/>
+      <rect x="100" y="160" width="50" height="50"/>
+      <polygon points="200,100 220,80 240,100 220,120"/>
+      <polygon points="20,160 40,140 60,160"/>
+      <rect x="180" y="140" width="30" height="30"/>
+    </svg>
   </div>
   <div class="cta-inner">
     <h2>Get ahead of the next third-party incident</h2>
