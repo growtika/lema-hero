@@ -256,10 +256,37 @@
     width: 48px; height: 48px; border-radius: 50%;
     border: 1.5px solid rgba(7,21,23,0.2); margin: 0 auto 20px;
     display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s, transform 0.3s; cursor: pointer;
   }
   .how-icon svg { width: 18px; height: 18px; stroke: #071517; fill: none; stroke-width: 1.8; }
+  .how-col { text-align: center; position: relative; }
+  .how-col:hover .how-icon { background: #071517; transform: scale(1.1); }
+  .how-col:hover .how-icon svg { stroke: #EDEAE5; }
   .how-col h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
   .how-col p { font-size: 14px; line-height: 1.65; opacity: 0.6; }
+
+  /* How It Works downward popup */
+  .how-popup {
+    position: absolute; left: 50%; top: 100%;
+    transform: translateX(-50%) translateY(8px);
+    width: 320px; background: #FFFFFF; border-radius: 12px;
+    padding: 24px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+    opacity: 0; pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s; z-index: 100;
+    text-align: left;
+  }
+  .how-col:hover .how-popup {
+    opacity: 1; transform: translateX(-50%) translateY(0);
+    pointer-events: auto;
+  }
+  .how-popup-title { font-size: 15px; font-weight: 700; color: #071517; margin-bottom: 8px; }
+  .how-popup-text { font-size: 13px; line-height: 1.6; color: #6B6560; }
+  .how-popup-tag {
+    display: inline-block; margin-top: 12px; padding: 4px 10px;
+    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
+    border-radius: 4px; background: #F0EDEA; color: #6B6560;
+  }
 
   .how-play-row {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
@@ -710,6 +737,11 @@
         </div>
         <h4>Lema Intelligence</h4>
         <p>Native monitoring of release notes, docs, and threat feeds.</p>
+        <div class="how-popup">
+          <div class="how-popup-title">Lema Intelligence</div>
+          <div class="how-popup-text">Continuously monitors vendor release notes, documentation changes, and threat intelligence feeds to detect risks before they become incidents.</div>
+          <span class="how-popup-tag">CONTINUOUS MONITORING</span>
+        </div>
       </div>
       <div class="how-col">
         <div class="how-icon">
@@ -719,6 +751,11 @@
         </div>
         <h4>Security &amp; IT Stack</h4>
         <p>API connections to IDP (Okta), CSPM (Wiz), CASB, and EDR.</p>
+        <div class="how-popup">
+          <div class="how-popup-title">Security &amp; IT Stack</div>
+          <div class="how-popup-text">Direct API integrations with your identity provider, cloud security posture management, CASB, and EDR tools to map the technical reality of vendor access.</div>
+          <span class="how-popup-tag">API INTEGRATIONS</span>
+        </div>
       </div>
       <div class="how-col">
         <div class="how-icon">
@@ -728,6 +765,11 @@
         </div>
         <h4>Business Context</h4>
         <p>Ingested data from Coupa, Zip, and ServiceNow.</p>
+        <div class="how-popup">
+          <div class="how-popup-title">Business Context</div>
+          <div class="how-popup-text">Ingests procurement, contract, and workflow data from Coupa, Zip, and ServiceNow to understand the business intent behind every vendor relationship.</div>
+          <span class="how-popup-tag">BUSINESS LAYER</span>
+        </div>
       </div>
     </div>
 
