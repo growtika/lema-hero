@@ -269,8 +269,8 @@
   .how-popup {
     position: absolute; left: 50%; top: 100%;
     transform: translateX(-50%) translateY(8px);
-    width: 320px; background: #FFFFFF; border-radius: 12px;
-    padding: 24px;
+    width: 380px; background: #FFFFFF; border-radius: 16px;
+    padding: 0;
     box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
     opacity: 0; pointer-events: none;
     transition: opacity 0.3s, transform 0.3s; z-index: 100;
@@ -280,13 +280,39 @@
     opacity: 1; transform: translateX(-50%) translateY(0);
     pointer-events: auto;
   }
-  .how-popup-title { font-size: 15px; font-weight: 700; color: #071517; margin-bottom: 8px; }
-  .how-popup-text { font-size: 13px; line-height: 1.6; color: #6B6560; }
-  .how-popup-tag {
-    display: inline-block; margin-top: 12px; padding: 4px 10px;
-    font-size: 11px; font-weight: 600; letter-spacing: 0.05em;
-    border-radius: 4px; background: #F0EDEA; color: #6B6560;
+  .how-popup-card {
+    border: 1px solid #EDEAE5; border-radius: 12px;
+    padding: 20px; margin: 16px;
   }
+  .how-popup-card-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .how-popup-card-label {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 14px; font-weight: 700; color: #071517;
+  }
+  .how-popup-card-label svg { width: 18px; height: 18px; opacity: 0.5; }
+  .how-popup-dots { display: flex; flex-direction: column; gap: 2px; opacity: 0.3; }
+  .how-popup-dots span { width: 3px; height: 3px; background: #071517; border-radius: 50%; }
+  .how-popup-card-text {
+    font-size: 14px; line-height: 1.65; color: #4A4540;
+  }
+  .how-popup-card-text ul {
+    list-style: none; padding: 0; margin: 12px 0 0;
+  }
+  .how-popup-card-text ul li {
+    padding: 4px 0 4px 18px; position: relative; font-size: 14px; line-height: 1.6;
+  }
+  .how-popup-card-text ul li::before {
+    content: ''; position: absolute; left: 0; top: 11px;
+    width: 7px; height: 7px; background: #071517;
+    transform: rotate(45deg);
+  }
+  .how-popup-card.insight {
+    background: #F5F3EF; border-color: #E8E5E0;
+  }
+  .how-popup-card.insight .how-popup-card-label svg { opacity: 0.7; }
 
   .how-play-row {
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
@@ -738,9 +764,26 @@
         <h4>Lema Intelligence</h4>
         <p>Native monitoring of release notes, docs, and threat feeds.</p>
         <div class="how-popup">
-          <div class="how-popup-title">Lema Intelligence</div>
-          <div class="how-popup-text">Continuously monitors vendor release notes, documentation changes, and threat intelligence feeds to detect risks before they become incidents.</div>
-          <span class="how-popup-tag">CONTINUOUS MONITORING</span>
+          <div class="how-popup-card">
+            <div class="how-popup-card-header">
+              <div class="how-popup-card-label">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="10" rx="1.5"/><path d="M3 8h14"/><path d="M7 5v10"/></svg>
+                Source:
+              </div>
+              <div class="how-popup-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="how-popup-card-text">Lema Native Capability. You don't connect anything. Our engine continuously monitors the vendor's entire public footprint—including product release notes, technical documentation, privacy policies, trust centers, and threat feeds.</div>
+          </div>
+          <div class="how-popup-card insight">
+            <div class="how-popup-card-header">
+              <div class="how-popup-card-label">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="10" width="3" height="6"/><rect x="8.5" y="6" width="3" height="10"/><rect x="13" y="3" width="3" height="13"/></svg>
+                The Insight:
+              </div>
+              <div class="how-popup-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="how-popup-card-text">Smart Inherent Risk Estimation. We detect changes in functionality instantly, flagging high-risk features (like AI training) before the third-party is even onboarded or the first questionnaire is sent.</div>
+          </div>
         </div>
       </div>
       <div class="how-col">
@@ -752,9 +795,34 @@
         <h4>Security &amp; IT Stack</h4>
         <p>API connections to IDP (Okta), CSPM (Wiz), CASB, and EDR.</p>
         <div class="how-popup">
-          <div class="how-popup-title">Security &amp; IT Stack</div>
-          <div class="how-popup-text">Direct API integrations with your identity provider, cloud security posture management, CASB, and EDR tools to map the technical reality of vendor access.</div>
-          <span class="how-popup-tag">API INTEGRATIONS</span>
+          <div class="how-popup-card">
+            <div class="how-popup-card-header">
+              <div class="how-popup-card-label">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="10" rx="1.5"/><path d="M3 8h14"/><path d="M7 5v10"/></svg>
+                Source:
+              </div>
+              <div class="how-popup-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="how-popup-card-text">
+              We leverage your existing tech stack via simple API connections to map the technical reality.
+              <ul>
+                <li><strong>IDP:</strong> Monitor who SSO's into which apps and what permissions are granted.</li>
+                <li><strong>CSPM:</strong> Map which third-parties have permission to access your cloud environment.</li>
+                <li><strong>CASB:</strong> Track exactly what data is being shared across the wire.</li>
+                <li><strong>EDR:</strong> Identify third-party executables running on local endpoints.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="how-popup-card insight">
+            <div class="how-popup-card-header">
+              <div class="how-popup-card-label">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="10" width="3" height="6"/><rect x="8.5" y="6" width="3" height="10"/><rect x="13" y="3" width="3" height="13"/></svg>
+                The Insight:
+              </div>
+              <div class="how-popup-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="how-popup-card-text"><strong>The Live Blast Radius.</strong> We reveal the actual attack surface, distinguishing between harmless connections and active, high-privilege access to your Crown Jewels—catching scope drift the moment it happens.</div>
+          </div>
         </div>
       </div>
       <div class="how-col">
@@ -766,9 +834,26 @@
         <h4>Business Context</h4>
         <p>Ingested data from Coupa, Zip, and ServiceNow.</p>
         <div class="how-popup">
-          <div class="how-popup-title">Business Context</div>
-          <div class="how-popup-text">Ingests procurement, contract, and workflow data from Coupa, Zip, and ServiceNow to understand the business intent behind every vendor relationship.</div>
-          <span class="how-popup-tag">BUSINESS LAYER</span>
+          <div class="how-popup-card">
+            <div class="how-popup-card-header">
+              <div class="how-popup-card-label">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="5" width="14" height="10" rx="1.5"/><path d="M3 8h14"/><path d="M7 5v10"/></svg>
+                Source:
+              </div>
+              <div class="how-popup-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="how-popup-card-text">We ingest data from procurement systems, GRC systems, and contract repositories (Zip, Coupa, ServiceNow and others).</div>
+          </div>
+          <div class="how-popup-card insight">
+            <div class="how-popup-card-header">
+              <div class="how-popup-card-label">
+                <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="10" width="3" height="6"/><rect x="8.5" y="6" width="3" height="10"/><rect x="13" y="3" width="3" height="13"/></svg>
+                The Insight:
+              </div>
+              <div class="how-popup-dots"><span></span><span></span><span></span></div>
+            </div>
+            <div class="how-popup-card-text">We analyze contracts and SoWs to understand the intended usage, the approved business unit, and the agreed-upon data scope.</div>
+          </div>
         </div>
       </div>
     </div>
