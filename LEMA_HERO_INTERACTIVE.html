@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema – The Risk Engineering Platform</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #EDEAE5;
+            color: #1A1A1A;
+            overflow-x: hidden;
+        }
+
+        .hero {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 40px 80px;
+        }
+
+        /* ── Header ── */
+        .hero-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #6B6560;
+            margin-bottom: 16px;
+        }
+
+        .hero-headline {
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 600;
+            line-height: 1.12;
+            letter-spacing: -0.025em;
+            text-align: center;
+            max-width: 680px;
+            color: #1A1A1A;
+            margin-bottom: 60px;
+        }
+
+        /* ── Feature cards row ── */
+        .features-row {
+            display: flex;
+            justify-content: center;
+            gap: 120px;
+            width: 100%;
+            max-width: 1100px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .feature-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #1A1A1A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .feature-icon svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+
+        .feature-card:hover .feature-icon {
+            background: #1A1A1A;
+            transform: scale(1.1);
+        }
+
+        .feature-card:hover .feature-icon svg line {
+            stroke: #EDEAE5;
+        }
+
+        .feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 6px;
+            color: #1A1A1A;
+        }
+
+        .feature-subtitle {
+            font-size: 13px;
+            color: #8A8580;
+            line-height: 1.4;
+            max-width: 200px;
+        }
+
+        /* ── Connector icon (shape between card and dashed line) ── */
+        .connector-icon {
+            margin-top: 24px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1A1A1A;
+        }
+
+        /* ── Center visual area ── */
+        .center-area {
+            position: relative;
+            width: 500px;
+            height: 400px;
+            margin-top: -10px;
+        }
+
+        /* ── SVG dashed curves ── */
+        .dashed-curves {
+            position: absolute;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 300px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .dashed-curves path {
+            fill: none;
+            stroke: #BCBAB5;
+            stroke-width: 1;
+            stroke-dasharray: 6 6;
+            opacity: 0.7;
+            transition: stroke 0.4s, opacity 0.4s, stroke-width 0.4s;
+        }
+
+        .dashed-curves path.active {
+            stroke: #1A1A1A;
+            opacity: 1;
+            stroke-width: 1.5;
+        }
+
+        /* ── Kaleidoscope cluster ── */
+        .kaleidoscope {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+        }
+
+        .k-shape {
+            position: absolute;
+            color: #1A1A1A;
+            transition: color 0.5s, transform 0.5s, opacity 0.5s;
+            opacity: 0.85;
+        }
+
+        .k-shape.highlighted {
+            color: #1A1A1A;
+            opacity: 1;
+            transform: scale(1.25);
+        }
+
+        .k-shape.dimmed {
+            opacity: 0.15;
+        }
+
+        .k-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #1A1A1A;
+            z-index: 5;
+        }
+
+        /* ── Bottom label ── */
+        .bottom-label {
+            text-align: center;
+            margin-top: -20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .bottom-label .feature-title {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .bottom-label .feature-subtitle {
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .bottom-label .feature-icon {
+            margin: 0 auto;
+        }
+
+        /* ── Popup tooltip ── */
+        .popup {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            top: 100%;
+            width: 320px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 100;
+        }
+
+        .feature-card:hover .popup {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .popup-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1A1A1A;
+        }
+
+        .popup-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #6B6560;
+        }
+
+        .popup-tag {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border-radius: 4px;
+            background: #F0EDEA;
+            color: #6B6560;
+        }
+
+        /* ── Idle breathing animation ── */
+        @keyframes breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.03); }
+        }
+
+        .kaleidoscope.idle {
+            animation: breathe 4s ease-in-out infinite;
+        }
+
+        /* ── Float animation for individual shapes ── */
+        @keyframes float1 { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(3px, -4px) rotate(5deg); } }
+        @keyframes float2 { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(-4px, 3px) rotate(-5deg); } }
+        @keyframes float3 { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(2px, 5px) rotate(3deg); } }
+
+        .k-shape.float-1 { animation: float1 5s ease-in-out infinite; }
+        .k-shape.float-2 { animation: float2 6s ease-in-out infinite; }
+        .k-shape.float-3 { animation: float3 7s ease-in-out infinite; }
+    </style>
+</head>
+<body>
+
+<section class="hero">
+    <!-- Header -->
+    <div class="hero-label">THE RISK ENGINEERING PLATFORM</div>
+    <h1 class="hero-headline">The tech that turns TPRM teams<br>into Risk Engineers</h1>
+
+    <!-- Feature Cards -->
+    <div class="features-row">
+        <!-- Card 1: Forensic Artifact Analysis -->
+        <div class="feature-card" data-stage="forensic">
+            <div class="feature-icon">
+                <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                    <line x1="7" y1="2" x2="7" y2="12"/>
+                    <line x1="2" y1="7" x2="12" y2="7"/>
+                </svg>
+            </div>
+            <div class="feature-title">Forensic Artifact Analysis</div>
+            <div class="feature-subtitle">Scan artifacts, uncover<br>what's hidden</div>
+            <div class="connector-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M4 16 L4 4 L16 4 Z"/>
+                </svg>
+            </div>
+            <!-- Popup -->
+            <div class="popup">
+                <div class="popup-title">Forensic Artifact Analysis</div>
+                <div class="popup-text">Deep-scan vendor artifacts — SOC2 reports, pen-test results, configuration files — to uncover risks that surface-level reviews miss.</div>
+                <span class="popup-tag">ARTIFACT SCANNING</span>
+            </div>
+        </div>
+
+        <!-- Card 2: Open-Source Recon -->
+        <div class="feature-card" data-stage="recon">
+            <div class="feature-icon">
+                <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                    <line x1="7" y1="2" x2="7" y2="12"/>
+                    <line x1="2" y1="7" x2="12" y2="7"/>
+                </svg>
+            </div>
+            <div class="feature-title">Open-Source Recon</div>
+            <div class="feature-subtitle">Monitor public data,<br>reveal secrets</div>
+            <div class="connector-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <rect x="3" y="3" width="14" height="14" transform="rotate(45 10 10)"/>
+                </svg>
+            </div>
+            <!-- Popup -->
+            <div class="popup">
+                <div class="popup-title">Open-Source Recon</div>
+                <div class="popup-text">Continuously monitor the public attack surface — exposed credentials, leaked data, dark-web mentions — so you know before attackers do.</div>
+                <span class="popup-tag">OSINT ENGINE</span>
+            </div>
+        </div>
+
+        <!-- Card 3: Blast Radius Monitor -->
+        <div class="feature-card" data-stage="blast">
+            <div class="feature-icon">
+                <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                    <line x1="7" y1="2" x2="7" y2="12"/>
+                    <line x1="2" y1="7" x2="12" y2="7"/>
+                </svg>
+            </div>
+            <div class="feature-title">Blast Radius Monitor</div>
+            <div class="feature-subtitle">Analyze your vendor relationship,<br>see what's off</div>
+            <div class="connector-icon">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                    <polygon points="10,2 18,10 10,10"/>
+                </svg>
+            </div>
+            <!-- Popup -->
+            <div class="popup">
+                <div class="popup-title">Blast Radius Monitor</div>
+                <div class="popup-text">Map how deeply each vendor is embedded in your stack, model breach impact, and prioritise by actual blast radius — not just risk score.</div>
+                <span class="popup-tag">IMPACT MODELING</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashed curves connecting cards to center -->
+    <svg class="dashed-curves" viewBox="0 0 700 300">
+        <path id="curve-left" d="M 130 0 C 130 100, 250 220, 350 260"/>
+        <path id="curve-center" d="M 350 0 C 350 80, 350 180, 350 260"/>
+        <path id="curve-right" d="M 570 0 C 570 100, 450 220, 350 260"/>
+    </svg>
+
+    <!-- Center cluster -->
+    <div class="center-area">
+        <div class="kaleidoscope idle" id="kaleidoscope">
+            <div class="k-center"></div>
+            <!-- The shapes are generated by JS below -->
+        </div>
+    </div>
+
+    <!-- Bottom label -->
+    <div class="bottom-label">
+        <div class="feature-title">Agentic Risk Engineering</div>
+        <div class="feature-subtitle">Uncover verified, hidden risks</div>
+        <div class="feature-icon" style="margin-top: 14px;">
+            <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                <line x1="7" y1="2" x2="7" y2="12"/>
+                <line x1="2" y1="7" x2="12" y2="7"/>
+            </svg>
+        </div>
+    </div>
+</section>
+
+<script>
+// ── Shape definitions ──
+const SHAPES = {
+    diamond: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="14" height="14" transform="rotate(45 10 10)"/></svg>`,
+    square: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="14" height="14"/></svg>`,
+    triangle: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="10,2 18,18 2,18"/></svg>`,
+    arrowRight: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="4,4 18,10 4,16"/></svg>`,
+    arrowLeft: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="16,4 2,10 16,16"/></svg>`,
+    chevron: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="6,2 14,10 6,18"/></svg>`,
+    invertedTriangle: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="2,2 18,2 10,18"/></svg>`,
+    smallDiamond: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="5" width="10" height="10" transform="rotate(45 10 10)"/></svg>`,
+};
+
+// Each shape: [type, x%, y%, size, stage, floatClass]
+// stage: "forensic" | "recon" | "blast" | "core"
+const CLUSTER = [
+    // Ring 1 – inner (core shapes always visible)
+    ["diamond", 46, 38, 16, "core", "float-1"],
+    ["diamond", 54, 38, 14, "core", "float-2"],
+    ["smallDiamond", 50, 32, 12, "core", "float-3"],
+
+    // Ring 2 – forensic (top-left quadrant)
+    ["square", 32, 36, 18, "forensic", "float-1"],
+    ["arrowLeft", 28, 44, 16, "forensic", "float-2"],
+    ["diamond", 36, 28, 14, "forensic", "float-3"],
+    ["square", 24, 52, 14, "forensic", "float-1"],
+    ["triangle", 30, 58, 12, "forensic", "float-2"],
+    ["arrowLeft", 22, 38, 12, "forensic", "float-3"],
+    ["smallDiamond", 34, 48, 10, "forensic", "float-1"],
+
+    // Ring 2 – recon (top-center / above)
+    ["diamond", 48, 24, 16, "recon", "float-2"],
+    ["diamond", 52, 20, 14, "recon", "float-3"],
+    ["chevron", 44, 18, 12, "recon", "float-1"],
+    ["smallDiamond", 56, 26, 12, "recon", "float-2"],
+    ["invertedTriangle", 50, 44, 14, "recon", "float-3"],
+    ["diamond", 42, 42, 10, "recon", "float-1"],
+    ["smallDiamond", 58, 42, 10, "recon", "float-2"],
+
+    // Ring 2 – blast (top-right quadrant)
+    ["arrowRight", 68, 36, 18, "blast", "float-3"],
+    ["square", 72, 44, 16, "blast", "float-1"],
+    ["diamond", 64, 28, 14, "blast", "float-2"],
+    ["arrowRight", 76, 52, 14, "blast", "float-3"],
+    ["triangle", 70, 58, 12, "blast", "float-1"],
+    ["chevron", 78, 38, 12, "blast", "float-2"],
+    ["smallDiamond", 66, 48, 10, "blast", "float-3"],
+
+    // Ring 3 – outer scatter (mixed stages)
+    ["diamond", 38, 62, 16, "forensic", "float-2"],
+    ["arrowRight", 62, 62, 16, "blast", "float-1"],
+    ["invertedTriangle", 50, 68, 14, "recon", "float-3"],
+    ["square", 42, 70, 12, "forensic", "float-1"],
+    ["diamond", 58, 70, 12, "blast", "float-2"],
+    ["triangle", 50, 76, 14, "core", "float-3"],
+    ["smallDiamond", 34, 68, 10, "forensic", "float-2"],
+    ["chevron", 66, 68, 10, "blast", "float-1"],
+    ["diamond", 46, 56, 12, "recon", "float-3"],
+    ["diamond", 54, 56, 12, "recon", "float-1"],
+
+    // Extra scatter for density
+    ["arrowLeft", 26, 62, 14, "forensic", "float-3"],
+    ["arrowRight", 74, 62, 14, "blast", "float-2"],
+    ["smallDiamond", 40, 80, 10, "core", "float-1"],
+    ["smallDiamond", 60, 80, 10, "core", "float-2"],
+    ["diamond", 50, 84, 12, "core", "float-3"],
+];
+
+// ── Build cluster ──
+const kalEl = document.getElementById('kaleidoscope');
+const shapeEls = [];
+
+CLUSTER.forEach(([type, x, y, size, stage, floatCls], i) => {
+    const div = document.createElement('div');
+    div.className = `k-shape ${floatCls}`;
+    div.dataset.stage = stage;
+    div.style.left = `${x}%`;
+    div.style.top = `${y}%`;
+    div.style.width = `${size}px`;
+    div.style.height = `${size}px`;
+    div.innerHTML = SHAPES[type](size);
+    // stagger float animation
+    div.style.animationDelay = `${(i * 0.3) % 4}s`;
+    kalEl.appendChild(div);
+    shapeEls.push(div);
+});
+
+// ── Hover interaction ──
+const featureCards = document.querySelectorAll('.feature-card');
+const curvePaths = {
+    forensic: document.getElementById('curve-left'),
+    recon: document.getElementById('curve-center'),
+    blast: document.getElementById('curve-right'),
+};
+
+featureCards.forEach(card => {
+    const stage = card.dataset.stage;
+
+    card.addEventListener('mouseenter', () => {
+        // Stop idle breathing
+        kalEl.classList.remove('idle');
+
+        // Highlight matching curve
+        Object.values(curvePaths).forEach(p => p.classList.remove('active'));
+        if (curvePaths[stage]) curvePaths[stage].classList.add('active');
+
+        // Highlight matching shapes, dim others
+        shapeEls.forEach(el => {
+            if (el.dataset.stage === stage || el.dataset.stage === 'core') {
+                el.classList.add('highlighted');
+                el.classList.remove('dimmed');
+            } else {
+                el.classList.remove('highlighted');
+                el.classList.add('dimmed');
+            }
+        });
+    });
+
+    card.addEventListener('mouseleave', () => {
+        // Restore idle
+        kalEl.classList.add('idle');
+
+        // Remove curve highlight
+        Object.values(curvePaths).forEach(p => p.classList.remove('active'));
+
+        // Reset shapes
+        shapeEls.forEach(el => {
+            el.classList.remove('highlighted', 'dimmed');
+        });
+    });
+});
+</script>
+
+</body>
+</html>
