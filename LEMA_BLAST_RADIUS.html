@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lema - Blast Radius Monitor</title>
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background: #EDEAE5;
+    color: #071517;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { text-decoration: none; color: inherit; }
+
+  /* ── NAV ── */
+  .nav {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(237,234,229,0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(7,21,23,0.06);
+  }
+  .nav-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 24px;
+  }
+  .nav-logo {
+    font-size: 22px; font-weight: 700; letter-spacing: -0.5px;
+  }
+  .nav-logo sup { font-size: 8px; vertical-align: super; margin-left: 1px; opacity: 0.5; }
+  .nav-links { display: flex; gap: 32px; }
+  .nav-links a { font-size: 14px; font-weight: 500; opacity: 0.75; transition: opacity 0.2s; }
+  .nav-links a:hover { opacity: 1; }
+  .btn-demo {
+    display: inline-block; padding: 10px 22px;
+    background: #071517; color: #EDEAE5;
+    border-radius: 24px; font-size: 14px; font-weight: 600;
+    border: none; cursor: pointer; transition: opacity 0.2s;
+  }
+  .btn-demo:hover { opacity: 0.85; }
+  .btn-demo-green {
+    display: inline-block; padding: 14px 32px;
+    background: #5BB89A; color: #071517;
+    border-radius: 28px; font-size: 15px; font-weight: 600;
+    border: none; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .btn-demo-green:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91,184,154,0.35); }
+
+  /* ── HERO ── */
+  .hero {
+    text-align: center;
+    padding: 100px 24px 0;
+    max-width: 820px; margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: 52px; font-weight: 700; line-height: 1.12;
+    letter-spacing: -1.5px; margin-bottom: 24px;
+  }
+  .hero p {
+    font-size: 17px; line-height: 1.7; opacity: 0.7;
+    max-width: 640px; margin: 0 auto 40px;
+  }
+  .hero-shape {
+    display: block; margin: 60px auto 0;
+    max-width: 500px; width: 100%;
+  }
+
+  /* logo strip */
+  .logo-strip {
+    background: #071517; padding: 32px 0; margin-top: 60px;
+    display: flex; align-items: center; justify-content: center; gap: 56px;
+    overflow: hidden;
+  }
+  .logo-strip .logo-placeholder {
+    width: 110px; height: 28px; background: rgba(237,234,229,0.12);
+    border-radius: 4px; flex-shrink: 0;
+  }
+
+  /* ── SECTIONS ── */
+  .section { padding: 100px 24px; }
+  .section-inner { max-width: 1100px; margin: 0 auto; }
+  .label {
+    font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; opacity: 0.4; margin-bottom: 16px;
+  }
+  .section-headline {
+    font-size: 40px; font-weight: 700; line-height: 1.15;
+    letter-spacing: -1px; margin-bottom: 20px; max-width: 600px;
+  }
+  .section-sub {
+    font-size: 16px; line-height: 1.7; opacity: 0.65; max-width: 560px; margin-bottom: 48px;
+  }
+
+  /* ── VISIBILITY GAP ── */
+  .visibility-gap { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
+  .vg-right-label { font-size: 13px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.5; margin-bottom: 12px; }
+  .vg-right p { font-size: 15px; line-height: 1.7; opacity: 0.7; margin-bottom: 28px; }
+  .vg-item { margin-bottom: 28px; padding-left: 28px; position: relative; }
+  .vg-item::before {
+    content: '';
+    position: absolute; left: 0; top: 6px;
+    width: 16px; height: 16px;
+    background: #5BB89A;
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='8' viewBox='0 0 10 8'%3E%3Cpath d='M1 4l2.5 2.5L9 1' stroke='%23071517' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: center;
+  }
+  .vg-item strong { font-size: 15px; font-weight: 600; display: block; margin-bottom: 4px; }
+  .vg-item span { font-size: 14px; line-height: 1.65; opacity: 0.65; }
+
+  /* ── FEATURE BLOCKS ── */
+  .feature-block {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 48px;
+    align-items: center; margin-bottom: 80px;
+  }
+  .feature-block.reverse { direction: rtl; }
+  .feature-block.reverse > * { direction: ltr; }
+  .feature-text h3 { font-size: 28px; font-weight: 700; line-height: 1.2; letter-spacing: -0.5px; margin-bottom: 14px; }
+  .feature-text p { font-size: 15px; line-height: 1.7; opacity: 0.65; }
+
+  /* UI Mockup Cards */
+  .ui-card {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(7,21,23,0.07);
+    padding: 28px; position: relative; overflow: hidden;
+  }
+  .ui-card-header {
+    font-size: 13px; font-weight: 600; opacity: 0.5; margin-bottom: 16px;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  /* Card A: Usage bars */
+  .usage-bar-group { display: flex; flex-direction: column; gap: 12px; }
+  .usage-bar-row { display: flex; align-items: center; gap: 12px; }
+  .usage-bar-label { font-size: 12px; font-weight: 500; opacity: 0.5; width: 80px; text-align: right; }
+  .usage-bar-track { flex: 1; height: 10px; background: #f0eeea; border-radius: 5px; overflow: hidden; }
+  .usage-bar-fill { height: 100%; border-radius: 5px; }
+  .usage-bar-value { font-size: 12px; font-weight: 600; width: 36px; }
+
+  /* Card B: Integration */
+  .integration-card-inner { display: flex; flex-direction: column; gap: 16px; }
+  .integration-question { font-size: 14px; font-weight: 500; opacity: 0.7; }
+  .integration-diagram {
+    background: rgba(91,184,154,0.08); border: 1.5px solid rgba(91,184,154,0.25);
+    border-radius: 12px; padding: 20px; min-height: 120px;
+    display: flex; align-items: center; justify-content: center; gap: 16px;
+  }
+  .int-node {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; font-weight: 700; color: #fff;
+  }
+  .int-line { width: 40px; height: 2px; background: #5BB89A; }
+  .int-badge {
+    display: inline-block; padding: 6px 14px;
+    background: #5BB89A; color: #071517;
+    border-radius: 20px; font-size: 12px; font-weight: 700;
+    align-self: flex-start;
+  }
+
+  /* Card C: Notification */
+  .notif-card {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 2px 24px rgba(7,21,23,0.07);
+    padding: 24px; border-left: 4px solid #3ABBD2;
+  }
+  .notif-icon {
+    width: 36px; height: 36px; background: rgba(58,187,210,0.12);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    margin-bottom: 12px;
+  }
+  .notif-icon svg { width: 18px; height: 18px; }
+  .notif-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .notif-body { font-size: 13px; line-height: 1.6; opacity: 0.6; }
+
+  /* ── HOW IT WORKS ── */
+  .how-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 48px; }
+  .how-col { text-align: center; }
+  .how-icon {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 2px solid #5BB89A; margin: 0 auto 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .how-icon svg { width: 26px; height: 26px; stroke: #5BB89A; fill: none; stroke-width: 1.5; }
+  .how-col h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
+  .how-col p { font-size: 14px; line-height: 1.65; opacity: 0.6; }
+  .how-connector {
+    display: flex; align-items: center; justify-content: center;
+    gap: 24px; margin-bottom: 48px;
+  }
+  .how-arrow { width: 40px; height: 2px; background: #5BB89A; position: relative; }
+  .how-arrow::after {
+    content: ''; position: absolute; right: -1px; top: -4px;
+    border: 5px solid transparent; border-left: 6px solid #5BB89A;
+  }
+  .how-center-block {
+    position: relative; text-align: center;
+    padding: 48px 24px; margin-bottom: 0;
+  }
+  .how-center-block img {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%,-50%);
+    width: 320px; opacity: 0.15; pointer-events: none;
+  }
+  .how-center-block p {
+    font-size: 15px; line-height: 1.7; opacity: 0.6;
+    max-width: 700px; margin: 0 auto;
+    position: relative; z-index: 1;
+  }
+
+  /* ── COMPARISON ── */
+  .compare-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; margin-bottom: 48px; }
+  .compare-card {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 2px 20px rgba(7,21,23,0.06);
+    padding: 28px; min-height: 320px;
+  }
+  .compare-card.lema-card { border: 2px solid #5BB89A; }
+  .compare-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
+  .compare-card ul { list-style: none; }
+  .compare-card ul li {
+    font-size: 13px; line-height: 1.6; padding: 8px 0;
+    border-bottom: 1px solid rgba(7,21,23,0.06);
+    opacity: 0.7;
+  }
+  .compare-card ul li:last-child { border-bottom: none; }
+  .compare-context {
+    font-size: 15px; line-height: 1.7; opacity: 0.6;
+    max-width: 720px; text-align: center; margin: 0 auto;
+    font-style: italic;
+  }
+
+  /* ── CTA ── */
+  .cta-section {
+    background: #071517; padding: 100px 24px;
+    text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background:
+      repeating-conic-gradient(from 0deg at 50% 50%, rgba(91,184,154,0.04) 0deg 30deg, transparent 30deg 60deg);
+    opacity: 0.6;
+  }
+  .cta-bg-diamond {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(45deg, rgba(91,184,154,0.06) 25%, transparent 25%),
+      linear-gradient(-45deg, rgba(91,184,154,0.06) 25%, transparent 25%),
+      linear-gradient(135deg, rgba(91,184,154,0.06) 25%, transparent 25%),
+      linear-gradient(-135deg, rgba(91,184,154,0.06) 25%, transparent 25%);
+    background-size: 80px 80px;
+    background-position: 0 0, 0 40px, 40px -40px, 40px 0;
+  }
+  .cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
+  .cta-section h2 {
+    font-size: 40px; font-weight: 700; color: #EDEAE5;
+    line-height: 1.15; letter-spacing: -1px; margin-bottom: 18px;
+  }
+  .cta-section p { font-size: 16px; line-height: 1.7; color: rgba(237,234,229,0.6); margin-bottom: 36px; }
+
+  /* ── FOOTER ── */
+  .footer { background: #071517; padding: 64px 24px 32px; border-top: 1px solid rgba(237,234,229,0.06); }
+  .footer-inner { max-width: 1100px; margin: 0 auto; }
+  .footer-top { display: grid; grid-template-columns: 1.2fr repeat(4, 1fr); gap: 40px; margin-bottom: 48px; }
+  .footer-logo { font-size: 22px; font-weight: 700; color: #EDEAE5; }
+  .footer-col h5 {
+    font-size: 12px; font-weight: 700; letter-spacing: 1.5px;
+    text-transform: uppercase; color: rgba(237,234,229,0.35);
+    margin-bottom: 14px;
+  }
+  .footer-col a {
+    display: block; font-size: 14px; color: rgba(237,234,229,0.55);
+    padding: 4px 0; transition: color 0.2s;
+  }
+  .footer-col a:hover { color: #5BB89A; }
+  .footer-bottom {
+    border-top: 1px solid rgba(237,234,229,0.06);
+    padding-top: 20px; text-align: center;
+    font-size: 12px; color: rgba(237,234,229,0.3);
+  }
+
+  /* responsive */
+  @media (max-width: 768px) {
+    .nav-links { display: none; }
+    .hero h1 { font-size: 34px; }
+    .section-headline { font-size: 30px; }
+    .visibility-gap, .feature-block, .how-columns, .compare-grid { grid-template-columns: 1fr; }
+    .feature-block.reverse { direction: ltr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+    .logo-strip { gap: 28px; flex-wrap: wrap; padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ NAV ═══════════════ -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-logo">lema<sup>&bull;</sup></div>
+    <div class="nav-links">
+      <a href="#">Platform</a>
+      <a href="#">Solutions</a>
+      <a href="#">Customers</a>
+      <a href="#">Learn</a>
+      <a href="#">About</a>
+    </div>
+    <a href="#" class="btn-demo">Get a Demo</a>
+  </div>
+</nav>
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <h1>Measure Blast Radius with real access, not paperwork</h1>
+  <p>Correlate the business impact of the real third-party incident. Lema automatically maps all active/inactive third-party connections and access &mdash; giving you the power to shut down scope drift and shadow apps in real time.</p>
+  <a href="#" class="btn-demo-green">Get a Demo</a>
+  <img src="./assets/hero-shape.svg" alt="Hero geometric shape" class="hero-shape">
+</section>
+
+<!-- Logo Strip -->
+<div class="logo-strip">
+  <div class="logo-placeholder"></div>
+  <div class="logo-placeholder"></div>
+  <div class="logo-placeholder"></div>
+  <div class="logo-placeholder"></div>
+  <div class="logo-placeholder"></div>
+  <div class="logo-placeholder"></div>
+</div>
+
+<!-- ═══════════════ VISIBILITY GAP ═══════════════ -->
+<section class="section">
+  <div class="section-inner">
+    <div class="visibility-gap">
+      <div>
+        <div class="label">THE VISIBILITY GAP</div>
+        <h2 class="section-headline">Your attack surface is bigger than what procurement tracks</h2>
+        <p class="section-sub">We expose the shadow apps you don't know about, the scope drift on "Read Only" APIs that quietly escalated, and the dormant SaaS tools that live beyond your radar.</p>
+      </div>
+      <div>
+        <div class="vg-right-label">Shadow IT</div>
+        <p style="font-size:15px;line-height:1.7;opacity:0.7;margin-bottom:28px;">The apps your team didn't bill you. From marketing tools to AI integrations granting broad API access to your environments and data.</p>
+
+        <div class="vg-item">
+          <strong>Scope drift</strong>
+          <span>The 'safe' connections that became dangerous. A vendor gets API access for 'Read Only.' Twelve months later? They're pulling production data from Slack to Salesforce, gaining broad access to all employee privileges.</span>
+        </div>
+        <div class="vg-item">
+          <strong>Underestimated inherent Risk</strong>
+          <span>The 'low risk' vendors that aren't. Funding concerns, security incidents, compliance gaps &mdash; hidden signals that reveal your vendor risk profile is unreliable. Your 3rd-party score barely moves, leaving you exposed.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ RISK ENGINEERING ═══════════════ -->
+<section class="section" style="padding-top:40px;">
+  <div class="section-inner">
+    <div class="label">THE RISK ENGINEERING APPROACH</div>
+    <h2 class="section-headline">Validate legacy paperwork against operational reality</h2>
+    <p class="section-sub">Hackers don't care about paperwork. Lema bridges the interface between you and the vendor &mdash; tracking access to critical assets and data in one unified view.</p>
+
+    <!-- Feature A -->
+    <div class="feature-block">
+      <div class="feature-text">
+        <h3>Continuous interface &amp; usage monitoring</h3>
+        <p>Lema tracks permissions and data access alongside the business context. Scope drift in Salesforce? Your data app in Marketing &mdash; you see the real blast radius.</p>
+      </div>
+      <div class="ui-card">
+        <div class="ui-card-header">Your Usage</div>
+        <div class="usage-bar-group">
+          <div class="usage-bar-row">
+            <span class="usage-bar-label">Salesforce</span>
+            <div class="usage-bar-track"><div class="usage-bar-fill" style="width:82%;background:#5BB89A;"></div></div>
+            <span class="usage-bar-value">82%</span>
+          </div>
+          <div class="usage-bar-row">
+            <span class="usage-bar-label">Slack</span>
+            <div class="usage-bar-track"><div class="usage-bar-fill" style="width:64%;background:#5BB89A;"></div></div>
+            <span class="usage-bar-value">64%</span>
+          </div>
+          <div class="usage-bar-row">
+            <span class="usage-bar-label">HubSpot</span>
+            <div class="usage-bar-track"><div class="usage-bar-fill" style="width:47%;background:#FFB74D;"></div></div>
+            <span class="usage-bar-value">47%</span>
+          </div>
+          <div class="usage-bar-row">
+            <span class="usage-bar-label">Jira</span>
+            <div class="usage-bar-track"><div class="usage-bar-fill" style="width:35%;background:#5BB89A;"></div></div>
+            <span class="usage-bar-value">35%</span>
+          </div>
+          <div class="usage-bar-row">
+            <span class="usage-bar-label">Notion</span>
+            <div class="usage-bar-track"><div class="usage-bar-fill" style="width:21%;background:rgba(7,21,23,0.2);"></div></div>
+            <span class="usage-bar-value">21%</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature B -->
+    <div class="feature-block reverse">
+      <div class="feature-text">
+        <h3>Smart inherent risk estimation</h3>
+        <p>Don't rely on checkbox surveys. Profile the real exposure: funding signals, M&amp;A data, security history, compliance drift. Use 'soft' data to inform 'hard' decisions.</p>
+      </div>
+      <div class="ui-card">
+        <div class="integration-card-inner">
+          <div class="integration-question">How is the third-party integrated into your product?</div>
+          <div class="integration-diagram">
+            <div class="int-node" style="background:#5BB89A;">A</div>
+            <div class="int-line"></div>
+            <div class="int-node" style="background:#071517;">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            </div>
+            <div class="int-line"></div>
+            <div class="int-node" style="background:#5BB89A;">B</div>
+          </div>
+          <div class="int-badge">3 Integrations</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Feature C -->
+    <div class="feature-block">
+      <div class="feature-text">
+        <h3>Automated scope validation</h3>
+        <p>Detect when a vendor's access quietly expands beyond its original scope. Lema surfaces permission changes automatically so you never miss an escalation.</p>
+      </div>
+      <div class="notif-card">
+        <div class="notif-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#3ABBD2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div class="notif-title">Permission Escalation Detected</div>
+        <div class="notif-body">Third-Party has been granted new unrestricted lower-level permissions. Scope changed from <strong>Read Only</strong> to <strong>Full Access</strong> across 3 connected environments.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ HOW IT WORKS ═══════════════ -->
+<section class="section">
+  <div class="section-inner" style="text-align:center;">
+    <div class="label" style="text-align:center;">HOW IT WORKS: THE GENESIS MESH</div>
+    <h2 class="section-headline" style="text-align:center;margin:0 auto 48px;max-width:700px;">We fuse 3 layers of data to reveal the operational reality</h2>
+
+    <div class="how-columns">
+      <div class="how-col">
+        <div class="how-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+          </svg>
+        </div>
+        <h4>Lema Intelligence</h4>
+        <p>Data on software usage, active access, and data flows</p>
+      </div>
+      <div class="how-col">
+        <div class="how-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+        </div>
+        <h4>Security &amp; IT Stack</h4>
+        <p>Pre-existing CASBs, SSPMs, CSPM, SIEMs, IAMs, APIs and other solutions</p>
+      </div>
+      <div class="how-col">
+        <div class="how-icon">
+          <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 7V5a4 4 0 00-8 0v2"/>
+          </svg>
+        </div>
+        <h4>Business Context</h4>
+        <p>Describe who they 'need,' what data, their contract, and their business data</p>
+      </div>
+    </div>
+
+    <div class="how-connector">
+      <div class="how-arrow"></div>
+      <div style="width:12px;height:12px;background:#5BB89A;border-radius:50%;"></div>
+      <div class="how-arrow"></div>
+    </div>
+
+    <div class="how-center-block">
+      <img src="./assets/kaleidoscope-bg-2.svg" alt="" style="opacity:0.6;">
+      <p>Lema interprets the <strong>Lema Model</strong>, <strong>Risk Engine</strong>, and <strong>Inference Engine</strong> (V3.1). It then converts into <strong>Monitoring Data</strong> for AI-powered <strong>Product Use AI</strong> and legal &amp; mitigate strategies.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════ COMPARISON ═══════════════ -->
+<section class="section" style="padding-top:20px;">
+  <div class="section-inner" style="text-align:center;">
+    <h2 class="section-headline" style="text-align:center;margin:0 auto 16px;max-width:700px;">Why your security stack can't see the whole picture</h2>
+    <p class="section-sub" style="text-align:center;margin:0 auto 56px;max-width:680px;">Your existing tools are excellent at monitoring their specific domains, but they operate in silos. Lema is the only platform that combines technical reality against business impact.</p>
+
+    <div class="compare-grid">
+      <!-- Procurement -->
+      <div class="compare-card">
+        <h4>What procurement sees</h4>
+        <ul>
+          <li>Device Compliance</li>
+          <li>Risk Score / Low Risk</li>
+          <li>Network IP access</li>
+          <li>Security Questionnaire</li>
+          <li>Vendor JOCS</li>
+        </ul>
+      </div>
+      <!-- Security -->
+      <div class="compare-card">
+        <h4>What security sees</h4>
+        <ul>
+          <li>Public IP leaking / login</li>
+          <li>Risk Score / Recently Re-Audited</li>
+          <li>Shadow Connect logged by IAM</li>
+          <li>Incident SPOF Connections on all</li>
+        </ul>
+      </div>
+      <!-- Lema -->
+      <div class="compare-card lema-card">
+        <h4>What Lema sees</h4>
+        <ul>
+          <li>Has confirmed a 'Low Risk' that had previously breached</li>
+          <li>Lema Connect / all vendor access is verified detailed</li>
+          <li>The AI analysis / This combination is acutely raising risk</li>
+          <li>Enabling its vendor to access/take an estimated blast radius</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="compare-context">Context is the clue. Without Lema, Procurement trusts the form, and Security trusts the admin. We connect the two to reveal that the 'safe' box is actually your biggest open door.</p>
+  </div>
+</section>
+
+<!-- ═══════════════ CTA ═══════════════ -->
+<section class="cta-section">
+  <div class="cta-bg-diamond"></div>
+  <div class="cta-inner">
+    <h2>Get ahead of the next third-party incident</h2>
+    <p>Stop assessing vendors passively and late. Connect Lema to your stack and start deploying verified, real-time vendor analysis and monitoring in minutes.</p>
+    <a href="#" class="btn-demo-green">Get a Demo</a>
+  </div>
+</section>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <div>
+        <div class="footer-logo">lema<sup style="font-size:8px;vertical-align:super;opacity:0.4;">&bull;</sup></div>
+      </div>
+      <div class="footer-col">
+        <h5>Platform</h5>
+        <a href="#">Blast Radius</a>
+      </div>
+      <div class="footer-col">
+        <h5>Solutions</h5>
+        <a href="#">QuickStart</a>
+        <a href="#">TPRM</a>
+        <a href="#">Risk</a>
+      </div>
+      <div class="footer-col">
+        <h5>Learn</h5>
+        <a href="#">Company</a>
+        <a href="#">Privacy</a>
+        <a href="#">Legal</a>
+      </div>
+      <div class="footer-col">
+        <h5>About</h5>
+        <a href="#">Customers</a>
+        <a href="#">About Us</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      &copy; 2026 Lema. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
