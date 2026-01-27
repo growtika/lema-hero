@@ -70,15 +70,23 @@
     max-width: 500px; width: 100%;
   }
 
-  /* logo strip */
+  /* ── LOGO STRIP ── */
   .logo-strip {
-    background: #071517; padding: 32px 0; margin-top: 60px;
-    display: flex; align-items: center; justify-content: center; gap: 56px;
+    background: #071517; padding: 28px 0; margin-top: 60px;
+    display: flex; align-items: center; justify-content: center; gap: 48px;
     overflow: hidden;
   }
-  .logo-strip .logo-placeholder {
-    width: 110px; height: 28px; background: rgba(237,234,229,0.12);
-    border-radius: 4px; flex-shrink: 0;
+  .logo-item {
+    display: flex; align-items: center; gap: 8px;
+    flex-shrink: 0;
+  }
+  .logo-icon {
+    width: 24px; height: 24px;
+    opacity: 0.35;
+  }
+  .logo-text {
+    font-size: 14px; font-weight: 600; color: rgba(237,234,229,0.35);
+    letter-spacing: -0.3px;
   }
 
   /* ── SECTIONS ── */
@@ -164,10 +172,21 @@
   }
 
   /* Card C: Notification */
-  .notif-card {
+  .notif-wrapper {
     background: #fff; border-radius: 16px;
     box-shadow: 0 2px 24px rgba(7,21,23,0.07);
-    padding: 24px; border-left: 4px solid #3ABBD2;
+    padding: 28px;
+  }
+  .notif-card {
+    background: #fff; border-radius: 12px;
+    border: 1px solid rgba(7,21,23,0.08);
+    padding: 20px; border-left: 4px solid #3ABBD2;
+    position: relative;
+  }
+  .notif-dot {
+    position: absolute; top: -4px; right: -4px;
+    width: 10px; height: 10px; background: #E74C3C;
+    border-radius: 50%; border: 2px solid #fff;
   }
   .notif-icon {
     width: 36px; height: 36px; background: rgba(58,187,210,0.12);
@@ -179,33 +198,59 @@
   .notif-body { font-size: 13px; line-height: 1.6; opacity: 0.6; }
 
   /* ── HOW IT WORKS ── */
-  .how-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 48px; }
+  .how-section { text-align: center; }
+  .how-columns { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; margin-bottom: 16px; }
   .how-col { text-align: center; }
   .how-icon {
-    width: 64px; height: 64px; border-radius: 50%;
-    border: 2px solid #5BB89A; margin: 0 auto 20px;
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 1.5px solid rgba(7,21,23,0.2); margin: 0 auto 20px;
     display: flex; align-items: center; justify-content: center;
   }
-  .how-icon svg { width: 26px; height: 26px; stroke: #5BB89A; fill: none; stroke-width: 1.5; }
+  .how-icon svg { width: 20px; height: 20px; stroke: #071517; fill: none; stroke-width: 1.5; }
   .how-col h4 { font-size: 17px; font-weight: 700; margin-bottom: 8px; }
   .how-col p { font-size: 14px; line-height: 1.65; opacity: 0.6; }
-  .how-connector {
+
+  /* Play triangles */
+  .how-play-row {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px;
+    margin-bottom: 0;
+  }
+  .how-play-col {
+    display: flex; justify-content: center;
+  }
+  .play-triangle {
+    width: 0; height: 0;
+    border-left: 8px solid transparent;
+    border-right: 8px solid transparent;
+    border-top: 12px solid #071517;
+  }
+
+  /* Curved dashed arcs SVG */
+  .how-arcs-container {
+    position: relative;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 0;
+  }
+  .how-arcs-svg {
+    width: 100%; height: 100%;
+  }
+  .how-arcs-svg path {
+    fill: none; stroke: rgba(7,21,23,0.2);
+    stroke-width: 1.5; stroke-dasharray: 6,6;
+  }
+
+  /* Center kaleidoscope in how-it-works */
+  .how-center-cluster {
+    position: relative;
     display: flex; align-items: center; justify-content: center;
-    gap: 24px; margin-bottom: 48px;
+    width: 260px; height: 260px;
+    margin: -80px auto 32px;
   }
-  .how-arrow { width: 40px; height: 2px; background: #5BB89A; position: relative; }
-  .how-arrow::after {
-    content: ''; position: absolute; right: -1px; top: -4px;
-    border: 5px solid transparent; border-left: 6px solid #5BB89A;
-  }
+
   .how-center-block {
     position: relative; text-align: center;
-    padding: 48px 24px; margin-bottom: 0;
-  }
-  .how-center-block img {
-    position: absolute; top: 50%; left: 50%;
-    transform: translate(-50%,-50%);
-    width: 320px; opacity: 0.15; pointer-events: none;
+    padding: 0 24px 0; margin-bottom: 0;
   }
   .how-center-block p {
     font-size: 15px; line-height: 1.7; opacity: 0.6;
@@ -219,6 +264,7 @@
     background: #fff; border-radius: 16px;
     box-shadow: 0 2px 20px rgba(7,21,23,0.06);
     padding: 28px; min-height: 320px;
+    text-align: left;
   }
   .compare-card.lema-card { border: 2px solid #5BB89A; }
   .compare-card h4 { font-size: 16px; font-weight: 700; margin-bottom: 16px; }
@@ -227,8 +273,29 @@
     font-size: 13px; line-height: 1.6; padding: 8px 0;
     border-bottom: 1px solid rgba(7,21,23,0.06);
     opacity: 0.7;
+    padding-left: 24px;
+    position: relative;
+  }
+  .compare-card ul li::before {
+    content: '';
+    position: absolute; left: 0; top: 13px;
+    width: 8px; height: 8px;
+    background: rgba(7,21,23,0.15);
+    border-radius: 50%;
   }
   .compare-card ul li:last-child { border-bottom: none; }
+
+  /* Green checkmarks for Lema card */
+  .compare-card.lema-card ul li::before {
+    width: 14px; height: 14px;
+    top: 11px;
+    background: #5BB89A;
+    border-radius: 50%;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='6' viewBox='0 0 8 6'%3E%3Cpath d='M1 3l2 2L7 1' stroke='white' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+  }
+  .compare-card.lema-card ul li { padding-left: 28px; }
   .compare-context {
     font-size: 15px; line-height: 1.7; opacity: 0.6;
     max-width: 720px; text-align: center; margin: 0 auto;
@@ -240,23 +307,14 @@
     background: #071517; padding: 100px 24px;
     text-align: center; position: relative; overflow: hidden;
   }
-  .cta-section::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      repeating-conic-gradient(from 0deg at 50% 50%, rgba(91,184,154,0.04) 0deg 30deg, transparent 30deg 60deg);
-    opacity: 0.6;
+  .cta-corner {
+    position: absolute;
+    width: 280px; height: 280px;
+    opacity: 0.25;
   }
-  .cta-bg-diamond {
-    position: absolute; inset: 0;
-    background-image:
-      linear-gradient(45deg, rgba(91,184,154,0.06) 25%, transparent 25%),
-      linear-gradient(-45deg, rgba(91,184,154,0.06) 25%, transparent 25%),
-      linear-gradient(135deg, rgba(91,184,154,0.06) 25%, transparent 25%),
-      linear-gradient(-135deg, rgba(91,184,154,0.06) 25%, transparent 25%);
-    background-size: 80px 80px;
-    background-position: 0 0, 0 40px, 40px -40px, 40px 0;
-  }
+  .cta-corner-bl { bottom: -60px; left: -40px; transform: rotate(0deg); }
+  .cta-corner-br { bottom: -60px; right: -40px; transform: scaleX(-1); }
+  .cta-corner svg { width: 100%; height: 100%; }
   .cta-inner { position: relative; z-index: 1; max-width: 600px; margin: 0 auto; }
   .cta-section h2 {
     font-size: 40px; font-weight: 700; color: #EDEAE5;
@@ -281,8 +339,16 @@
   .footer-col a:hover { color: #5BB89A; }
   .footer-bottom {
     border-top: 1px solid rgba(237,234,229,0.06);
-    padding-top: 20px; text-align: center;
+    padding-top: 20px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     font-size: 12px; color: rgba(237,234,229,0.3);
+  }
+  .footer-c-icon {
+    width: 20px; height: 20px;
+    border: 1px solid rgba(237,234,229,0.2);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: rgba(237,234,229,0.3);
   }
 
   /* responsive */
@@ -290,10 +356,12 @@
     .nav-links { display: none; }
     .hero h1 { font-size: 34px; }
     .section-headline { font-size: 30px; }
-    .visibility-gap, .feature-block, .how-columns, .compare-grid { grid-template-columns: 1fr; }
+    .visibility-gap, .feature-block, .how-columns, .compare-grid, .how-play-row { grid-template-columns: 1fr; }
     .feature-block.reverse { direction: ltr; }
     .footer-top { grid-template-columns: 1fr 1fr; }
-    .logo-strip { gap: 28px; flex-wrap: wrap; padding: 24px; }
+    .logo-strip { gap: 24px; flex-wrap: wrap; padding: 20px; }
+    .how-arcs-container { display: none; }
+    .how-center-cluster { margin: 24px auto; }
   }
 </style>
 </head>
@@ -324,12 +392,30 @@
 
 <!-- Logo Strip -->
 <div class="logo-strip">
-  <div class="logo-placeholder"></div>
-  <div class="logo-placeholder"></div>
-  <div class="logo-placeholder"></div>
-  <div class="logo-placeholder"></div>
-  <div class="logo-placeholder"></div>
-  <div class="logo-placeholder"></div>
+  <div class="logo-item">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="rgba(237,234,229,0.35)"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg>
+    <span class="logo-text">logoipsum</span>
+  </div>
+  <div class="logo-item">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="rgba(237,234,229,0.35)"><circle cx="12" cy="12" r="9"/></svg>
+    <span class="logo-text">logoipsum</span>
+  </div>
+  <div class="logo-item">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="rgba(237,234,229,0.35)"><polygon points="12,2 22,20 2,20"/></svg>
+    <span class="logo-text">logoipsum</span>
+  </div>
+  <div class="logo-item">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="rgba(237,234,229,0.35)"><rect x="4" y="4" width="16" height="16" rx="3" transform="rotate(45 12 12)"/></svg>
+    <span class="logo-text">logoipsum</span>
+  </div>
+  <div class="logo-item">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="rgba(237,234,229,0.35)"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    <span class="logo-text">logoipsum</span>
+  </div>
+  <div class="logo-item">
+    <svg class="logo-icon" viewBox="0 0 24 24" fill="rgba(237,234,229,0.35)"><rect x="3" y="3" width="18" height="18" rx="4"/></svg>
+    <span class="logo-text">logoipsum</span>
+  </div>
 </div>
 
 <!-- ═══════════════ VISIBILITY GAP ═══════════════ -->
@@ -343,7 +429,7 @@
       </div>
       <div>
         <div class="vg-right-label">Shadow IT</div>
-        <p style="font-size:15px;line-height:1.7;opacity:0.7;margin-bottom:28px;">The apps your team didn't bill you. From marketing tools to AI integrations granting broad API access to your environments and data.</p>
+        <p style="font-size:15px;line-height:1.7;opacity:0.7;margin-bottom:28px;">The apps your team didn't tell you. From marketing tools to AI integrations granting broad API access to your environments and data.</p>
 
         <div class="vg-item">
           <strong>Scope drift</strong>
@@ -432,16 +518,19 @@
         <h3>Automated scope validation</h3>
         <p>Detect when a vendor's access quietly expands beyond its original scope. Lema surfaces permission changes automatically so you never miss an escalation.</p>
       </div>
-      <div class="notif-card">
-        <div class="notif-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#3ABBD2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/>
-            <line x1="12" y1="17" x2="12.01" y2="17"/>
-          </svg>
+      <div class="notif-wrapper">
+        <div class="notif-card">
+          <div class="notif-dot"></div>
+          <div class="notif-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#3ABBD2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
+          </div>
+          <div class="notif-title">Permission Escalation Detected</div>
+          <div class="notif-body">Third-Party has been granted new unrestricted lower-level permissions. Scope changed from <strong>Read Only</strong> to <strong>Full Access</strong> across 3 connected environments.</div>
         </div>
-        <div class="notif-title">Permission Escalation Detected</div>
-        <div class="notif-body">Third-Party has been granted new unrestricted lower-level permissions. Scope changed from <strong>Read Only</strong> to <strong>Full Access</strong> across 3 connected environments.</div>
       </div>
     </div>
   </div>
@@ -449,19 +538,19 @@
 
 <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
 <section class="section">
-  <div class="section-inner" style="text-align:center;">
-    <div class="label" style="text-align:center;">HOW IT WORKS: THE GENESIS MESH</div>
+  <div class="section-inner how-section">
+    <div class="label" style="text-align:center;">HOW IT WORKS: THE SENSOR MESH</div>
     <h2 class="section-headline" style="text-align:center;margin:0 auto 48px;max-width:700px;">We fuse 3 layers of data to reveal the operational reality</h2>
 
     <div class="how-columns">
       <div class="how-col">
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="3"/><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/>
+            <circle cx="12" cy="12" r="3"/><path d="M12 5v-2M12 21v-2M5 12H3M21 12h-2M7.05 7.05L5.64 5.64M18.36 18.36l-1.41-1.41M7.05 16.95l-1.41 1.41M18.36 5.64l-1.41 1.41"/>
           </svg>
         </div>
         <h4>Lema Intelligence</h4>
-        <p>Data on software usage, active access, and data flows</p>
+        <p>Data on software usage, active access, and data flows.</p>
       </div>
       <div class="how-col">
         <div class="how-icon">
@@ -470,7 +559,7 @@
           </svg>
         </div>
         <h4>Security &amp; IT Stack</h4>
-        <p>Pre-existing CASBs, SSPMs, CSPM, SIEMs, IAMs, APIs and other solutions</p>
+        <p>Pre-existing CASBs, SSPMs, CSPM, SIEMs, IAMs, APIs and other solutions.</p>
       </div>
       <div class="how-col">
         <div class="how-icon">
@@ -479,19 +568,34 @@
           </svg>
         </div>
         <h4>Business Context</h4>
-        <p>Describe who they 'need,' what data, their contract, and their business data</p>
+        <p>Describe who they 'need,' what data, their contract, and their business data.</p>
       </div>
     </div>
 
-    <div class="how-connector">
-      <div class="how-arrow"></div>
-      <div style="width:12px;height:12px;background:#5BB89A;border-radius:50%;"></div>
-      <div class="how-arrow"></div>
+    <!-- Play triangles -->
+    <div class="how-play-row">
+      <div class="how-play-col"><div class="play-triangle"></div></div>
+      <div class="how-play-col"><div class="play-triangle"></div></div>
+      <div class="how-play-col"><div class="play-triangle"></div></div>
     </div>
 
+    <!-- Curved dashed arcs -->
+    <div class="how-arcs-container">
+      <svg class="how-arcs-svg" viewBox="0 0 1100 200" preserveAspectRatio="xMidYMid meet">
+        <!-- Left arc -->
+        <path d="M 183 10 C 183 120, 400 180, 550 190" />
+        <!-- Center arc -->
+        <path d="M 550 10 C 550 80, 550 140, 550 190" />
+        <!-- Right arc -->
+        <path d="M 917 10 C 917 120, 700 180, 550 190" />
+      </svg>
+    </div>
+
+    <!-- Center kaleidoscope cluster -->
+    <div class="how-center-cluster" id="howCluster"></div>
+
     <div class="how-center-block">
-      <img src="./assets/kaleidoscope-bg-2.svg" alt="" style="opacity:0.6;">
-      <p>Lema interprets the <strong>Lema Model</strong>, <strong>Risk Engine</strong>, and <strong>Inference Engine</strong> (V3.1). It then converts into <strong>Monitoring Data</strong> for AI-powered <strong>Product Use AI</strong> and legal &amp; mitigate strategies.</p>
+      <p>Lema compares the <strong>"Legal Reality"</strong> (Col 3) against the <strong>"Technical Reality"</strong> (Col 2). If the contract says "Marketing Data" but Wiz sees access to "Production DB," we trigger a violation.</p>
     </div>
   </div>
 </section>
@@ -542,7 +646,37 @@
 
 <!-- ═══════════════ CTA ═══════════════ -->
 <section class="cta-section">
-  <div class="cta-bg-diamond"></div>
+  <!-- Large green geometric corner shapes -->
+  <div class="cta-corner cta-corner-bl">
+    <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M140 60L100 100H60L100 60H60L20 100L60 140H100L60 180H100L140 140L180 180H140L100 220H140L180 180L220 220H180L140 260H180L220 220L260 260V220L220 180V140L260 100V60L220 100V140L180 100V60L140 100V140L100 100V60H140Z" fill="#5BB89A" opacity="0.6"/>
+      <rect x="120" y="120" width="40" height="40" transform="rotate(45 140 140)" fill="#5BB89A" opacity="0.8"/>
+      <rect x="60" y="180" width="30" height="30" transform="rotate(45 75 195)" fill="#5BB89A" opacity="0.5"/>
+      <rect x="180" y="60" width="30" height="30" transform="rotate(45 195 75)" fill="#5BB89A" opacity="0.5"/>
+      <polygon points="140,20 120,40 160,40" fill="#5BB89A" opacity="0.7"/>
+      <polygon points="260,140 240,120 240,160" fill="#5BB89A" opacity="0.7"/>
+      <polygon points="20,140 40,120 40,160" fill="#5BB89A" opacity="0.7"/>
+      <polygon points="140,260 120,240 160,240" fill="#5BB89A" opacity="0.7"/>
+      <rect x="40" y="40" width="20" height="20" fill="#5BB89A" opacity="0.4"/>
+      <rect x="220" y="220" width="20" height="20" fill="#5BB89A" opacity="0.4"/>
+      <rect x="40" y="100" width="15" height="15" transform="rotate(45 47.5 107.5)" fill="#5BB89A" opacity="0.3"/>
+      <rect x="100" y="40" width="15" height="15" transform="rotate(45 107.5 47.5)" fill="#5BB89A" opacity="0.3"/>
+    </svg>
+  </div>
+  <div class="cta-corner cta-corner-br">
+    <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M140 60L100 100H60L100 60H60L20 100L60 140H100L60 180H100L140 140L180 180H140L100 220H140L180 180L220 220H180L140 260H180L220 220L260 260V220L220 180V140L260 100V60L220 100V140L180 100V60L140 100V140L100 100V60H140Z" fill="#5BB89A" opacity="0.6"/>
+      <rect x="120" y="120" width="40" height="40" transform="rotate(45 140 140)" fill="#5BB89A" opacity="0.8"/>
+      <rect x="60" y="180" width="30" height="30" transform="rotate(45 75 195)" fill="#5BB89A" opacity="0.5"/>
+      <rect x="180" y="60" width="30" height="30" transform="rotate(45 195 75)" fill="#5BB89A" opacity="0.5"/>
+      <polygon points="140,20 120,40 160,40" fill="#5BB89A" opacity="0.7"/>
+      <polygon points="260,140 240,120 240,160" fill="#5BB89A" opacity="0.7"/>
+      <polygon points="20,140 40,120 40,160" fill="#5BB89A" opacity="0.7"/>
+      <polygon points="140,260 120,240 160,240" fill="#5BB89A" opacity="0.7"/>
+      <rect x="40" y="40" width="20" height="20" fill="#5BB89A" opacity="0.4"/>
+      <rect x="220" y="220" width="20" height="20" fill="#5BB89A" opacity="0.4"/>
+    </svg>
+  </div>
   <div class="cta-inner">
     <h2>Get ahead of the next third-party incident</h2>
     <p>Stop assessing vendors passively and late. Connect Lema to your stack and start deploying verified, real-time vendor analysis and monitoring in minutes.</p>
@@ -560,6 +694,9 @@
       <div class="footer-col">
         <h5>Platform</h5>
         <a href="#">Blast Radius</a>
+        <a href="#">QuickStart</a>
+        <a href="#">TPRM</a>
+        <a href="#">Risk</a>
       </div>
       <div class="footer-col">
         <h5>Solutions</h5>
@@ -580,10 +717,67 @@
       </div>
     </div>
     <div class="footer-bottom">
-      &copy; 2026 Lema. All rights reserved.
+      <div class="footer-c-icon">&copy;</div>
+      <span>2026 Lema Inc. All rights reserved.</span>
     </div>
   </div>
 </footer>
+
+<script>
+// ── Generate kaleidoscope cluster for How It Works section ──
+(function() {
+  const container = document.getElementById('howCluster');
+  if (!container) return;
+
+  const SHAPES = {
+    diamond: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20"><rect x="5" y="5" width="10" height="10" transform="rotate(45 10 10)" fill="currentColor"/></svg>`,
+    triangle: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20"><polygon points="10,3 18,17 2,17" fill="currentColor"/></svg>`,
+    arrow: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20"><polygon points="10,2 18,10 14,10 14,18 6,18 6,10 2,10" fill="currentColor"/></svg>`,
+    square: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20"><rect x="4" y="4" width="12" height="12" fill="currentColor"/></svg>`,
+    hglass: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20"><polygon points="4,3 16,3 10,10" fill="currentColor"/><polygon points="4,17 16,17 10,10" fill="currentColor"/></svg>`
+  };
+
+  const shapeTypes = Object.keys(SHAPES);
+
+  // Center green diamond
+  const center = document.createElement('div');
+  center.style.cssText = 'position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);color:#5BB89A;z-index:2;';
+  center.innerHTML = SHAPES.diamond(32);
+  container.appendChild(center);
+
+  // 4 green squares around center
+  const coreOffsets = [
+    { x: -18, y: -18 }, { x: 18, y: -18 },
+    { x: -18, y: 18 }, { x: 18, y: 18 }
+  ];
+  coreOffsets.forEach(off => {
+    const el = document.createElement('div');
+    el.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(calc(-50% + ${off.x}px), calc(-50% + ${off.y}px));color:#5BB89A;opacity:0.6;z-index:1;`;
+    el.innerHTML = SHAPES.square(10);
+    container.appendChild(el);
+  });
+
+  // Surrounding dark shapes in rings
+  const ringShapes = [];
+  for (let ring = 1; ring <= 3; ring++) {
+    const count = ring * 8;
+    const radius = ring * 38;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2 - Math.PI / 2;
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+      const type = shapeTypes[(i + ring) % shapeTypes.length];
+      const size = 10 + Math.random() * 6;
+      const rotation = Math.round(angle * 180 / Math.PI);
+
+      const el = document.createElement('div');
+      el.style.cssText = `position:absolute;left:50%;top:50%;transform:translate(calc(-50% + ${x.toFixed(1)}px), calc(-50% + ${y.toFixed(1)}px)) rotate(${rotation}deg);color:#071517;opacity:${0.7 - ring * 0.15};`;
+      el.innerHTML = SHAPES[type](size);
+      container.appendChild(el);
+    }
+  }
+})();
+</script>
 
 </body>
 </html>
