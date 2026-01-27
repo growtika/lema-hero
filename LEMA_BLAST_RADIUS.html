@@ -94,7 +94,14 @@
     font-size: 16px; line-height: 1.7; opacity: 0.65; max-width: 560px; margin-bottom: 48px;
   }
 
-  /* ── VISIBILITY GAP ── */
+  /* ── VISIBILITY GAP (DARK BG) ── */
+  .vg-section {
+    background: #071517; padding: 100px 24px;
+  }
+  .vg-section .section-inner { max-width: 1100px; margin: 0 auto; }
+  .vg-section .label { color: rgba(237,234,229,0.4); }
+  .vg-section .section-headline { color: #EDEAE5; }
+  .vg-section .section-sub { color: rgba(237,234,229,0.5); }
   .visibility-gap { display: grid; grid-template-columns: 1fr 1fr; gap: 64px; align-items: start; }
   .vg-right-item { margin-bottom: 32px; }
   .vg-right-header { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
@@ -102,8 +109,8 @@
     width: 28px; height: 28px;
     display: flex; align-items: center; justify-content: center;
   }
-  .vg-right-title { font-size: 16px; font-weight: 700; }
-  .vg-right-text { font-size: 14px; line-height: 1.7; opacity: 0.65; padding-left: 38px; }
+  .vg-right-title { font-size: 16px; font-weight: 700; color: #EDEAE5; }
+  .vg-right-text { font-size: 14px; line-height: 1.7; color: rgba(237,234,229,0.5); padding-left: 38px; }
 
   /* ── FEATURE BLOCKS ── */
   .features-section {
@@ -465,6 +472,7 @@
     .hero h1 { font-size: 34px; }
     .section-headline, .compare-headline, .cta-section h2 { font-size: 30px; }
     .visibility-gap, .feature-block, .how-columns, .compare-grid, .how-play-row { grid-template-columns: 1fr; }
+    .bl-popup { width: 340px; }
     .feature-block.reverse { direction: ltr; }
     .footer-top { flex-direction: column; }
     .footer-cols { flex-wrap: wrap; gap: 32px; }
@@ -528,8 +536,8 @@
   </div>
 </div>
 
-<!-- ═══════════════ VISIBILITY GAP ═══════════════ -->
-<section class="section">
+<!-- ═══════════════ VISIBILITY GAP (DARK) ═══════════════ -->
+<section class="vg-section">
   <div class="section-inner">
     <div class="visibility-gap">
       <div>
