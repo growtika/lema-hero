@@ -61,18 +61,6 @@ body {
     z-index: 1;
 }
 
-/* Force Lottie SVG to cover full viewport */
-.lottie-container svg {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    min-width: 100%;
-    min-height: 100%;
-    width: auto !important;
-    height: auto !important;
-}
-
 .section-overlay {
     position: absolute;
     top: 0;
@@ -303,10 +291,7 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION2_PATH,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice'  // Cover like object-fit: cover
-            }
+            path: CONFIG.SECTION2_PATH
         });
 
         section2Anim.addEventListener('DOMLoaded', () => {
@@ -321,10 +306,7 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION3_PATH,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice'  // Cover like object-fit: cover
-            }
+            path: CONFIG.SECTION3_PATH
         });
 
         section3Anim.addEventListener('DOMLoaded', () => {
