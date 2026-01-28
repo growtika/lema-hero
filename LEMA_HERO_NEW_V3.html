@@ -61,11 +61,6 @@ body {
     z-index: 1;
 }
 
-.lottie-container svg {
-    width: 100% !important;
-    height: 100% !important;
-}
-
 .section-overlay {
     position: absolute;
     top: 0;
@@ -159,7 +154,7 @@ body {
 }
 
 #section2 {
-    background: #071617;
+    background: #1a1a1a;
 }
 
 .scroll-indicator {
@@ -192,33 +187,6 @@ body {
     min-height: 50vh;
 }
 
-/* Logo Strip */
-.logo-strip {
-    width: 100%;
-    padding: 40px 0;
-    background: #071617;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 60px;
-    flex-wrap: wrap;
-}
-
-.logo-strip img {
-    height: 28px;
-    width: auto;
-}
-
-@media (max-width: 768px) {
-    .logo-strip {
-        gap: 30px;
-        padding: 30px 20px;
-    }
-    .logo-strip img {
-        height: 24px;
-    }
-}
-
 /* Debug info */
 .debug {
     position: fixed;
@@ -243,7 +211,7 @@ body {
 <!-- SECTION 1: Hero with looping MP4 -->
 <section class="hero-section" id="section1">
     <video id="heroVideo" autoplay loop muted playsinline>
-        <source src="./Lema_Kaleidoscope_Hero_v1.mp4" type="video/mp4">
+        <source src="./Lema_Hero_Loop_v2.mp4" type="video/mp4">
     </video>
     <div class="hero-overlay">
         <div class="hero-content">
@@ -252,17 +220,8 @@ body {
             <a href="#section2" class="hero-cta">Get a Demo</a>
         </div>
     </div>
+    <div class="scroll-indicator" id="scrollIndicator">Scroll to explore ↓</div>
 </section>
-
-<!-- Logo Strip -->
-<div class="logo-strip">
-    <img src="./logo-ipsum.svg" alt="Partner logo">
-    <img src="./logo-ipsum.svg" alt="Partner logo">
-    <img src="./logo-ipsum.svg" alt="Partner logo">
-    <img src="./logo-ipsum.svg" alt="Partner logo">
-    <img src="./logo-ipsum.svg" alt="Partner logo">
-    <img src="./logo-ipsum.svg" alt="Partner logo">
-</div>
 
 <!-- SECTION 2: Lottie explosion -->
 <section class="lottie-section" id="section2">
@@ -299,7 +258,7 @@ body {
 // ============================================
 const CONFIG = {
     SECTION2_PATH: './Section_2_v3.json',
-    SECTION3_PATH: './Section_3_v3.json'
+    SECTION3_PATH: './Section_3_v2.json'
 };
 
 // ============================================
@@ -333,10 +292,7 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION2_PATH,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice'
-            }
+            path: CONFIG.SECTION2_PATH
         });
 
         section2Anim.addEventListener('DOMLoaded', () => {
@@ -351,10 +307,7 @@ function initLottie() {
             renderer: 'svg',
             loop: false,
             autoplay: false,
-            path: CONFIG.SECTION3_PATH,
-            rendererSettings: {
-                preserveAspectRatio: 'xMidYMid slice'
-            }
+            path: CONFIG.SECTION3_PATH
         });
 
         section3Anim.addEventListener('DOMLoaded', () => {
@@ -375,9 +328,6 @@ function playSection2() {
     console.log('Playing Section 2');
     debug.textContent = 'Section 2 playing...';
 
-    // Slow down animation for smoother feel (0.7 = 70% speed)
-    section2Anim.setSpeed(0.7);
-
     // Play from frame 0
     section2Anim.goToAndPlay(0, true);
 
@@ -395,9 +345,6 @@ function playSection3() {
 
     console.log('Playing Section 3');
     debug.textContent = 'Section 3 playing...';
-
-    // Slow down animation for smoother feel (0.7 = 70% speed)
-    section3Anim.setSpeed(0.7);
 
     // Play from frame 0
     section3Anim.goToAndPlay(0, true);
@@ -427,7 +374,7 @@ function setupObservers() {
     const options = {
         root: null,
         rootMargin: '0px',
-        threshold: 0.5  // Trigger when 50% of section is visible (delayed trigger)
+        threshold: 0.3  // Trigger when 30% of section is visible
     };
 
     // Observer for Section 2
@@ -462,7 +409,7 @@ async function init() {
     await initLottie();
 
     debug.textContent = 'Ready! Scroll down.';
-    console.log('Hero V3 ready - 3 separate sections with Kaleidoscope video');
+    console.log('Hero V3 ready - Section 2 uses new Lottie animation');
 
     setupObservers();
 
