@@ -438,11 +438,11 @@ function updateDebugInfo() {
 // INTERSECTION OBSERVER (trigger when section enters view)
 // ============================================
 function setupObservers() {
-    // Section 2: trigger explosion later (when 80% visible)
+    // Section 2: trigger explosion when scrolled 60% through the section
     const options2 = {
         root: null,
-        rootMargin: '0px',
-        threshold: 0.8  // Trigger when 80% of section is visible
+        rootMargin: '-60% 0px 0px 0px',  // Trigger when top 60% of viewport has passed
+        threshold: 0
     };
 
     // Section 3: standard trigger
