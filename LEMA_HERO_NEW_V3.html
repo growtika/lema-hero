@@ -368,6 +368,68 @@ function keepFrozen() {
 }
 
 // ============================================
+// DEBUG: Show scroll percentage
+// ============================================
+function updateDebugInfo() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const totalScrollPct = Math.round((scrollY / docHeight) * 100);
+
+    // Calculate visibility % for each section
+    const section1Rect = document.getElementById('section1').getBoundingClientRect();
+    const section2Rect = section2El.getBoundingClientRect();
+    const section3Rect = section3El.getBoundingClientRect();
+
+    // How much of each section is in viewport (0-100%)
+    const getVisibility = (rect) => {
+        const viewportHeight = window.innerHeight;
+        const visibleTop = Math.max(0, Math.min(viewportHeight, viewportHeight - rect.top));
+        const visibleBottom = Math.max(0, Math.min(viewportHeight, rect.bottom));
+        const visibleHeight = Math.max(0, visibleBottom - (viewportHeight - visibleTop));
+        const sectionHeight = rect.height;
+        return Math.round((visibleHeight / Math.min(sectionHeight, viewportHeight)) * 100);
+    };
+
+    // Section scroll progress (0% = just entering, 100% = fully scrolled past)
+    const getSectionProgress = (rect) => {
+        const viewportHeight = window.innerHeight;
+        // Progress: 0% when section top hits viewport bottom, 100% when section bottom hits viewport top
+        const progress = ((viewportHeight - rect.top) / (viewportHeight + rect.height)) * 100;
+        return Math.max(0, Math.min(100, Math.round(progress)));
+    };
+
+    const s1Progress = getSectionProgress(section1Rect);
+    const s2Progress = getSectionProgress(section2Rect);
+    const s3Progress = getSectionProgress(section3Rect);
+
+    // Lottie animation frame info
+    let s2Frame = 0, s2Total = 0, s2Pct = 0;
+    let s3Frame = 0, s3Total = 0, s3Pct = 0;
+
+    if (section2Anim) {
+        s2Frame = Math.round(section2Anim.currentFrame);
+        s2Total = section2Anim.totalFrames;
+        s2Pct = Math.round((s2Frame / s2Total) * 100);
+    }
+    if (section3Anim) {
+        s3Frame = Math.round(section3Anim.currentFrame);
+        s3Total = section3Anim.totalFrames;
+        s3Pct = Math.round((s3Frame / s3Total) * 100);
+    }
+
+    debug.innerHTML = `
+<b>Page Scroll:</b> ${totalScrollPct}%<br>
+<br>
+<b>Section 1:</b> ${s1Progress}% scrolled<br>
+<b>Section 2:</b> ${s2Progress}% scrolled<br>
+<b>Section 3:</b> ${s3Progress}% scrolled<br>
+<br>
+<b>Lottie S2:</b> ${s2Pct}% (${s2Frame}/${s2Total})<br>
+<b>Lottie S3:</b> ${s3Pct}% (${s3Frame}/${s3Total})
+    `.trim();
+}
+
+// ============================================
 // INTERSECTION OBSERVER (trigger when section enters view)
 // ============================================
 function setupObservers() {
@@ -408,13 +470,22 @@ async function init() {
 
     await initLottie();
 
-    debug.textContent = 'Ready! Scroll down.';
-    console.log('Hero V3 ready - Section 2 uses new Lottie animation');
+    console.log('Hero V3 ready - Section 2 and 3 use new Lottie animations');
 
     setupObservers();
 
-    // On any scroll, ensure completed sections stay frozen
-    window.addEventListener('scroll', keepFrozen, { passive: true });
+    // On any scroll, ensure completed sections stay frozen and update debug
+    window.addEventListener('scroll', () => {
+        keepFrozen();
+        updateDebugInfo();
+    }, { passive: true });
+
+    // Continuous update for Lottie frame progress (even when not scrolling)
+    function animationLoop() {
+        updateDebugInfo();
+        requestAnimationFrame(animationLoop);
+    }
+    animationLoop();
 }
 
 init();
