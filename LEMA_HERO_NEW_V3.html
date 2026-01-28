@@ -433,7 +433,15 @@ function updateDebugInfo() {
 // INTERSECTION OBSERVER (trigger when section enters view)
 // ============================================
 function setupObservers() {
-    const options = {
+    // Section 2: trigger explosion later (when 60% visible)
+    const options2 = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.6  // Trigger when 60% of section is visible
+    };
+
+    // Section 3: standard trigger
+    const options3 = {
         root: null,
         rootMargin: '0px',
         threshold: 0.3  // Trigger when 30% of section is visible
@@ -447,7 +455,7 @@ function setupObservers() {
                 scrollIndicator.classList.add('hidden');
             }
         });
-    }, options);
+    }, options2);
 
     // Observer for Section 3
     const observer3 = new IntersectionObserver((entries) => {
@@ -456,7 +464,7 @@ function setupObservers() {
                 playSection3();
             }
         });
-    }, options);
+    }, options3);
 
     observer2.observe(section2El);
     observer3.observe(section3El);
