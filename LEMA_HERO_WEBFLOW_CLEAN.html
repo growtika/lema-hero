@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema – The Risk Engineering Platform</title>
+
+    <!--
+    ============================================
+    WEBFLOW IMPLEMENTATION GUIDE
+    ============================================
+
+    CSS: Copy the <style> contents to your Webflow project's
+         Custom Code section (Project Settings > Custom Code > Head)
+
+    HTML: Build the structure using Webflow's designer, or embed
+          the HTML in an Embed element
+
+    JS: Add the <script> contents to the page's custom code
+        (Page Settings > Custom Code > Before </body>)
+    ============================================
+    -->
+
+    <style>
+        /* ============================================
+           LEMA HERO - WEBFLOW STYLES
+           ============================================ */
+
+        /* === RESET & BASE === */
+        .lema-hero * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .lema-hero {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #EDEAE5;
+            color: #1A1A1A;
+            overflow-x: hidden;
+        }
+
+        /* === HERO SECTION === */
+        .lema-hero-section {
+            position: relative;
+            width: 100%;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 60px 40px 120px;
+        }
+
+        /* === HEADER === */
+        .lema-hero-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: #6B6560;
+            margin-bottom: 16px;
+        }
+
+        .lema-hero-headline {
+            font-size: clamp(2rem, 4.5vw, 3.2rem);
+            font-weight: 600;
+            line-height: 1.12;
+            letter-spacing: -0.025em;
+            text-align: center;
+            max-width: 680px;
+            color: #1A1A1A;
+            margin-bottom: 60px;
+        }
+
+        /* === FEATURE CARDS ROW === */
+        .lema-features-row {
+            display: flex;
+            justify-content: center;
+            gap: 120px;
+            width: 100%;
+            max-width: 1100px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .lema-feature-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .lema-feature-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: 2px solid #1A1A1A;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 14px;
+            transition: background 0.3s, transform 0.3s;
+        }
+
+        .lema-feature-icon svg {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+
+        .lema-feature-card:hover .lema-feature-icon {
+            background: #1A1A1A;
+            transform: scale(1.1);
+        }
+
+        .lema-feature-card:hover .lema-feature-icon svg line {
+            stroke: #EDEAE5;
+        }
+
+        .lema-feature-title {
+            font-size: 16px;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-bottom: 6px;
+            color: #1A1A1A;
+        }
+
+        .lema-feature-subtitle {
+            font-size: 13px;
+            color: #8A8580;
+            line-height: 1.4;
+            max-width: 200px;
+        }
+
+        /* === CONNECTOR ICON === */
+        .lema-connector-icon {
+            margin-top: 24px;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #1A1A1A;
+        }
+
+        /* === CENTER VISUAL AREA === */
+        .lema-center-area {
+            position: relative;
+            width: 500px;
+            height: 400px;
+            margin-top: -10px;
+        }
+
+        /* === SVG DASHED CURVES === */
+        .lema-dashed-curves {
+            position: absolute;
+            top: -120px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 700px;
+            height: 300px;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .lema-dashed-curves path {
+            fill: none;
+            stroke: #BCBAB5;
+            stroke-width: 1;
+            stroke-dasharray: 6 6;
+            opacity: 0.7;
+            transition: stroke 0.4s, opacity 0.4s, stroke-width 0.4s;
+        }
+
+        .lema-dashed-curves path.is-active {
+            stroke: #1A1A1A;
+            opacity: 1;
+            stroke-width: 1.5;
+        }
+
+        /* === KALEIDOSCOPE CLUSTER === */
+        .lema-kaleidoscope {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+        }
+
+        .lema-k-shape {
+            position: absolute;
+            color: #1A1A1A;
+            transition: color 0.5s, transform 0.5s, opacity 0.5s;
+            opacity: 0.85;
+        }
+
+        .lema-k-shape.is-highlighted {
+            color: #1A1A1A;
+            opacity: 1;
+            transform: scale(1.25);
+        }
+
+        .lema-k-shape.is-dimmed {
+            opacity: 0.15;
+        }
+
+        .lema-k-center {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #1A1A1A;
+            z-index: 5;
+        }
+
+        /* === BOTTOM LABEL === */
+        .lema-bottom-label {
+            text-align: center;
+            margin-top: -20px;
+            position: relative;
+            z-index: 10;
+            cursor: pointer;
+        }
+
+        .lema-bottom-label .lema-feature-title {
+            font-size: 18px;
+            margin-bottom: 4px;
+        }
+
+        .lema-bottom-label .lema-feature-subtitle {
+            font-size: 13px;
+            margin-bottom: 14px;
+        }
+
+        .lema-bottom-label .lema-feature-icon {
+            margin: 14px auto 0;
+        }
+
+        .lema-bottom-label:hover .lema-feature-icon {
+            background: #1A1A1A;
+            transform: scale(1.1);
+        }
+
+        .lema-bottom-label:hover .lema-feature-icon svg line {
+            stroke: #EDEAE5;
+        }
+
+        /* === BOTTOM POPUP (OPENS UPWARD) === */
+        .lema-bottom-popup {
+            position: absolute;
+            left: 50%;
+            bottom: 100%;
+            transform: translateX(-50%) translateY(-8px);
+            width: 680px;
+            background: #FFFFFF;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 12px 60px rgba(0,0,0,0.14), 0 2px 12px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.35s, transform 0.35s;
+            z-index: 100;
+        }
+
+        .lema-bottom-label:hover .lema-bottom-popup {
+            opacity: 1;
+            transform: translateX(-50%) translateY(-16px);
+            pointer-events: auto;
+        }
+
+        .lema-bottom-popup-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 20px;
+        }
+
+        .lema-bottom-popup-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .lema-bottom-popup-left,
+        .lema-bottom-popup-right {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        /* === DISCOVERED PANEL === */
+        .lema-discovered-panel {
+            background: #FAFAF8;
+            border-radius: 10px;
+            padding: 18px;
+            border: 1px solid #EDEAE5;
+        }
+
+        .lema-discovered-panel-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 14px;
+        }
+
+        .lema-discovered-nodes {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            position: relative;
+            height: 80px;
+        }
+
+        .lema-node-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 10px;
+            color: #6B6560;
+            gap: 4px;
+        }
+
+        .lema-node-circle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 1.5px solid #BCBAB5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lema-node-circle svg {
+            width: 18px;
+            height: 18px;
+            color: #8A8580;
+        }
+
+        .lema-node-center {
+            border-color: #5BB89A;
+            background: rgba(91,184,154,0.08);
+            width: 50px;
+            height: 50px;
+        }
+
+        .lema-node-center svg {
+            color: #5BB89A;
+            width: 22px;
+            height: 22px;
+        }
+
+        .lema-node-label {
+            font-size: 10px;
+            color: #6B6560;
+            text-align: center;
+            max-width: 70px;
+            line-height: 1.3;
+        }
+
+        .lema-node-connector {
+            width: 20px;
+            height: 1px;
+            background: #BCBAB5;
+        }
+
+        /* === THREAT SCENARIO === */
+        .lema-threat-scenario {
+            border-top: 1px solid #EDEAE5;
+            padding-top: 14px;
+        }
+
+        .lema-threat-title {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 6px;
+        }
+
+        .lema-threat-text {
+            font-size: 12px;
+            line-height: 1.55;
+            color: #6B6560;
+        }
+
+        /* === IMPACT PANEL === */
+        .lema-impact-panel {
+            background: #FEF2F0;
+            border-radius: 10px;
+            padding: 18px;
+            border: 1px solid #F5D5CF;
+            position: relative;
+        }
+
+        .lema-impact-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .lema-impact-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #C0392B;
+        }
+
+        .lema-impact-badge {
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .lema-impact-text {
+            font-size: 12px;
+            line-height: 1.55;
+            color: #6B6560;
+        }
+
+        /* === ACTION PANEL === */
+        .lema-action-panel {
+            background: #FAFAF8;
+            border-radius: 10px;
+            padding: 18px;
+            border: 1px solid #EDEAE5;
+        }
+
+        .lema-action-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 14px;
+        }
+
+        .lema-action-item {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .lema-action-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .lema-action-bullet-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+        }
+
+        .lema-action-bullet {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 1.5px solid #BCBAB5;
+            flex-shrink: 0;
+        }
+
+        .lema-action-line {
+            width: 1.5px;
+            height: 30px;
+            background: #EDEAE5;
+        }
+
+        .lema-action-content {
+            flex: 1;
+        }
+
+        .lema-action-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: #1A1A1A;
+            margin-bottom: 2px;
+        }
+
+        .lema-action-desc {
+            font-size: 11px;
+            line-height: 1.5;
+            color: #8A8580;
+        }
+
+        /* === POPUP TOOLTIP === */
+        .lema-popup {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%) translateY(8px);
+            top: 100%;
+            width: 320px;
+            background: #FFFFFF;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.12), 0 2px 8px rgba(0,0,0,0.06);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.3s;
+            z-index: 100;
+        }
+
+        .lema-feature-card:hover .lema-popup {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+            pointer-events: auto;
+        }
+
+        .lema-popup-title {
+            font-size: 15px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #1A1A1A;
+        }
+
+        .lema-popup-text {
+            font-size: 13px;
+            line-height: 1.6;
+            color: #6B6560;
+        }
+
+        .lema-popup-tag {
+            display: inline-block;
+            margin-top: 12px;
+            padding: 4px 10px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border-radius: 4px;
+            background: #F0EDEA;
+            color: #6B6560;
+        }
+
+        /* === ANIMATIONS === */
+        @keyframes lema-breathe {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.03); }
+        }
+
+        .lema-kaleidoscope.is-idle {
+            animation: lema-breathe 4s ease-in-out infinite;
+        }
+
+        @keyframes lema-float1 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(3px, -4px) rotate(5deg); }
+        }
+
+        @keyframes lema-float2 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(-4px, 3px) rotate(-5deg); }
+        }
+
+        @keyframes lema-float3 {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(2px, 5px) rotate(3deg); }
+        }
+
+        .lema-k-shape.lema-float-1 { animation: lema-float1 5s ease-in-out infinite; }
+        .lema-k-shape.lema-float-2 { animation: lema-float2 6s ease-in-out infinite; }
+        .lema-k-shape.lema-float-3 { animation: lema-float3 7s ease-in-out infinite; }
+
+        /* === RESPONSIVE === */
+        @media (max-width: 1100px) {
+            .lema-features-row {
+                gap: 60px;
+            }
+            .lema-bottom-popup {
+                width: 90vw;
+                max-width: 600px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .lema-hero-section {
+                padding: 40px 20px 80px;
+            }
+            .lema-features-row {
+                flex-direction: column;
+                gap: 40px;
+            }
+            .lema-dashed-curves {
+                display: none;
+            }
+            .lema-center-area {
+                width: 300px;
+                height: 300px;
+            }
+            .lema-kaleidoscope {
+                width: 200px;
+                height: 200px;
+            }
+            .lema-bottom-popup {
+                width: 95vw;
+            }
+            .lema-bottom-popup-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="lema-hero">
+    <section class="lema-hero-section">
+
+        <!-- Header -->
+        <div class="lema-hero-label">THE RISK ENGINEERING PLATFORM</div>
+        <h1 class="lema-hero-headline">The tech that turns TPRM teams<br>into Risk Engineers</h1>
+
+        <!-- Feature Cards Row -->
+        <div class="lema-features-row">
+
+            <!-- Card 1: Forensic Artifact Analysis -->
+            <div class="lema-feature-card" data-stage="forensic">
+                <div class="lema-feature-icon">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                        <line x1="7" y1="2" x2="7" y2="12"/>
+                        <line x1="2" y1="7" x2="12" y2="7"/>
+                    </svg>
+                </div>
+                <div class="lema-feature-title">Forensic Artifact Analysis</div>
+                <div class="lema-feature-subtitle">Scan artifacts, uncover<br>what's hidden</div>
+                <div class="lema-connector-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <path d="M4 16 L4 4 L16 4 Z"/>
+                    </svg>
+                </div>
+                <!-- Popup Tooltip -->
+                <div class="lema-popup">
+                    <div class="lema-popup-title">Forensic Artifact Analysis</div>
+                    <div class="lema-popup-text">Deep-scan vendor artifacts — SOC2 reports, pen-test results, configuration files — to uncover risks that surface-level reviews miss.</div>
+                    <span class="lema-popup-tag">ARTIFACT SCANNING</span>
+                </div>
+            </div>
+
+            <!-- Card 2: Open-Source Recon -->
+            <div class="lema-feature-card" data-stage="recon">
+                <div class="lema-feature-icon">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                        <line x1="7" y1="2" x2="7" y2="12"/>
+                        <line x1="2" y1="7" x2="12" y2="7"/>
+                    </svg>
+                </div>
+                <div class="lema-feature-title">Open-Source Recon</div>
+                <div class="lema-feature-subtitle">Monitor public data,<br>reveal secrets</div>
+                <div class="lema-connector-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <rect x="3" y="3" width="14" height="14" transform="rotate(45 10 10)"/>
+                    </svg>
+                </div>
+                <!-- Popup Tooltip -->
+                <div class="lema-popup">
+                    <div class="lema-popup-title">Open-Source Recon</div>
+                    <div class="lema-popup-text">Continuously monitor the public attack surface — exposed credentials, leaked data, dark-web mentions — so you know before attackers do.</div>
+                    <span class="lema-popup-tag">OSINT ENGINE</span>
+                </div>
+            </div>
+
+            <!-- Card 3: Blast Radius Monitor -->
+            <div class="lema-feature-card" data-stage="blast">
+                <div class="lema-feature-icon">
+                    <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                        <line x1="7" y1="2" x2="7" y2="12"/>
+                        <line x1="2" y1="7" x2="12" y2="7"/>
+                    </svg>
+                </div>
+                <div class="lema-feature-title">Blast Radius Monitor</div>
+                <div class="lema-feature-subtitle">Analyze your vendor relationship,<br>see what's off</div>
+                <div class="lema-connector-icon">
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor">
+                        <polygon points="10,2 18,10 10,10"/>
+                    </svg>
+                </div>
+                <!-- Popup Tooltip -->
+                <div class="lema-popup">
+                    <div class="lema-popup-title">Blast Radius Monitor</div>
+                    <div class="lema-popup-text">Map how deeply each vendor is embedded in your stack, model breach impact, and prioritise by actual blast radius — not just risk score.</div>
+                    <span class="lema-popup-tag">IMPACT MODELING</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashed Curves SVG -->
+        <svg class="lema-dashed-curves" viewBox="0 0 700 300">
+            <path id="lema-curve-left" d="M 130 0 C 130 100, 250 220, 350 260"/>
+            <path id="lema-curve-center" d="M 350 0 C 350 80, 350 180, 350 260"/>
+            <path id="lema-curve-right" d="M 570 0 C 570 100, 450 220, 350 260"/>
+        </svg>
+
+        <!-- Center Kaleidoscope Cluster -->
+        <div class="lema-center-area">
+            <div class="lema-kaleidoscope is-idle" id="lema-kaleidoscope">
+                <div class="lema-k-center"></div>
+                <!-- Shapes generated by JavaScript -->
+            </div>
+        </div>
+
+        <!-- Bottom Label (4th interactive stage) -->
+        <div class="lema-bottom-label" data-stage="agentic">
+            <div class="lema-feature-title">Agentic Risk Engineering</div>
+            <div class="lema-feature-subtitle">Uncover verified, hidden risks</div>
+            <div class="lema-feature-icon">
+                <svg viewBox="0 0 14 14" fill="none" stroke="#1A1A1A" stroke-width="1.8">
+                    <line x1="7" y1="2" x2="7" y2="12"/>
+                    <line x1="2" y1="7" x2="12" y2="7"/>
+                </svg>
+            </div>
+
+            <!-- Complex Popup (Opens Upward) -->
+            <div class="lema-bottom-popup">
+                <div class="lema-bottom-popup-header">Agentic Risk Engineering</div>
+                <div class="lema-bottom-popup-grid">
+
+                    <!-- Left Column -->
+                    <div class="lema-bottom-popup-left">
+                        <div class="lema-discovered-panel">
+                            <div class="lema-discovered-panel-title">Discovered</div>
+                            <div class="lema-discovered-nodes">
+                                <div class="lema-node-item">
+                                    <div class="lema-node-label">Layoffs</div>
+                                    <div class="lema-node-circle">
+                                        <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+                                    </div>
+                                </div>
+                                <div class="lema-node-connector"></div>
+                                <div class="lema-node-item">
+                                    <div class="lema-node-label">Encryption<br>Gap</div>
+                                    <div class="lema-node-circle">
+                                        <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+                                    </div>
+                                </div>
+                                <div class="lema-node-item">
+                                    <div class="lema-node-circle lema-node-center">
+                                        <svg viewBox="0 0 20 20" fill="currentColor">
+                                            <circle cx="6" cy="8" r="2.5"/>
+                                            <circle cx="14" cy="8" r="2.5"/>
+                                            <circle cx="10" cy="14" r="2.5"/>
+                                            <line x1="6" y1="8" x2="14" y2="8" stroke="currentColor" stroke-width="0.8"/>
+                                            <line x1="6" y1="8" x2="10" y2="14" stroke="currentColor" stroke-width="0.8"/>
+                                            <line x1="14" y1="8" x2="10" y2="14" stroke="currentColor" stroke-width="0.8"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                                <div class="lema-node-connector"></div>
+                                <div class="lema-node-item">
+                                    <div class="lema-node-label">High-Level<br>Permissions</div>
+                                    <div class="lema-node-circle">
+                                        <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="10" r="4"/></svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="lema-threat-scenario">
+                            <div class="lema-threat-title">Threat Scenario Validated</div>
+                            <div class="lema-threat-text">New privileges expose production data to an unstable vendor with open vulnerabilities.</div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="lema-bottom-popup-right">
+                        <div class="lema-impact-panel">
+                            <div class="lema-impact-header">
+                                <div class="lema-impact-title">Impact</div>
+                                <div class="lema-impact-badge">
+                                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                                        <path d="M9 1.5 L16.5 15 L1.5 15 Z" fill="#F5D5CF" stroke="#C0392B" stroke-width="1"/>
+                                        <text x="9" y="13" text-anchor="middle" fill="#C0392B" font-size="10" font-weight="700">!</text>
+                                    </svg>
+                                </div>
+                            </div>
+                            <div class="lema-impact-text">Vendor has escalated permissions to live cloud production. Correlated with encryp...</div>
+                        </div>
+                        <div class="lema-action-panel">
+                            <div class="lema-action-title">Action items</div>
+                            <div class="lema-action-item">
+                                <div class="lema-action-bullet-wrap">
+                                    <div class="lema-action-bullet"></div>
+                                    <div class="lema-action-line"></div>
+                                </div>
+                                <div class="lema-action-content">
+                                    <div class="lema-action-name">Revoke Access</div>
+                                    <div class="lema-action-desc">Signal Cloud Security to rollback new permissions immediately.</div>
+                                </div>
+                            </div>
+                            <div class="lema-action-item">
+                                <div class="lema-action-bullet"></div>
+                                <div class="lema-action-content">
+                                    <div class="lema-action-name">Enforce Controls</div>
+                                    <div class="lema-action-desc">Mandate encryption upgrades and require proof of staffing capacity.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </section>
+</div>
+
+<script>
+/**
+ * LEMA HERO - INTERACTIVE KALEIDOSCOPE
+ * ====================================
+ * For Webflow: Add this script to Page Settings > Custom Code > Before </body>
+ */
+(function() {
+    'use strict';
+
+    // Shape SVG Templates
+    const SHAPES = {
+        diamond: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="14" height="14" transform="rotate(45 10 10)"/></svg>`,
+        square: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><rect x="3" y="3" width="14" height="14"/></svg>`,
+        triangle: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="10,2 18,18 2,18"/></svg>`,
+        arrowRight: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="4,4 18,10 4,16"/></svg>`,
+        arrowLeft: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="16,4 2,10 16,16"/></svg>`,
+        chevron: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="6,2 14,10 6,18"/></svg>`,
+        invertedTriangle: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><polygon points="2,2 18,2 10,18"/></svg>`,
+        smallDiamond: (s) => `<svg width="${s}" height="${s}" viewBox="0 0 20 20" fill="currentColor"><rect x="5" y="5" width="10" height="10" transform="rotate(45 10 10)"/></svg>`
+    };
+
+    // Shape Cluster Configuration: [type, x%, y%, size, stage, floatClass]
+    const CLUSTER = [
+        // Core shapes (always visible)
+        ["diamond", 46, 38, 16, "core", "lema-float-1"],
+        ["diamond", 54, 38, 14, "core", "lema-float-2"],
+        ["smallDiamond", 50, 32, 12, "core", "lema-float-3"],
+
+        // Forensic stage (top-left)
+        ["square", 32, 36, 18, "forensic", "lema-float-1"],
+        ["arrowLeft", 28, 44, 16, "forensic", "lema-float-2"],
+        ["diamond", 36, 28, 14, "forensic", "lema-float-3"],
+        ["square", 24, 52, 14, "forensic", "lema-float-1"],
+        ["triangle", 30, 58, 12, "forensic", "lema-float-2"],
+        ["arrowLeft", 22, 38, 12, "forensic", "lema-float-3"],
+        ["smallDiamond", 34, 48, 10, "forensic", "lema-float-1"],
+
+        // Recon stage (top-center)
+        ["diamond", 48, 24, 16, "recon", "lema-float-2"],
+        ["diamond", 52, 20, 14, "recon", "lema-float-3"],
+        ["chevron", 44, 18, 12, "recon", "lema-float-1"],
+        ["smallDiamond", 56, 26, 12, "recon", "lema-float-2"],
+        ["invertedTriangle", 50, 44, 14, "recon", "lema-float-3"],
+        ["diamond", 42, 42, 10, "recon", "lema-float-1"],
+        ["smallDiamond", 58, 42, 10, "recon", "lema-float-2"],
+
+        // Blast stage (top-right)
+        ["arrowRight", 68, 36, 18, "blast", "lema-float-3"],
+        ["square", 72, 44, 16, "blast", "lema-float-1"],
+        ["diamond", 64, 28, 14, "blast", "lema-float-2"],
+        ["arrowRight", 76, 52, 14, "blast", "lema-float-3"],
+        ["triangle", 70, 58, 12, "blast", "lema-float-1"],
+        ["chevron", 78, 38, 12, "blast", "lema-float-2"],
+        ["smallDiamond", 66, 48, 10, "blast", "lema-float-3"],
+
+        // Outer scatter (mixed)
+        ["diamond", 38, 62, 16, "forensic", "lema-float-2"],
+        ["arrowRight", 62, 62, 16, "blast", "lema-float-1"],
+        ["invertedTriangle", 50, 68, 14, "recon", "lema-float-3"],
+        ["square", 42, 70, 12, "forensic", "lema-float-1"],
+        ["diamond", 58, 70, 12, "blast", "lema-float-2"],
+        ["triangle", 50, 76, 14, "core", "lema-float-3"],
+        ["smallDiamond", 34, 68, 10, "forensic", "lema-float-2"],
+        ["chevron", 66, 68, 10, "blast", "lema-float-1"],
+        ["diamond", 46, 56, 12, "recon", "lema-float-3"],
+        ["diamond", 54, 56, 12, "recon", "lema-float-1"],
+
+        // Extra density
+        ["arrowLeft", 26, 62, 14, "forensic", "lema-float-3"],
+        ["arrowRight", 74, 62, 14, "blast", "lema-float-2"],
+        ["smallDiamond", 40, 80, 10, "core", "lema-float-1"],
+        ["smallDiamond", 60, 80, 10, "core", "lema-float-2"],
+        ["diamond", 50, 84, 12, "core", "lema-float-3"]
+    ];
+
+    // DOM Elements
+    const kaleidoscope = document.getElementById('lema-kaleidoscope');
+    const featureCards = document.querySelectorAll('.lema-feature-card');
+    const bottomLabel = document.querySelector('.lema-bottom-label');
+    const curvePaths = {
+        forensic: document.getElementById('lema-curve-left'),
+        recon: document.getElementById('lema-curve-center'),
+        blast: document.getElementById('lema-curve-right')
+    };
+
+    // Build shape elements
+    const shapeElements = [];
+
+    CLUSTER.forEach(([type, x, y, size, stage, floatClass], index) => {
+        const shape = document.createElement('div');
+        shape.className = `lema-k-shape ${floatClass}`;
+        shape.dataset.stage = stage;
+        shape.style.left = `${x}%`;
+        shape.style.top = `${y}%`;
+        shape.style.width = `${size}px`;
+        shape.style.height = `${size}px`;
+        shape.innerHTML = SHAPES[type](size);
+        shape.style.animationDelay = `${(index * 0.3) % 4}s`;
+        kaleidoscope.appendChild(shape);
+        shapeElements.push(shape);
+    });
+
+    // Activate stage on hover
+    function activateStage(stage) {
+        kaleidoscope.classList.remove('is-idle');
+
+        // Highlight matching curve
+        Object.values(curvePaths).forEach(path => {
+            if (path) path.classList.remove('is-active');
+        });
+        if (curvePaths[stage]) {
+            curvePaths[stage].classList.add('is-active');
+        }
+
+        // Highlight/dim shapes
+        shapeElements.forEach(el => {
+            const shapeStage = el.dataset.stage;
+            if (stage === 'agentic' || shapeStage === stage || shapeStage === 'core') {
+                el.classList.add('is-highlighted');
+                el.classList.remove('is-dimmed');
+            } else {
+                el.classList.remove('is-highlighted');
+                el.classList.add('is-dimmed');
+            }
+        });
+    }
+
+    // Deactivate stage
+    function deactivateStage() {
+        kaleidoscope.classList.add('is-idle');
+
+        Object.values(curvePaths).forEach(path => {
+            if (path) path.classList.remove('is-active');
+        });
+
+        shapeElements.forEach(el => {
+            el.classList.remove('is-highlighted', 'is-dimmed');
+        });
+    }
+
+    // Event listeners for feature cards
+    featureCards.forEach(card => {
+        const stage = card.dataset.stage;
+        card.addEventListener('mouseenter', () => activateStage(stage));
+        card.addEventListener('mouseleave', deactivateStage);
+    });
+
+    // Event listeners for bottom label
+    if (bottomLabel) {
+        bottomLabel.addEventListener('mouseenter', () => {
+            activateStage('agentic');
+            // Highlight all curves for combined view
+            Object.values(curvePaths).forEach(path => {
+                if (path) path.classList.add('is-active');
+            });
+        });
+        bottomLabel.addEventListener('mouseleave', deactivateStage);
+    }
+
+})();
+</script>
+
+</body>
+</html>
