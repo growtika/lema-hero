@@ -435,44 +435,29 @@ function updateDebugInfo() {
 }
 
 // ============================================
-// INTERSECTION OBSERVER (trigger when section enters view)
+// SCROLL-BASED TRIGGERS
 // ============================================
-function setupObservers() {
-    // Section 2: trigger explosion when scrolled 60% through the section
-    const options2 = {
-        root: null,
-        rootMargin: '-60% 0px 0px 0px',  // Trigger when top 60% of viewport has passed
-        threshold: 0
-    };
+function setupScrollTriggers() {
+    window.addEventListener('scroll', () => {
+        const section2Rect = section2El.getBoundingClientRect();
+        const section3Rect = section3El.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
 
-    // Section 3: standard trigger
-    const options3 = {
-        root: null,
-        rootMargin: '0px',
-        threshold: 0.3  // Trigger when 30% of section is visible
-    };
+        // Section 2: trigger when scrolled 60% through the section
+        // Calculate how far through section 2 we've scrolled (0% = top at viewport bottom, 100% = bottom at viewport top)
+        const s2Progress = ((viewportHeight - section2Rect.top) / (viewportHeight + section2Rect.height)) * 100;
 
-    // Observer for Section 2
-    const observer2 = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                playSection2();
-                scrollIndicator.classList.add('hidden');
-            }
-        });
-    }, options2);
+        if (s2Progress >= 60 && !section2Played) {
+            playSection2();
+        }
 
-    // Observer for Section 3
-    const observer3 = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                playSection3();
-            }
-        });
-    }, options3);
+        // Section 3: trigger when 30% visible
+        const s3Progress = ((viewportHeight - section3Rect.top) / (viewportHeight + section3Rect.height)) * 100;
 
-    observer2.observe(section2El);
-    observer3.observe(section3El);
+        if (s3Progress >= 30 && !section3Played) {
+            playSection3();
+        }
+    }, { passive: true });
 }
 
 // ============================================
@@ -485,7 +470,7 @@ async function init() {
 
     console.log('Hero V3 ready - Section 2 and 3 use new Lottie animations');
 
-    setupObservers();
+    setupScrollTriggers();
 
     // On any scroll, ensure completed sections stay frozen and update debug
     window.addEventListener('scroll', () => {
