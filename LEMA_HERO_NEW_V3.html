@@ -336,11 +336,10 @@ function initLottie() {
 // Phase 2: At 35% scroll - play the explosion (which is a SEPARATE part after the pause)
 // ============================================
 
-// The frame to pause at - just before the explosion starts
-// Based on 177 frames total, explosion seems to be the very last portion
-// Let's pause at frame 170 (96.6%) - right before the break
+// The frame to pause at - 30% of animation (expansion complete)
+// Then explosion continues from there at 35% page scroll
 function getExpansionEndFrame() {
-    return section2Anim.totalFrames - 7; // Pause 7 frames before end (frame 170 of 177)
+    return Math.floor(section2Anim.totalFrames * 0.30); // Pause at 30% (frame ~53 of 177)
 }
 
 function startSection2Expansion() {
