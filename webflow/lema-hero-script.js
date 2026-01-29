@@ -11,7 +11,7 @@
     // ============================================
     const LEMA_CONFIG = {
         // Lottie JSON files (hosted on GitHub Pages)
-        SECTION2_LOTTIE: 'https://growtika.github.io/lema-hero/Section_02.json',
+        SECTION2_LOTTIE: 'https://growtika.github.io/lema-hero/Section_02_v01.json',
         SECTION3_LOTTIE: 'https://growtika.github.io/lema-hero/Section_3_v3.json',
 
         // Scroll trigger points (page scroll %)
