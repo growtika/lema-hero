@@ -331,12 +331,14 @@ function initLottie() {
 }
 
 // ============================================
-// SECTION 2: PLAY-BASED ANIMATION (not scroll-driven)
+// SECTION 2: TWO-PHASE ANIMATION
+// Phase 1: Expansion (frames 0 to pauseFrame) - triggered at 30%
+// Phase 2: Explosion (pauseFrame to end) - triggered at 35%
 // ============================================
 
-// Find the explosion frame (approximately 70% through the animation)
-function getExplosionFrame() {
-    return Math.floor(section2Anim.totalFrames * 0.7);
+// The frame where expansion ends and we pause (before explosion)
+function getExpansionEndFrame() {
+    return Math.floor(section2Anim.totalFrames * 0.5); // Pause at 50% of animation
 }
 
 function startSection2Expansion() {
@@ -344,10 +346,24 @@ function startSection2Expansion() {
     section2Started = true;
 
     console.log('Section 2: Starting expansion');
-    debug.textContent = 'S2: Expansion started...';
+    debug.textContent = 'S2: Expansion...';
+
+    const pauseFrame = getExpansionEndFrame();
 
     // Play from frame 0
     section2Anim.goToAndPlay(0, true);
+
+    // Set up listener to pause at expansion end frame
+    function checkFrame() {
+        if (section2Anim.currentFrame >= pauseFrame && !section2Exploded) {
+            section2Anim.goToAndStop(pauseFrame, true);
+            console.log('Section 2: Expansion complete, waiting for explosion trigger');
+            debug.textContent = 'S2: Waiting for 35%...';
+        } else if (!section2Exploded) {
+            requestAnimationFrame(checkFrame);
+        }
+    }
+    checkFrame();
 }
 
 function triggerSection2Explosion() {
@@ -357,17 +373,13 @@ function triggerSection2Explosion() {
     console.log('Section 2: Triggering explosion');
     debug.textContent = 'S2: Explosion!';
 
-    // If animation hasn't started yet, start from explosion frame
+    // If expansion hasn't started, start from pause frame
     if (!section2Started) {
         section2Started = true;
-        section2Anim.goToAndPlay(getExplosionFrame(), true);
+        section2Anim.goToAndPlay(getExpansionEndFrame(), true);
     } else {
-        // If already playing, jump to explosion frame and continue
-        const explosionFrame = getExplosionFrame();
-        if (section2Anim.currentFrame < explosionFrame) {
-            section2Anim.goToAndPlay(explosionFrame, true);
-        }
-        // If already past explosion frame, let it continue naturally
+        // Continue playing from current frame (or pause frame)
+        section2Anim.play();
     }
 }
 
