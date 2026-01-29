@@ -333,6 +333,12 @@ function initLottie() {
 // ============================================
 // SECTION 2: PLAY-BASED ANIMATION (not scroll-driven)
 // ============================================
+
+// Find the explosion frame (approximately 70% through the animation)
+function getExplosionFrame() {
+    return Math.floor(section2Anim.totalFrames * 0.7);
+}
+
 function startSection2Expansion() {
     if (section2Started) return;
     section2Started = true;
@@ -351,8 +357,18 @@ function triggerSection2Explosion() {
     console.log('Section 2: Triggering explosion');
     debug.textContent = 'S2: Explosion!';
 
-    // Jump to last frame (explosion complete)
-    section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+    // If animation hasn't started yet, start from explosion frame
+    if (!section2Started) {
+        section2Started = true;
+        section2Anim.goToAndPlay(getExplosionFrame(), true);
+    } else {
+        // If already playing, jump to explosion frame and continue
+        const explosionFrame = getExplosionFrame();
+        if (section2Anim.currentFrame < explosionFrame) {
+            section2Anim.goToAndPlay(explosionFrame, true);
+        }
+        // If already past explosion frame, let it continue naturally
+    }
 }
 
 // ============================================
