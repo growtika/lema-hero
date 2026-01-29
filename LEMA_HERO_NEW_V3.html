@@ -324,24 +324,45 @@ function initLottie() {
 }
 
 // ============================================
-// PLAY FUNCTIONS (once only, stay on final frame)
+// SCROLL-DRIVEN ANIMATION FOR SECTION 2
+// Animation starts at 30% page scroll, explosion (end) at 35% page scroll
 // ============================================
+const SECTION2_START_PCT = 30;  // Start animation at 30% page scroll
+const SECTION2_END_PCT = 35;    // Complete animation (explosion) at 35% page scroll
+
+function updateSection2Frame() {
+    if (!section2Anim || !section2Anim.totalFrames) return;
+
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const totalScrollPct = (scrollY / docHeight) * 100;
+
+    if (totalScrollPct < SECTION2_START_PCT) {
+        // Before 30% - show first frame
+        section2Anim.goToAndStop(0, true);
+        return;
+    }
+
+    if (totalScrollPct >= SECTION2_END_PCT) {
+        // After 35% - show last frame (explosion complete)
+        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
+        section2Complete = true;
+        return;
+    }
+
+    // Between 30% and 35% - map scroll to animation frames
+    const scrollRange = SECTION2_END_PCT - SECTION2_START_PCT; // 5%
+    const scrollProgress = (totalScrollPct - SECTION2_START_PCT) / scrollRange; // 0 to 1
+    const targetFrame = Math.floor(scrollProgress * (section2Anim.totalFrames - 1));
+
+    section2Anim.goToAndStop(targetFrame, true);
+}
+
 function playSection2() {
     if (section2Played) return;
     section2Played = true;
-
-    console.log('Playing Section 2');
-    debug.textContent = 'Section 2 playing...';
-
-    // Play from frame 0
-    section2Anim.goToAndPlay(0, true);
-
-    section2Anim.addEventListener('complete', () => {
-        section2Complete = true;
-        console.log('Section 2 complete - frozen on final frame');
-        debug.textContent = 'Section 2 done';
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-    });
+    console.log('Section 2 scroll-driven mode activated');
+    debug.textContent = 'Section 2 scroll-driven...';
 }
 
 function playSection3() {
@@ -362,11 +383,9 @@ function playSection3() {
     });
 }
 
-// Keep sections frozen on final frame when scrolling back
+// Keep Section 3 frozen on final frame when scrolling back
+// Section 2 is now scroll-driven so it updates via updateSection2Frame()
 function keepFrozen() {
-    if (section2Complete) {
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-    }
     if (section3Complete) {
         section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     }
@@ -435,23 +454,22 @@ function updateDebugInfo() {
 }
 
 // ============================================
-// SCROLL-BASED TRIGGERS
+// SCROLL-BASED TRIGGERS (using total page scroll %)
 // ============================================
 function setupScrollTriggers() {
     window.addEventListener('scroll', () => {
-        const section2Rect = section2El.getBoundingClientRect();
-        const section3Rect = section3El.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
+        const scrollY = window.scrollY;
+        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+        const totalScrollPct = (scrollY / docHeight) * 100;
 
-        // Section 2: trigger when scrolled 60% through the section
-        // Calculate how far through section 2 we've scrolled (0% = top at viewport bottom, 100% = bottom at viewport top)
-        const s2Progress = ((viewportHeight - section2Rect.top) / (viewportHeight + section2Rect.height)) * 100;
-
-        if (s2Progress >= 60 && !section2Played) {
+        // Section 2: trigger at 30% total page scroll
+        if (totalScrollPct >= 30 && !section2Played) {
             playSection2();
         }
 
-        // Section 3: trigger when 30% visible
+        // Section 3: trigger at 60% total page scroll
+        const section3Rect = section3El.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
         const s3Progress = ((viewportHeight - section3Rect.top) / (viewportHeight + section3Rect.height)) * 100;
 
         if (s3Progress >= 30 && !section3Played) {
@@ -472,8 +490,9 @@ async function init() {
 
     setupScrollTriggers();
 
-    // On any scroll, ensure completed sections stay frozen and update debug
+    // On any scroll, update Section 2 frame based on scroll position and update debug
     window.addEventListener('scroll', () => {
+        updateSection2Frame();
         keepFrozen();
         updateDebugInfo();
     }, { passive: true });
