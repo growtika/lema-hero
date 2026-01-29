@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lema Hero - New V4</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+</head>
+<body>
+
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+    background: #F5F3F0;
+    overflow-x: hidden;
+}
+
+/* SECTION 1: Hero with MP4 */
+.hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+#heroVideo {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* SECTION 2 & 3: Lottie sections */
+.lottie-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+.lottie-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+.section-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+/* Text overlay */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 0.4s ease;
+    z-index: 10;
+}
+
+.hero-overlay.hidden {
+    opacity: 0;
+}
+
+.hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #3D2314;
+}
+
+.hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    background: #3D2314;
+    color: #F5F3F0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* Dark text variant for Section 2 */
+.hero-headline.dark { color: #FFFFFF; }
+.hero-subtext.dark { color: rgba(255, 255, 255, 0.8); }
+.hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+#section2 {
+    background: #1a1a1a;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: #3D2314;
+    font-size: 0.8rem;
+    opacity: 0.6;
+    z-index: 20;
+    animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+    40% { transform: translateX(-50%) translateY(-10px); }
+    60% { transform: translateX(-50%) translateY(-5px); }
+}
+
+.scroll-indicator.hidden {
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.content-section {
+    padding: 100px 20px;
+    background: #fff;
+    text-align: center;
+    min-height: 50vh;
+}
+
+/* Debug info */
+.debug {
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    padding: 10px;
+    font-size: 12px;
+    z-index: 9999;
+    font-family: monospace;
+}
+
+@media (max-width: 768px) {
+    .hero-headline { font-size: 1.75rem; }
+    .hero-subtext { font-size: 0.875rem; }
+}
+</style>
+
+<div class="debug" id="debug">Loading...</div>
+
+<!-- SECTION 1: Hero with MP4 (plays once, no loop) -->
+<section class="hero-section" id="section1">
+    <video id="heroVideo" autoplay muted playsinline>
+        <source src="./Lema Kaleidoskop Hero.mp4" type="video/mp4">
+    </video>
+    <div class="hero-overlay">
+        <div class="hero-content">
+            <h1 class="hero-headline">Think outside the checkbox</h1>
+            <p class="hero-subtext">Turn your TPRM team into Risk Engineers who uncover what everyone else misses – evolving from compliance management to risk mitigation.</p>
+            <a href="#section2" class="hero-cta">Get a Demo</a>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 2: Lottie explosion -->
+<section class="lottie-section" id="section2">
+    <div id="section2Container" class="lottie-container"></div>
+    <div class="section-overlay">
+        <div class="hero-content">
+            <span class="hero-label">Third Parties</span>
+            <h1 class="hero-headline dark">Your new single point of failure</h1>
+            <p class="hero-subtext dark">TPRM used to be tough but manageable. We've lost control over Third-Party Sprawl.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 3: Lottie continued -->
+<section class="lottie-section" id="section3">
+    <div id="section3Container" class="lottie-container"></div>
+    <div class="section-overlay">
+        <div class="hero-content">
+            <h1 class="hero-headline">The rise of the Risk Engineer</h1>
+            <p class="hero-subtext">Like a needle in a tech stack, vendor risk hides in endless data.</p>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION 4: Content continues -->
+<section class="content-section">
+    <h2>Welcome to Lema</h2>
+    <p>Continue scrolling to explore more content.</p>
+</section>
+
+<script>
+// ============================================
+// CONFIGURATION
+// ============================================
+const CONFIG = {
+    SECTION2_PATH: './Section_02.json',
+    SECTION3_PATH: './Section_3_v3.json'
+};
+
+// ============================================
+// TRIGGER SETTINGS (page scroll %)
+// ============================================
+const SECTION2_PLAY_PCT = 30;      // Start playing expansion at 30%
+const SECTION2_EXPLOSION_PCT = 35; // Jump to explosion at 35%
+
+// ============================================
+// STATE
+// ============================================
+let section2Anim = null;
+let section3Anim = null;
+let section2Started = false;
+let section2Exploded = false;
+let section3Played = false;
+let section3Complete = false;
+
+// DOM
+const section2El = document.getElementById('section2');
+const section3El = document.getElementById('section3');
+const section2Container = document.getElementById('section2Container');
+const section3Container = document.getElementById('section3Container');
+const debug = document.getElementById('debug');
+
+// ============================================
+// LOTTIE SETUP
+// ============================================
+function initLottie() {
+    return new Promise((resolve) => {
+        let loaded = 0;
+
+        // Section 2
+        section2Anim = lottie.loadAnimation({
+            container: section2Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.SECTION2_PATH,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice'
+            }
+        });
+
+        section2Anim.addEventListener('DOMLoaded', () => {
+            console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
+            // Start at frame 0
+            section2Anim.goToAndStop(0, true);
+            loaded++;
+            if (loaded === 2) resolve();
+        });
+
+        // Section 3
+        section3Anim = lottie.loadAnimation({
+            container: section3Container,
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: CONFIG.SECTION3_PATH,
+            rendererSettings: {
+                preserveAspectRatio: 'xMidYMid slice'
+            }
+        });
+
+        section3Anim.addEventListener('DOMLoaded', () => {
+            console.log('Section 3 loaded:', section3Anim.totalFrames, 'frames');
+            loaded++;
+            if (loaded === 2) resolve();
+        });
+    });
+}
+
+// ============================================
+// SECTION 2: TWO-PHASE ANIMATION
+// Phase 1: At 30% scroll - play expansion and PAUSE at last frame (fully expanded)
+// Phase 2: At 35% scroll - play the explosion (which is a SEPARATE part after the pause)
+// ============================================
+
+// The frame to pause at - 30% of animation (expansion complete)
+// Then explosion continues from there at 35% page scroll
+function getExpansionEndFrame() {
+    return Math.floor(section2Anim.totalFrames * 0.30); // Pause at 30% (frame ~53 of 177)
+}
+
+function startSection2Expansion() {
+    if (section2Started) return;
+    section2Started = true;
+
+    console.log('Section 2: Starting expansion');
+    debug.textContent = 'S2: Expansion...';
+
+    const pauseFrame = getExpansionEndFrame();
+
+    // Use Lottie's enterFrame event - fires on EVERY frame, won't miss any
+    function onEnterFrame() {
+        if (section2Anim.currentFrame >= pauseFrame && !section2Exploded) {
+            section2Anim.removeEventListener('enterFrame', onEnterFrame);
+            section2Anim.goToAndStop(pauseFrame, true);
+            console.log('Section 2: Expansion complete at frame', pauseFrame, '- waiting for 35%');
+            debug.textContent = 'S2: Paused at ' + pauseFrame + ' - scroll to 35%';
+        }
+    }
+
+    section2Anim.addEventListener('enterFrame', onEnterFrame);
+
+    // Play from frame 0
+    section2Anim.goToAndPlay(0, true);
+}
+
+function triggerSection2Explosion() {
+    if (section2Exploded) return;
+    section2Exploded = true;
+
+    console.log('Section 2: Triggering explosion from frame', section2Anim.currentFrame);
+    debug.textContent = 'S2: Explosion!';
+
+    // If expansion hasn't started, jump to pause frame and play from there
+    if (!section2Started) {
+        section2Started = true;
+        section2Anim.goToAndPlay(getExpansionEndFrame(), true);
+    } else {
+        // Continue playing from where we paused
+        section2Anim.play();
+    }
+}
+
+// ============================================
+// SECTION 3: PLAY ONCE
+// ============================================
+function playSection3() {
+    if (section3Played) return;
+    section3Played = true;
+
+    console.log('Playing Section 3');
+    debug.textContent = 'Section 3 playing...';
+
+    section3Anim.goToAndPlay(0, true);
+
+    section3Anim.addEventListener('complete', () => {
+        section3Complete = true;
+        console.log('Section 3 complete');
+        debug.textContent = 'All done!';
+        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
+    });
+}
+
+// Keep Section 3 frozen on final frame when scrolling back
+function keepSection3Frozen() {
+    if (section3Complete) {
+        section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
+    }
+}
+
+// ============================================
+// DEBUG: Show scroll percentage
+// ============================================
+function updateDebugInfo() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const totalScrollPct = Math.round((scrollY / docHeight) * 100);
+
+    let s2Frame = 0, s2Total = 0, s2Pct = 0;
+    let s3Frame = 0, s3Total = 0, s3Pct = 0;
+
+    if (section2Anim && section2Anim.totalFrames) {
+        s2Frame = Math.round(section2Anim.currentFrame);
+        s2Total = section2Anim.totalFrames;
+        s2Pct = Math.round((s2Frame / s2Total) * 100);
+    }
+    if (section3Anim && section3Anim.totalFrames) {
+        s3Frame = Math.round(section3Anim.currentFrame);
+        s3Total = section3Anim.totalFrames;
+        s3Pct = Math.round((s3Frame / s3Total) * 100);
+    }
+
+    debug.innerHTML = `
+<b>Page Scroll:</b> ${totalScrollPct}%<br>
+<b>S2:</b> play@${SECTION2_PLAY_PCT}% explode@${SECTION2_EXPLOSION_PCT}%<br>
+<br>
+<b>Lottie S2:</b> ${s2Pct}% (${s2Frame}/${s2Total})<br>
+<b>Lottie S3:</b> ${s3Pct}% (${s3Frame}/${s3Total})
+    `.trim();
+}
+
+// ============================================
+// SCROLL HANDLER
+// ============================================
+function onScroll() {
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const totalScrollPct = (scrollY / docHeight) * 100;
+
+    // Section 2: Start expansion at 30% page scroll
+    if (totalScrollPct >= SECTION2_PLAY_PCT && !section2Started) {
+        startSection2Expansion();
+    }
+
+    // Section 2: Trigger explosion at 35% page scroll
+    if (totalScrollPct >= SECTION2_EXPLOSION_PCT && !section2Exploded) {
+        triggerSection2Explosion();
+    }
+
+    // Check if Section 3 should start playing
+    const section3Rect = section3El.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const s3Progress = ((viewportHeight - section3Rect.top) / (viewportHeight + section3Rect.height)) * 100;
+
+    if (s3Progress >= 30 && !section3Played) {
+        playSection3();
+    }
+
+    // Keep Section 3 frozen if already complete
+    keepSection3Frozen();
+
+    // Update debug display
+    updateDebugInfo();
+}
+
+// ============================================
+// INITIALIZATION
+// ============================================
+async function init() {
+    debug.textContent = 'Loading...';
+
+    await initLottie();
+
+    console.log('Hero V3 ready');
+    debug.textContent = 'Ready - scroll to animate';
+
+    // Single scroll handler
+    window.addEventListener('scroll', onScroll, { passive: true });
+
+    // Initial update
+    onScroll();
+
+    // Continuous debug update
+    function animationLoop() {
+        updateDebugInfo();
+        requestAnimationFrame(animationLoop);
+    }
+    animationLoop();
+}
+
+init();
+</script>
+
+</body>
+</html>
