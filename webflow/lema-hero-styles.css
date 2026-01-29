@@ -1,0 +1,131 @@
+/* ============================================
+   LEMA HERO - WEBFLOW CUSTOM STYLES
+   Add this to: Project Settings > Custom Code > Head
+   Or embed in a Style block
+   ============================================ */
+
+/* SECTION 1: Hero with MP4 */
+.lema-hero-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+.lema-hero-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: cover;
+    z-index: 1;
+}
+
+/* SECTION 2 & 3: Lottie sections */
+.lema-lottie-section {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    background: #F5F3F0;
+}
+
+.lema-lottie-section.dark {
+    background: #1a1a1a;
+}
+
+.lema-lottie-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 1;
+}
+
+/* Text overlays */
+.lema-section-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    pointer-events: none;
+    z-index: 10;
+}
+
+.lema-hero-content {
+    text-align: center;
+    max-width: 720px;
+    padding: 0 1rem;
+}
+
+.lema-hero-label {
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.lema-hero-headline {
+    font-size: 3rem;
+    font-weight: 600;
+    line-height: 1.1;
+    margin-bottom: 1.25rem;
+    letter-spacing: -0.02em;
+    color: #3D2314;
+}
+
+.lema-hero-headline.dark {
+    color: #FFFFFF;
+}
+
+.lema-hero-subtext {
+    font-size: 1rem;
+    line-height: 1.65;
+    max-width: 580px;
+    margin: 0 auto;
+    font-weight: 400;
+    color: rgba(61, 35, 20, 0.75);
+}
+
+.lema-hero-subtext.dark {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.lema-hero-cta {
+    display: inline-block;
+    margin-top: 1.75rem;
+    padding: 0.875rem 2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    border-radius: 3px;
+    background: #3D2314;
+    color: #F5F3F0;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+    pointer-events: auto;
+}
+
+.lema-hero-cta:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .lema-hero-headline { font-size: 1.75rem; }
+    .lema-hero-subtext { font-size: 0.875rem; }
+}
