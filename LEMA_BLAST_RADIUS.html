@@ -519,6 +519,95 @@
     font-size: 12px; color: rgba(7,21,23,0.3);
   }
 
+  /* ── SCROLL REVEAL ANIMATIONS ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(8px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+
+  /* Staggered delays for children */
+  .reveal-stagger > *:nth-child(1) { transition-delay: 0s; }
+  .reveal-stagger > *:nth-child(2) { transition-delay: 0.08s; }
+  .reveal-stagger > *:nth-child(3) { transition-delay: 0.16s; }
+  .reveal-stagger > *:nth-child(4) { transition-delay: 0.24s; }
+  .reveal-stagger > *:nth-child(5) { transition-delay: 0.32s; }
+  .reveal-stagger > *:nth-child(6) { transition-delay: 0.4s; }
+
+  /* Scale up variation */
+  .reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    filter: blur(6px);
+    transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-scale.visible {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  /* Slide from left */
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-60px);
+    filter: blur(6px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-left.visible {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+
+  /* Slide from right */
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(60px);
+    filter: blur(6px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-right.visible {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+
+  /* Word by word animation for headlines */
+  .reveal-words .word {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(20px) rotateX(-20deg);
+    filter: blur(4px);
+    transition: opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+                filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .reveal-words.visible .word {
+    opacity: 1;
+    transform: translateY(0) rotateX(0);
+    filter: blur(0);
+  }
+
   /* responsive */
   @media (max-width: 768px) {
     .nav-links { display: none; }
@@ -556,10 +645,10 @@
 
 <!-- ═══════════════ HERO ═══════════════ -->
 <section class="hero">
-  <h1>Measure Blast Radius with real access, not paperwork</h1>
-  <p><strong>Contain the business impact of the next third-party incident.</strong> Lema automatically maps all interfaces between third-parties and your critical assets and data—giving you the power to shut down scope drift and shadow apps in real-time.</p>
-  <a href="#" class="btn-green">Get a Demo</a>
-  <img src="./assets/hero-shape.svg" alt="" class="hero-shape">
+  <h1 class="reveal-words" data-reveal>Measure Blast Radius with real access, not paperwork</h1>
+  <p class="reveal" data-reveal style="transition-delay: 0.3s;"><strong>Contain the business impact of the next third-party incident.</strong> Lema automatically maps all interfaces between third-parties and your critical assets and data—giving you the power to shut down scope drift and shadow apps in real-time.</p>
+  <a href="#" class="btn-green reveal-scale" data-reveal style="transition-delay: 0.5s;">Get a Demo</a>
+  <img src="./assets/hero-shape.svg" alt="" class="hero-shape reveal-scale" data-reveal style="transition-delay: 0.7s;">
 </section>
 
 <!-- Logo Strip -->
@@ -595,13 +684,13 @@
   <div class="section-inner">
     <div class="visibility-gap">
       <div>
-        <div class="label">THE VISIBILITY GAP</div>
-        <h2 class="section-headline">Your attack surface is bigger than what procurement tracks</h2>
-        <p class="section-sub">We expose the shadow apps you don't know about, the scope drift you didn't approve, and the "low risk" vendors that can wipe out your data.</p>
+        <div class="label reveal" data-reveal>THE VISIBILITY GAP</div>
+        <h2 class="section-headline reveal-words" data-reveal>Your attack surface is bigger than what procurement tracks</h2>
+        <p class="section-sub reveal" data-reveal style="transition-delay: 0.2s;">We expose the shadow apps you don't know about, the scope drift you didn't approve, and the "low risk" vendors that can wipe out your data.</p>
       </div>
-      <div>
+      <div class="reveal-stagger">
         <!-- Shadow IT -->
-        <div class="vg-right-item">
+        <div class="vg-right-item reveal" data-reveal>
           <div class="vg-right-header">
             <div class="vg-right-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -613,7 +702,7 @@
           <div class="vg-right-text">The apps they didn't tell you about. From marketing signing up for a rogue AI tool to an employee granting "Read All" access to a free PDF converter.</div>
         </div>
         <!-- Scope drift -->
-        <div class="vg-right-item">
+        <div class="vg-right-item reveal" data-reveal style="transition-delay: 0.15s;">
           <div class="vg-right-header">
             <div class="vg-right-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -625,7 +714,7 @@
           <div class="vg-right-text">The safe vendors that became dangerous. A vendor approved for "Basic Profile" access can quietly gain "Read All Emails" privileges.</div>
         </div>
         <!-- Underestimated Inherent Risk -->
-        <div class="vg-right-item">
+        <div class="vg-right-item reveal" data-reveal style="transition-delay: 0.3s;">
           <div class="vg-right-header">
             <div class="vg-right-icon">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -646,17 +735,17 @@
 <section class="features-section">
   <div class="watermark-bg"></div>
   <div class="features-inner">
-    <div class="label" style="text-align:center;">THE RISK ENGINEERING APPROACH</div>
-    <h2 class="section-headline" style="text-align:center;margin:0 auto 16px;max-width:700px;">Validate legacy paperwork against operational reality</h2>
-    <p class="section-sub" style="text-align:center;margin:0 auto 80px;max-width:700px;"><strong>Hackers don't care about paperwork.</strong> Lema monitors the interface between you and the vendor—tracking access to critical assets and data in one unified view.</p>
+    <div class="label reveal" data-reveal style="text-align:center;">THE RISK ENGINEERING APPROACH</div>
+    <h2 class="section-headline reveal-words" data-reveal style="text-align:center;margin:0 auto 16px;max-width:700px;">Validate legacy paperwork against operational reality</h2>
+    <p class="section-sub reveal" data-reveal style="text-align:center;margin:0 auto 80px;max-width:700px;transition-delay:0.2s;"><strong>Hackers don't care about paperwork.</strong> Lema monitors the interface between you and the vendor—tracking access to critical assets and data in one unified view.</p>
 
     <!-- Feature A: Donut chart -->
     <div class="feature-block">
-      <div class="feature-text">
+      <div class="feature-text reveal-left" data-reveal>
         <h3>Continuous interface &amp; usage monitoring</h3>
         <p>Lema tracks permissions and data access alongside the business context. Scope drift in Engineering or a free app in Marketing — you see the real blast radius.</p>
       </div>
-      <div class="ui-card">
+      <div class="ui-card reveal-right" data-reveal style="transition-delay: 0.15s;">
         <div class="ui-card-top">
           <span class="ui-card-title">Your usage</span>
           <div class="ui-card-dots"><span></span><span></span><span></span></div>
@@ -691,11 +780,11 @@
 
     <!-- Feature B: Integration dropdown -->
     <div class="feature-block reverse">
-      <div class="feature-text">
+      <div class="feature-text reveal-right" data-reveal>
         <h3>Smart inherent risk estimation</h3>
         <p>Don't rely on business owners. Predict the real impact before onboarding—catching the 'low risk' sales tool that demands high-risk access."</p>
       </div>
-      <div class="ui-card">
+      <div class="ui-card reveal-left" data-reveal style="transition-delay: 0.15s;">
         <div class="ui-card-top">
           <span class="ui-card-title" style="font-size:14px;font-weight:600;">How is the third-party integrated into your product?</span>
           <div class="ui-card-dots"><span></span><span></span><span></span></div>
@@ -722,11 +811,11 @@
 
     <!-- Feature C: Permission notification -->
     <div class="feature-block">
-      <div class="feature-text">
+      <div class="feature-text reveal-left" data-reveal>
         <h3>Automated scope validation</h3>
         <p>Lema cross-references contracts against technical signals. If the legal doc says 'Marketing Data' but the vendor accesses 'Finances', we flag the violation.</p>
       </div>
-      <div class="notif-card">
+      <div class="notif-card reveal-right" data-reveal style="transition-delay: 0.15s;">
         <div class="ui-card-top">
           <div class="notif-play">
             <svg viewBox="0 0 24 24" fill="#071517"><polygon points="6,3 20,12 6,21"/></svg>
@@ -752,11 +841,11 @@
 <!-- ═══════════════ HOW IT WORKS ═══════════════ -->
 <section class="section">
   <div class="section-inner how-section">
-    <div class="label" style="text-align:center;">HOW IT WORKS: THE SENSOR MESH</div>
-    <h2 class="section-headline" style="text-align:center;margin:0 auto 48px;max-width:700px;">We fuse 3 layers of data to reveal the operational reality</h2>
+    <div class="label reveal" data-reveal style="text-align:center;">HOW IT WORKS: THE SENSOR MESH</div>
+    <h2 class="section-headline reveal-words" data-reveal style="text-align:center;margin:0 auto 48px;max-width:700px;">We fuse 3 layers of data to reveal the operational reality</h2>
 
     <div class="how-columns">
-      <div class="how-col">
+      <div class="how-col reveal" data-reveal>
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
@@ -787,7 +876,7 @@
           </div>
         </div>
       </div>
-      <div class="how-col">
+      <div class="how-col reveal" data-reveal style="transition-delay: 0.15s;">
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
@@ -826,7 +915,7 @@
           </div>
         </div>
       </div>
-      <div class="how-col">
+      <div class="how-col reveal" data-reveal style="transition-delay: 0.3s;">
         <div class="how-icon">
           <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/>
@@ -980,11 +1069,11 @@
 <!-- ═══════════════ COMPARISON (DARK BG) ═══════════════ -->
 <section class="compare-section">
   <div class="compare-inner">
-    <h2 class="compare-headline">Why your security stack can't see the whole picture</h2>
-    <p class="compare-sub">Your existing tools are excellent at monitoring their specific domains, but they operate in silos. Lema is the only platform that validates technical reality against business intent.</p>
+    <h2 class="compare-headline reveal-words" data-reveal>Why your security stack can't see the whole picture</h2>
+    <p class="compare-sub reveal" data-reveal style="transition-delay: 0.2s;">Your existing tools are excellent at monitoring their specific domains, but they operate in silos. Lema is the only platform that validates technical reality against business intent.</p>
 
     <div class="compare-grid">
-      <div class="compare-card">
+      <div class="compare-card reveal-scale" data-reveal>
         <div class="compare-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 12l2 2 4-4"/>
@@ -998,7 +1087,7 @@
           <li><strong>Verdict:</strong> SAFE.</li>
         </ul>
       </div>
-      <div class="compare-card">
+      <div class="compare-card reveal-scale" data-reveal style="transition-delay: 0.15s;">
         <div class="compare-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <rect x="5" y="11" width="14" height="10" rx="2"/><path d="M12 3a4 4 0 014 4v4H8V7a4 4 0 014-4z"/>
@@ -1012,7 +1101,7 @@
           <li><strong>Verdict:</strong> SAFE (Technically valid).</li>
         </ul>
       </div>
-      <div class="compare-card">
+      <div class="compare-card reveal-scale" data-reveal style="transition-delay: 0.3s;">
         <div class="compare-card-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="#5BB89A" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
             <path d="M3 3v18h18"/><path d="M7 17l4-8 4 4 6-10"/>
@@ -1027,7 +1116,7 @@
       </div>
     </div>
 
-    <p class="compare-context">Context is the Cure. Without Lema, Procurement trusts the form, and Security trusts the admin. We connect the two to reveal that the "safe" tool is actually your biggest open door.</p>
+    <p class="compare-context reveal" data-reveal>Context is the Cure. Without Lema, Procurement trusts the form, and Security trusts the admin. We connect the two to reveal that the "safe" tool is actually your biggest open door.</p>
   </div>
 </section>
 
@@ -1105,9 +1194,9 @@
     </svg>
   </div>
   <div class="cta-inner">
-    <h2>Get ahead of the next third-party incident</h2>
-    <p>Stay standing when everyone else falls. Connect Lema to your stack and map your full blast radius—sanctioned, shadow, and everything in between.</p>
-    <a href="#" class="btn-dark">Get a Demo</a>
+    <h2 class="reveal-words" data-reveal>Get ahead of the next third-party incident</h2>
+    <p class="reveal" data-reveal style="transition-delay: 0.2s;">Stay standing when everyone else falls. Connect Lema to your stack and map your full blast radius—sanctioned, shadow, and everything in between.</p>
+    <a href="#" class="btn-dark reveal-scale" data-reveal style="transition-delay: 0.4s;">Get a Demo</a>
   </div>
 </section>
 
@@ -1153,6 +1242,45 @@
 </footer>
 
 <script>
+// ── SCROLL REVEAL ANIMATIONS ──
+(function() {
+  // Split headlines into words for word-by-word animation
+  document.querySelectorAll('.reveal-words').forEach(el => {
+    const text = el.textContent;
+    const words = text.split(' ');
+    el.innerHTML = words.map((word, i) =>
+      `<span class="word" style="transition-delay: ${i * 0.06}s">${word}</span>`
+    ).join(' ');
+  });
+
+  // Intersection Observer for reveal animations
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px 0px -80px 0px',
+    threshold: 0.1
+  };
+
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, observerOptions);
+
+  // Observe all reveal elements
+  document.querySelectorAll('[data-reveal]').forEach(el => {
+    revealObserver.observe(el);
+  });
+
+  // Trigger hero animations immediately on load
+  setTimeout(() => {
+    document.querySelectorAll('.hero [data-reveal]').forEach(el => {
+      el.classList.add('visible');
+    });
+  }, 100);
+})();
+
 // ── Generate kaleidoscope cluster for How It Works section ──
 (function() {
   const container = document.getElementById('howCluster');
