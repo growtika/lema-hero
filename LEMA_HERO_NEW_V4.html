@@ -180,13 +180,6 @@ body {
     transition: opacity 0.3s ease;
 }
 
-.content-section {
-    padding: 100px 20px;
-    background: #fff;
-    text-align: center;
-    min-height: 50vh;
-}
-
 @media (max-width: 768px) {
     .hero-headline { font-size: 1.75rem; }
     .hero-subtext { font-size: 0.875rem; }
@@ -230,11 +223,6 @@ body {
     </div>
 </section>
 
-<!-- SECTION 4: Content continues -->
-<section class="content-section">
-    <h2>Welcome to Lema</h2>
-    <p>Continue scrolling to explore more content.</p>
-</section>
 
 <script>
 // ============================================
@@ -348,8 +336,6 @@ function triggerSection2Explosion() {
     if (section2Exploded) return;
     section2Exploded = true;
 
-    // Speed up the explosion (1.5x faster)
-    section2Anim.setSpeed(1.5);
 
     // If expansion hasn't started, jump to pause frame and play from there
     if (!section2Started) {
