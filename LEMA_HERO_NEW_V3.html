@@ -447,7 +447,7 @@ function setupScrollTriggers() {
         // Calculate how far through section 2 we've scrolled (0% = top at viewport bottom, 100% = bottom at viewport top)
         const s2Progress = ((viewportHeight - section2Rect.top) / (viewportHeight + section2Rect.height)) * 100;
 
-        if (s2Progress >= 25 && !section2Played) {
+        if (s2Progress >= 60 && !section2Played) {
             playSection2();
         }
 
