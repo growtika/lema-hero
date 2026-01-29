@@ -261,17 +261,18 @@ const CONFIG = {
 };
 
 // ============================================
-// SCROLL-DRIVEN SETTINGS
-// Animation starts at 30% page scroll, explosion (end) at 35% page scroll
+// TRIGGER SETTINGS (page scroll %)
 // ============================================
-const SECTION2_START_PCT = 30;
-const SECTION2_END_PCT = 35;
+const SECTION2_PLAY_PCT = 30;      // Start playing expansion at 30%
+const SECTION2_EXPLOSION_PCT = 35; // Jump to explosion at 35%
 
 // ============================================
 // STATE
 // ============================================
 let section2Anim = null;
 let section3Anim = null;
+let section2Started = false;
+let section2Exploded = false;
 let section3Played = false;
 let section3Complete = false;
 
@@ -330,33 +331,28 @@ function initLottie() {
 }
 
 // ============================================
-// SCROLL-DRIVEN ANIMATION FOR SECTION 2
+// SECTION 2: PLAY-BASED ANIMATION (not scroll-driven)
 // ============================================
-function updateSection2Frame() {
-    if (!section2Anim || !section2Anim.totalFrames) return;
+function startSection2Expansion() {
+    if (section2Started) return;
+    section2Started = true;
 
-    const scrollY = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const totalScrollPct = (scrollY / docHeight) * 100;
+    console.log('Section 2: Starting expansion');
+    debug.textContent = 'S2: Expansion started...';
 
-    if (totalScrollPct < SECTION2_START_PCT) {
-        // Before 30% - show first frame
-        section2Anim.goToAndStop(0, true);
-        return;
-    }
+    // Play from frame 0
+    section2Anim.goToAndPlay(0, true);
+}
 
-    if (totalScrollPct >= SECTION2_END_PCT) {
-        // After 35% - show last frame (explosion complete)
-        section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-        return;
-    }
+function triggerSection2Explosion() {
+    if (section2Exploded) return;
+    section2Exploded = true;
 
-    // Between 30% and 35% - map scroll to animation frames
-    const scrollRange = SECTION2_END_PCT - SECTION2_START_PCT; // 5%
-    const scrollProgress = (totalScrollPct - SECTION2_START_PCT) / scrollRange; // 0 to 1
-    const targetFrame = Math.floor(scrollProgress * (section2Anim.totalFrames - 1));
+    console.log('Section 2: Triggering explosion');
+    debug.textContent = 'S2: Explosion!';
 
-    section2Anim.goToAndStop(targetFrame, true);
+    // Jump to last frame (explosion complete)
+    section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
 }
 
 // ============================================
@@ -410,7 +406,7 @@ function updateDebugInfo() {
 
     debug.innerHTML = `
 <b>Page Scroll:</b> ${totalScrollPct}%<br>
-<b>S2 trigger:</b> ${SECTION2_START_PCT}%-${SECTION2_END_PCT}%<br>
+<b>S2:</b> play@${SECTION2_PLAY_PCT}% explode@${SECTION2_EXPLOSION_PCT}%<br>
 <br>
 <b>Lottie S2:</b> ${s2Pct}% (${s2Frame}/${s2Total})<br>
 <b>Lottie S3:</b> ${s3Pct}% (${s3Frame}/${s3Total})
@@ -421,8 +417,19 @@ function updateDebugInfo() {
 // SCROLL HANDLER
 // ============================================
 function onScroll() {
-    // Update Section 2 based on scroll position
-    updateSection2Frame();
+    const scrollY = window.scrollY;
+    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+    const totalScrollPct = (scrollY / docHeight) * 100;
+
+    // Section 2: Start expansion at 30% page scroll
+    if (totalScrollPct >= SECTION2_PLAY_PCT && !section2Started) {
+        startSection2Expansion();
+    }
+
+    // Section 2: Trigger explosion at 35% page scroll
+    if (totalScrollPct >= SECTION2_EXPLOSION_PCT && !section2Exploded) {
+        triggerSection2Explosion();
+    }
 
     // Check if Section 3 should start playing
     const section3Rect = section3El.getBoundingClientRect();
