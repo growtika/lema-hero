@@ -187,26 +187,11 @@ body {
     min-height: 50vh;
 }
 
-/* Debug info */
-.debug {
-    position: fixed;
-    top: 10px;
-    left: 10px;
-    background: rgba(0,0,0,0.7);
-    color: white;
-    padding: 10px;
-    font-size: 12px;
-    z-index: 9999;
-    font-family: monospace;
-}
-
 @media (max-width: 768px) {
     .hero-headline { font-size: 1.75rem; }
     .hero-subtext { font-size: 0.875rem; }
 }
 </style>
-
-<div class="debug" id="debug">Loading...</div>
 
 <!-- SECTION 1: Hero with MP4 (plays once, no loop) -->
 <section class="hero-section" id="section1">
@@ -281,7 +266,6 @@ const section2El = document.getElementById('section2');
 const section3El = document.getElementById('section3');
 const section2Container = document.getElementById('section2Container');
 const section3Container = document.getElementById('section3Container');
-const debug = document.getElementById('debug');
 
 // ============================================
 // LOTTIE SETUP
@@ -346,9 +330,6 @@ function startSection2Expansion() {
     if (section2Started) return;
     section2Started = true;
 
-    console.log('Section 2: Starting expansion');
-    debug.textContent = 'S2: Expansion...';
-
     const pauseFrame = getExpansionEndFrame();
 
     // Use Lottie's enterFrame event - fires on EVERY frame, won't miss any
@@ -356,23 +337,16 @@ function startSection2Expansion() {
         if (section2Anim.currentFrame >= pauseFrame && !section2Exploded) {
             section2Anim.removeEventListener('enterFrame', onEnterFrame);
             section2Anim.goToAndStop(pauseFrame, true);
-            console.log('Section 2: Expansion complete at frame', pauseFrame, '- waiting for 35%');
-            debug.textContent = 'S2: Paused at ' + pauseFrame + ' - scroll to 35%';
         }
     }
 
     section2Anim.addEventListener('enterFrame', onEnterFrame);
-
-    // Play from frame 0
     section2Anim.goToAndPlay(0, true);
 }
 
 function triggerSection2Explosion() {
     if (section2Exploded) return;
     section2Exploded = true;
-
-    console.log('Section 2: Triggering explosion from frame', section2Anim.currentFrame);
-    debug.textContent = 'S2: Explosion!';
 
     // Speed up the explosion (1.5x faster)
     section2Anim.setSpeed(1.5);
@@ -394,15 +368,10 @@ function playSection3() {
     if (section3Played) return;
     section3Played = true;
 
-    console.log('Playing Section 3');
-    debug.textContent = 'Section 3 playing...';
-
     section3Anim.goToAndPlay(0, true);
 
     section3Anim.addEventListener('complete', () => {
         section3Complete = true;
-        console.log('Section 3 complete');
-        debug.textContent = 'All done!';
         section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     });
 }
@@ -412,37 +381,6 @@ function keepSection3Frozen() {
     if (section3Complete) {
         section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     }
-}
-
-// ============================================
-// DEBUG: Show scroll percentage
-// ============================================
-function updateDebugInfo() {
-    const scrollY = window.scrollY;
-    const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-    const totalScrollPct = Math.round((scrollY / docHeight) * 100);
-
-    let s2Frame = 0, s2Total = 0, s2Pct = 0;
-    let s3Frame = 0, s3Total = 0, s3Pct = 0;
-
-    if (section2Anim && section2Anim.totalFrames) {
-        s2Frame = Math.round(section2Anim.currentFrame);
-        s2Total = section2Anim.totalFrames;
-        s2Pct = Math.round((s2Frame / s2Total) * 100);
-    }
-    if (section3Anim && section3Anim.totalFrames) {
-        s3Frame = Math.round(section3Anim.currentFrame);
-        s3Total = section3Anim.totalFrames;
-        s3Pct = Math.round((s3Frame / s3Total) * 100);
-    }
-
-    debug.innerHTML = `
-<b>Page Scroll:</b> ${totalScrollPct}%<br>
-<b>S2:</b> play@${SECTION2_PLAY_PCT}% explode@${SECTION2_EXPLOSION_PCT}%<br>
-<br>
-<b>Lottie S2:</b> ${s2Pct}% (${s2Frame}/${s2Total})<br>
-<b>Lottie S3:</b> ${s3Pct}% (${s3Frame}/${s3Total})
-    `.trim();
 }
 
 // ============================================
@@ -474,34 +412,19 @@ function onScroll() {
 
     // Keep Section 3 frozen if already complete
     keepSection3Frozen();
-
-    // Update debug display
-    updateDebugInfo();
 }
 
 // ============================================
 // INITIALIZATION
 // ============================================
 async function init() {
-    debug.textContent = 'Loading...';
-
     await initLottie();
-
-    console.log('Hero V3 ready');
-    debug.textContent = 'Ready - scroll to animate';
 
     // Single scroll handler
     window.addEventListener('scroll', onScroll, { passive: true });
 
     // Initial update
     onScroll();
-
-    // Continuous debug update
-    function animationLoop() {
-        updateDebugInfo();
-        requestAnimationFrame(animationLoop);
-    }
-    animationLoop();
 }
 
 init();
