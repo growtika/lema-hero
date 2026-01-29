@@ -332,14 +332,15 @@ function initLottie() {
 
 // ============================================
 // SECTION 2: TWO-PHASE ANIMATION
-// Phase 1: Expansion (frames 0 to pauseFrame) - triggered at 30%
-// Phase 2: Explosion (pauseFrame to end) - triggered at 35%
+// Phase 1: At 30% scroll - play expansion and PAUSE at last frame (fully expanded)
+// Phase 2: At 35% scroll - play the explosion (which is a SEPARATE part after the pause)
 // ============================================
 
-// The frame where expansion ends and we pause (before explosion)
-// Shapes should reach full screen around 85% of animation, explosion is the last 15%
+// The frame to pause at - just before the explosion starts
+// Based on 177 frames total, explosion seems to be the very last portion
+// Let's pause at frame 170 (96.6%) - right before the break
 function getExpansionEndFrame() {
-    return Math.floor(section2Anim.totalFrames * 0.85); // Pause at 85% (frame ~150 of 177)
+    return section2Anim.totalFrames - 7; // Pause 7 frames before end (frame 170 of 177)
 }
 
 function startSection2Expansion() {
@@ -358,9 +359,9 @@ function startSection2Expansion() {
     function checkFrame() {
         if (section2Anim.currentFrame >= pauseFrame && !section2Exploded) {
             section2Anim.goToAndStop(pauseFrame, true);
-            console.log('Section 2: Expansion complete, waiting for explosion trigger');
-            debug.textContent = 'S2: Waiting for 35%...';
-        } else if (!section2Exploded) {
+            console.log('Section 2: Expansion complete at frame', pauseFrame, '- waiting for 35%');
+            debug.textContent = 'S2: Paused at ' + pauseFrame + ' - scroll to 35%';
+        } else if (!section2Exploded && section2Anim.currentFrame < pauseFrame) {
             requestAnimationFrame(checkFrame);
         }
     }
@@ -371,15 +372,15 @@ function triggerSection2Explosion() {
     if (section2Exploded) return;
     section2Exploded = true;
 
-    console.log('Section 2: Triggering explosion');
+    console.log('Section 2: Triggering explosion from frame', section2Anim.currentFrame);
     debug.textContent = 'S2: Explosion!';
 
-    // If expansion hasn't started, start from pause frame
+    // If expansion hasn't started, jump to pause frame and play from there
     if (!section2Started) {
         section2Started = true;
         section2Anim.goToAndPlay(getExpansionEndFrame(), true);
     } else {
-        // Continue playing from current frame (or pause frame)
+        // Continue playing from where we paused
         section2Anim.play();
     }
 }
