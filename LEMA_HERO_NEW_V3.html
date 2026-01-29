@@ -261,13 +261,18 @@ const CONFIG = {
 };
 
 // ============================================
+// SCROLL-DRIVEN SETTINGS
+// Animation starts at 30% page scroll, explosion (end) at 35% page scroll
+// ============================================
+const SECTION2_START_PCT = 30;
+const SECTION2_END_PCT = 35;
+
+// ============================================
 // STATE
 // ============================================
 let section2Anim = null;
 let section3Anim = null;
-let section2Played = false;
 let section3Played = false;
-let section2Complete = false;
 let section3Complete = false;
 
 // DOM
@@ -275,7 +280,6 @@ const section2El = document.getElementById('section2');
 const section3El = document.getElementById('section3');
 const section2Container = document.getElementById('section2Container');
 const section3Container = document.getElementById('section3Container');
-const scrollIndicator = document.getElementById('scrollIndicator');
 const debug = document.getElementById('debug');
 
 // ============================================
@@ -299,6 +303,8 @@ function initLottie() {
 
         section2Anim.addEventListener('DOMLoaded', () => {
             console.log('Section 2 loaded:', section2Anim.totalFrames, 'frames');
+            // Start at frame 0
+            section2Anim.goToAndStop(0, true);
             loaded++;
             if (loaded === 2) resolve();
         });
@@ -325,11 +331,7 @@ function initLottie() {
 
 // ============================================
 // SCROLL-DRIVEN ANIMATION FOR SECTION 2
-// Animation starts at 30% page scroll, explosion (end) at 35% page scroll
 // ============================================
-const SECTION2_START_PCT = 30;  // Start animation at 30% page scroll
-const SECTION2_END_PCT = 35;    // Complete animation (explosion) at 35% page scroll
-
 function updateSection2Frame() {
     if (!section2Anim || !section2Anim.totalFrames) return;
 
@@ -346,7 +348,6 @@ function updateSection2Frame() {
     if (totalScrollPct >= SECTION2_END_PCT) {
         // After 35% - show last frame (explosion complete)
         section2Anim.goToAndStop(section2Anim.totalFrames - 1, true);
-        section2Complete = true;
         return;
     }
 
@@ -358,13 +359,9 @@ function updateSection2Frame() {
     section2Anim.goToAndStop(targetFrame, true);
 }
 
-function playSection2() {
-    if (section2Played) return;
-    section2Played = true;
-    console.log('Section 2 scroll-driven mode activated');
-    debug.textContent = 'Section 2 scroll-driven...';
-}
-
+// ============================================
+// SECTION 3: PLAY ONCE
+// ============================================
 function playSection3() {
     if (section3Played) return;
     section3Played = true;
@@ -372,20 +369,18 @@ function playSection3() {
     console.log('Playing Section 3');
     debug.textContent = 'Section 3 playing...';
 
-    // Play from frame 0
     section3Anim.goToAndPlay(0, true);
 
     section3Anim.addEventListener('complete', () => {
         section3Complete = true;
-        console.log('Section 3 complete - frozen on final frame');
+        console.log('Section 3 complete');
         debug.textContent = 'All done!';
         section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     });
 }
 
 // Keep Section 3 frozen on final frame when scrolling back
-// Section 2 is now scroll-driven so it updates via updateSection2Frame()
-function keepFrozen() {
+function keepSection3Frozen() {
     if (section3Complete) {
         section3Anim.goToAndStop(section3Anim.totalFrames - 1, true);
     }
@@ -399,43 +394,15 @@ function updateDebugInfo() {
     const docHeight = document.documentElement.scrollHeight - window.innerHeight;
     const totalScrollPct = Math.round((scrollY / docHeight) * 100);
 
-    // Calculate visibility % for each section
-    const section1Rect = document.getElementById('section1').getBoundingClientRect();
-    const section2Rect = section2El.getBoundingClientRect();
-    const section3Rect = section3El.getBoundingClientRect();
-
-    // How much of each section is in viewport (0-100%)
-    const getVisibility = (rect) => {
-        const viewportHeight = window.innerHeight;
-        const visibleTop = Math.max(0, Math.min(viewportHeight, viewportHeight - rect.top));
-        const visibleBottom = Math.max(0, Math.min(viewportHeight, rect.bottom));
-        const visibleHeight = Math.max(0, visibleBottom - (viewportHeight - visibleTop));
-        const sectionHeight = rect.height;
-        return Math.round((visibleHeight / Math.min(sectionHeight, viewportHeight)) * 100);
-    };
-
-    // Section scroll progress (0% = just entering, 100% = fully scrolled past)
-    const getSectionProgress = (rect) => {
-        const viewportHeight = window.innerHeight;
-        // Progress: 0% when section top hits viewport bottom, 100% when section bottom hits viewport top
-        const progress = ((viewportHeight - rect.top) / (viewportHeight + rect.height)) * 100;
-        return Math.max(0, Math.min(100, Math.round(progress)));
-    };
-
-    const s1Progress = getSectionProgress(section1Rect);
-    const s2Progress = getSectionProgress(section2Rect);
-    const s3Progress = getSectionProgress(section3Rect);
-
-    // Lottie animation frame info
     let s2Frame = 0, s2Total = 0, s2Pct = 0;
     let s3Frame = 0, s3Total = 0, s3Pct = 0;
 
-    if (section2Anim) {
+    if (section2Anim && section2Anim.totalFrames) {
         s2Frame = Math.round(section2Anim.currentFrame);
         s2Total = section2Anim.totalFrames;
         s2Pct = Math.round((s2Frame / s2Total) * 100);
     }
-    if (section3Anim) {
+    if (section3Anim && section3Anim.totalFrames) {
         s3Frame = Math.round(section3Anim.currentFrame);
         s3Total = section3Anim.totalFrames;
         s3Pct = Math.round((s3Frame / s3Total) * 100);
@@ -443,10 +410,7 @@ function updateDebugInfo() {
 
     debug.innerHTML = `
 <b>Page Scroll:</b> ${totalScrollPct}%<br>
-<br>
-<b>Section 1:</b> ${s1Progress}% scrolled<br>
-<b>Section 2:</b> ${s2Progress}% scrolled<br>
-<b>Section 3:</b> ${s3Progress}% scrolled<br>
+<b>S2 trigger:</b> ${SECTION2_START_PCT}%-${SECTION2_END_PCT}%<br>
 <br>
 <b>Lottie S2:</b> ${s2Pct}% (${s2Frame}/${s2Total})<br>
 <b>Lottie S3:</b> ${s3Pct}% (${s3Frame}/${s3Total})
@@ -454,28 +418,26 @@ function updateDebugInfo() {
 }
 
 // ============================================
-// SCROLL-BASED TRIGGERS (using total page scroll %)
+// SCROLL HANDLER
 // ============================================
-function setupScrollTriggers() {
-    window.addEventListener('scroll', () => {
-        const scrollY = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const totalScrollPct = (scrollY / docHeight) * 100;
+function onScroll() {
+    // Update Section 2 based on scroll position
+    updateSection2Frame();
 
-        // Section 2: trigger at 30% total page scroll
-        if (totalScrollPct >= 30 && !section2Played) {
-            playSection2();
-        }
+    // Check if Section 3 should start playing
+    const section3Rect = section3El.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    const s3Progress = ((viewportHeight - section3Rect.top) / (viewportHeight + section3Rect.height)) * 100;
 
-        // Section 3: trigger at 60% total page scroll
-        const section3Rect = section3El.getBoundingClientRect();
-        const viewportHeight = window.innerHeight;
-        const s3Progress = ((viewportHeight - section3Rect.top) / (viewportHeight + section3Rect.height)) * 100;
+    if (s3Progress >= 30 && !section3Played) {
+        playSection3();
+    }
 
-        if (s3Progress >= 30 && !section3Played) {
-            playSection3();
-        }
-    }, { passive: true });
+    // Keep Section 3 frozen if already complete
+    keepSection3Frozen();
+
+    // Update debug display
+    updateDebugInfo();
 }
 
 // ============================================
@@ -486,18 +448,16 @@ async function init() {
 
     await initLottie();
 
-    console.log('Hero V3 ready - Section 2 and 3 use new Lottie animations');
+    console.log('Hero V3 ready');
+    debug.textContent = 'Ready - scroll to animate';
 
-    setupScrollTriggers();
+    // Single scroll handler
+    window.addEventListener('scroll', onScroll, { passive: true });
 
-    // On any scroll, update Section 2 frame based on scroll position and update debug
-    window.addEventListener('scroll', () => {
-        updateSection2Frame();
-        keepFrozen();
-        updateDebugInfo();
-    }, { passive: true });
+    // Initial update
+    onScroll();
 
-    // Continuous update for Lottie frame progress (even when not scrolling)
+    // Continuous debug update
     function animationLoop() {
         updateDebugInfo();
         requestAnimationFrame(animationLoop);
