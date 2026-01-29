@@ -337,8 +337,9 @@ function initLottie() {
 // ============================================
 
 // The frame where expansion ends and we pause (before explosion)
+// Shapes should reach full screen around 85% of animation, explosion is the last 15%
 function getExpansionEndFrame() {
-    return Math.floor(section2Anim.totalFrames * 0.5); // Pause at 50% of animation
+    return Math.floor(section2Anim.totalFrames * 0.85); // Pause at 85% (frame ~150 of 177)
 }
 
 function startSection2Expansion() {
