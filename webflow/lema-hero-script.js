@@ -47,8 +47,8 @@
                 return;
             }
 
-            const section2Container = document.getElementById('lema-section2-lottie');
-            const section3Container = document.getElementById('lema-section3-lottie');
+            const section2Container = document.getElementById('section2Container');
+            const section3Container = document.getElementById('section3Container');
 
             if (!section2Container || !section3Container) {
                 console.error('Lottie containers not found. Check element IDs.');
@@ -179,7 +179,7 @@
     // ============================================
     function onScroll() {
         // Get Section 2 element
-        const section2El = document.getElementById('lema-section2');
+        const section2El = document.getElementById('section2');
         if (section2El) {
             const s2Progress = getSectionProgress(section2El);
 
@@ -195,7 +195,7 @@
         }
 
         // Section 3: Check visibility and play
-        const section3El = document.getElementById('lema-section3');
+        const section3El = document.getElementById('section3');
         if (section3El) {
             const s3Progress = getSectionProgress(section3El);
 
