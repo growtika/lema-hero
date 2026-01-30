@@ -16,8 +16,8 @@
 
         // Section 2 triggers (based on how far section 2 is scrolled into view)
         // 0 = just entered viewport, 50 = middle of viewport, 100 = leaving viewport
-        SECTION2_EXPANSION_TRIGGER: 20,  // Start expansion when 20% into section 2
-        SECTION2_EXPLOSION_TRIGGER: 50,  // Trigger explosion when 50% into section 2
+        SECTION2_EXPANSION_TRIGGER: 15,  // Start expansion when 15% into section 2
+        SECTION2_EXPLOSION_TRIGGER: 30,  // Trigger explosion when 30% into section 2
 
         // Section 3 trigger
         SECTION3_PLAY_TRIGGER: 30,       // Section 3 plays when 30% visible
