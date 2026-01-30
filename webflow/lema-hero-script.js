@@ -14,13 +14,15 @@
         SECTION2_LOTTIE: 'https://growtika.github.io/lema-hero/Section_02_v01.json',
         SECTION3_LOTTIE: 'https://growtika.github.io/lema-hero/Section_3_v3.json',
 
-        // Scroll trigger points (page scroll %)
-        SECTION2_EXPANSION_TRIGGER: 30,  // Start expansion at 30% scroll
-        SECTION2_EXPLOSION_TRIGGER: 35,  // Trigger explosion at 35% scroll
+        // Section 2 triggers (based on how far section 2 is scrolled into view)
+        // 0 = just entered viewport, 50 = middle of viewport, 100 = leaving viewport
+        SECTION2_EXPANSION_TRIGGER: 20,  // Start expansion when 20% into section 2
+        SECTION2_EXPLOSION_TRIGGER: 50,  // Trigger explosion when 50% into section 2
+
+        // Section 3 trigger
         SECTION3_PLAY_TRIGGER: 30,       // Section 3 plays when 30% visible
 
         // Animation settings
-        EXPLOSION_SPEED: 1.5,            // Explosion speed multiplier
         EXPANSION_PAUSE_FRAME: 0.30      // Pause at 30% of Lottie frames
     };
 
@@ -125,7 +127,6 @@
         section2Exploded = true;
 
         console.log('LEMA: Triggering explosion');
-        section2Anim.setSpeed(LEMA_CONFIG.EXPLOSION_SPEED);
 
         if (!section2Started) {
             section2Started = true;
@@ -159,29 +160,44 @@
     }
 
     // ============================================
+    // HELPER: Calculate section visibility progress
+    // Returns 0-100 based on how far the section has scrolled into view
+    // ============================================
+    function getSectionProgress(element) {
+        const rect = element.getBoundingClientRect();
+        const viewportHeight = window.innerHeight;
+
+        // Calculate progress: 0 when section top enters viewport bottom,
+        // 100 when section top reaches viewport top
+        const progress = ((viewportHeight - rect.top) / viewportHeight) * 100;
+
+        return Math.max(0, Math.min(100, progress));
+    }
+
+    // ============================================
     // SCROLL HANDLER
     // ============================================
     function onScroll() {
-        const scrollY = window.scrollY;
-        const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-        const totalScrollPct = (scrollY / docHeight) * 100;
+        // Get Section 2 element
+        const section2El = document.getElementById('lema-section2');
+        if (section2El) {
+            const s2Progress = getSectionProgress(section2El);
 
-        // Section 2: Start expansion
-        if (totalScrollPct >= LEMA_CONFIG.SECTION2_EXPANSION_TRIGGER && !section2Started) {
-            startSection2Expansion();
-        }
+            // Section 2: Start expansion when section enters viewport
+            if (s2Progress >= LEMA_CONFIG.SECTION2_EXPANSION_TRIGGER && !section2Started) {
+                startSection2Expansion();
+            }
 
-        // Section 2: Trigger explosion
-        if (totalScrollPct >= LEMA_CONFIG.SECTION2_EXPLOSION_TRIGGER && !section2Exploded) {
-            triggerSection2Explosion();
+            // Section 2: Trigger explosion when scrolled further
+            if (s2Progress >= LEMA_CONFIG.SECTION2_EXPLOSION_TRIGGER && !section2Exploded) {
+                triggerSection2Explosion();
+            }
         }
 
         // Section 3: Check visibility and play
         const section3El = document.getElementById('lema-section3');
         if (section3El) {
-            const section3Rect = section3El.getBoundingClientRect();
-            const viewportHeight = window.innerHeight;
-            const s3Progress = ((viewportHeight - section3Rect.top) / (viewportHeight + section3Rect.height)) * 100;
+            const s3Progress = getSectionProgress(section3El);
 
             if (s3Progress >= LEMA_CONFIG.SECTION3_PLAY_TRIGGER && !section3Played) {
                 playSection3();
